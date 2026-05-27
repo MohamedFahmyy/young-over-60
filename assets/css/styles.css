@@ -590,7 +590,8 @@ html.acc-high-contrast .nav-link::after {
 
 /* --- Brand Introduction --- */
 .intro-section {
-  padding: 6rem 0;
+  padding-top: 6rem;
+  padding-bottom: 6rem;
 }
 
 .intro-grid {
@@ -747,7 +748,8 @@ html.acc-high-contrast .nav-link::after {
 
 /* --- Special Needs Grid --- */
 .needs-section {
-  padding: 6rem 0;
+  padding-top: 6rem;
+  padding-bottom: 6rem;
   border-top: 1px solid var(--accent-color);
 }
 
@@ -859,7 +861,8 @@ html.acc-high-contrast .nav-link::after {
 
 /* --- Filterable Story Grid --- */
 .filterable-section {
-  padding: 6rem 0;
+  padding-top: 6rem;
+  padding-bottom: 6rem;
   border-top: 1px solid var(--accent-color);
 }
 
@@ -3032,7 +3035,8 @@ img {
   .footer-section,
   .content-list-section,
   .post-layout-grid {
-    padding: 3.5rem 0 !important;
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
   }
   
   /* Polaroid cards on very small viewports */
@@ -3165,10 +3169,10 @@ img {
 }
 
 .hero-slide-subtitle {
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.3em;
   color: #ffffff;
   opacity: 0.9;
   margin-bottom: 1.5rem;
@@ -3179,7 +3183,7 @@ img {
 
 .hero-slide-title {
   font-family: var(--font-serif);
-  font-size: 3rem;
+  font-size: clamp(2rem, 7vw, 3.25rem);
   font-weight: 300;
   line-height: 1.15;
   margin-bottom: 2rem;
@@ -3191,7 +3195,7 @@ img {
 
 @media (min-width: 768px) {
   .hero-slide-title {
-    font-size: 5rem;
+    font-size: clamp(3.25rem, 6vw, 5.5rem);
   }
 }
 
