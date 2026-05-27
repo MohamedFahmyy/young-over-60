@@ -16,17 +16,22 @@ if (isset($_GET['action']) && $_GET['action'] === 'git_pull') {
     $token = $_GET['csrf_token'] ?? '';
     
     if (verifyCsrf($token)) {
-        $output = [];
-        $return_var = 1;
-        exec("git pull origin master 2>&1", $output, $return_var);
-        
-        $git_output = implode("\n", $output);
-        if ($return_var === 0) {
-            $_SESSION['admin_flash_success'] = "System successfully updated from GitHub repository!";
+        if (!function_exists('exec')) {
+            $_SESSION['admin_flash_error'] = "The Git pull feature is not supported on your server because the PHP function 'exec()' is disabled by your host (Hostinger). Please pull updates or deploy changes manually.";
+            $git_output = "Error: PHP execution function 'exec()' is disabled in hosting configurations.";
         } else {
-            $_SESSION['admin_flash_error'] = "Git pull failed: " . $git_output;
+            $output = [];
+            $return_var = 1;
+            @exec("git pull origin master 2>&1", $output, $return_var);
+            
+            $git_output = implode("\n", $output);
+            if ($return_var === 0) {
+                $_SESSION['admin_flash_success'] = "System successfully updated from GitHub repository!";
+            } else {
+                $_SESSION['admin_flash_error'] = "Git pull failed: " . $git_output;
+            }
+            $pm->clearCache();
         }
-        $pm->clearCache();
     } else {
         $_SESSION['admin_flash_error'] = "Security check failed. Unable to pull updates.";
         $git_output = "CSRF Verification Failed.";
