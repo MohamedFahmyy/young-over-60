@@ -11,6 +11,30 @@ if (isset($_GET['logout'])) {
 
 $pm = new PostManager();
 
+// Handle Git Pull updates
+if (isset($_GET['action']) && $_GET['action'] === 'git_pull') {
+    $token = $_GET['csrf_token'] ?? '';
+    
+    if (verifyCsrf($token)) {
+        $output = [];
+        $return_var = 1;
+        exec("git pull origin master 2>&1", $output, $return_var);
+        
+        $git_output = implode("\n", $output);
+        if ($return_var === 0) {
+            $_SESSION['admin_flash_success'] = "System successfully updated from GitHub repository!";
+        } else {
+            $_SESSION['admin_flash_error'] = "Git pull failed: " . $git_output;
+        }
+        $pm->clearCache();
+    } else {
+        $_SESSION['admin_flash_error'] = "Security check failed. Unable to pull updates.";
+        $git_output = "CSRF Verification Failed.";
+    }
+    header("Location: " . BASE_URL . "/admin/dashboard?pull_result=" . urlencode($git_output));
+    exit();
+}
+
 // Handle Post Soft Deletion
 if (isset($_GET['action']) && $_GET['action'] === 'delete') {
     $postId = $_GET['id'] ?? '';
@@ -56,10 +80,27 @@ require_once PATH_ROOT . '/includes/header.php';
                 <h1 class="admin-title">Dashboard</h1>
                 <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;">Overview of site metrics and recent content logs.</p>
             </div>
-            <a href="<?php echo BASE_URL; ?>/admin/add-post" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none;">
-                Create New Story
-            </a>
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <a href="<?php echo BASE_URL; ?>/admin/dashboard?action=git_pull&csrf_token=<?php echo csrfToken(); ?>" class="btn-primary" style="background-color: #10b981; border-color: #10b981; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;" onclick="this.style.opacity='0.6'; this.textContent='Pulling...';">
+                    <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Update Site (Git Pull)
+                </a>
+                <a href="<?php echo BASE_URL; ?>/admin/add-post" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none;">
+                    Create New Story
+                </a>
+            </div>
         </div>
+
+        <!-- Git Pull Output -->
+        <?php if (isset($_GET['pull_result'])): ?>
+            <div class="admin-card-box" style="margin-bottom: 2rem; border-left: 4px solid var(--primary-color);">
+                <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
+                    <svg style="width:1.25rem; height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Git Update Log
+                </h3>
+                <pre style="background: #1e293b; color: #f8fafc; padding: 1.25rem; border-radius: 8px; font-family: monospace; font-size: 0.75rem; white-space: pre-wrap; overflow-x: auto; line-height: 1.5; margin: 0;"><?php echo e($_GET['pull_result']); ?></pre>
+            </div>
+        <?php endif; ?>
 
         <!-- Flash messages -->
         <?php if (isset($_SESSION['admin_flash_success'])): ?>
