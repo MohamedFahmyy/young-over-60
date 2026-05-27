@@ -219,7 +219,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             <span style="font-size: 0.55rem; color:#999; display:block; margin-top:0.25rem;">PNG, JPG, WebP, SVG (Max 2MB)</span>
                             <input type="file" id="logoDarkFileSelector" accept="image/*" style="display:none;" />
                             <div id="logoDarkStatusText" style="font-size:0.65rem; color: var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
-                            <img id="logoDarkPreview" src="<?php echo $settings['logoDarkUrl'] ? BASE_URL . $settings['logoDarkUrl'] : ''; ?>" style="display: <?php echo $settings['logoDarkUrl'] ? 'inline-block' : 'none'; ?>; max-height: 50px; max-width: 100%; object-fit: contain; margin-top: 1rem; border-radius: 4px; background: #222; padding: 0.25rem;" />
+                            <img id="logoDarkPreview" src="<?php echo !empty($settings['logoDarkUrl']) ? BASE_URL . $settings['logoDarkUrl'] : ''; ?>" style="display: <?php echo !empty($settings['logoDarkUrl']) ? 'inline-block' : 'none'; ?>; max-height: 50px; max-width: 100%; object-fit: contain; margin-top: 1rem; border-radius: 4px; background: #222; padding: 0.25rem;" />
                         </div>
                     </div>
 
