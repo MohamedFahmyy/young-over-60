@@ -223,18 +223,18 @@ require_once PATH_ROOT . '/includes/navbar.php';
 <section class="needs-section container" data-scroll-reveal>
     <div class="section-header">
         <span class="section-label">Quick Access</span>
-        <h3 class="serif-title">Explore by <span class="italic">Special Needs</span></h3>
+        <h3 class="serif-title">Tailored for <span class="italic">Seniors</span></h3>
     </div>
     
     <div class="needs-grid">
         <?php
         $needsCategories = [
-            ['title' => 'Assistance Animals', 'slug' => 'assistance-animals', 'image' => '/images/animals.png'],
-            ['title' => 'Blind / Low Vision', 'slug' => 'blind-low-vision', 'image' => '/images/vision.png'],
-            ['title' => 'Mental Health', 'slug' => 'hidden-disabilities', 'image' => '/images/mental.png'],
-            ['title' => 'Neurodiversity', 'slug' => 'neurodiversity', 'image' => '/images/neurodiversity.png'],
-            ['title' => 'Physical / Mobility', 'slug' => 'physical-mobility', 'image' => '/images/mobility.png'],
-            ['title' => 'Sensory Needs', 'slug' => 'sensory-needs', 'image' => '/images/sensory.png']
+            ['title' => 'Mobility & Ease', 'slug' => 'physical-mobility', 'image' => '/images/mobility.png'],
+            ['title' => 'Scenic Cruises', 'slug' => 'cruises', 'image' => '/images/europe.png'],
+            ['title' => 'Comfort Lodging', 'slug' => 'accommodation', 'image' => '/images/hero-bg.png'],
+            ['title' => 'Support & Gear', 'slug' => 'gear', 'image' => '/images/hero-bg.png'],
+            ['title' => 'Quiet & Sensory Spaces', 'slug' => 'sensory-needs', 'image' => '/images/sensory.png'],
+            ['title' => 'Senior Travel Tips', 'slug' => 'tips-tricks', 'image' => '/images/australia.png']
         ];
         foreach ($needsCategories as $cat):
             ?>
