@@ -355,7 +355,7 @@ class PostManager {
                 WHERE id = 1";
         
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
+        $params = [
             'siteName' => $data['siteName'],
             'logoUrl' => !empty($data['logoUrl']) ? $data['logoUrl'] : null,
             'logoDarkUrl' => !empty($data['logoDarkUrl']) ? $data['logoDarkUrl'] : null,
@@ -369,7 +369,23 @@ class PostManager {
             'accentColor' => $data['accentColor'] ?? '#eaeaea',
             'backgroundColor' => $data['backgroundColor'] ?? '#ffffff',
             'textColor' => $data['textColor'] ?? '#111111'
-        ]);
+        ];
+
+        try {
+            return $stmt->execute($params);
+        } catch (PDOException $e) {
+            // Check if error is missing column (code 42S22 or message contains logoDarkUrl)
+            if ($e->getCode() == '42S22' || str_contains($e->getMessage(), 'logoDarkUrl')) {
+                try {
+                    $this->db->exec("ALTER TABLE site_settings ADD COLUMN logoDarkUrl VARCHAR(255) DEFAULT NULL AFTER logoUrl");
+                    // Retry execution after self-healing migration
+                    return $stmt->execute($params);
+                } catch (PDOException $innerEx) {
+                    throw $e; // throw original if we fail to alter
+                }
+            }
+            throw $e;
+        }
     }
 
     // --- Submissions & Newsletter Helpers ---

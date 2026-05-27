@@ -142,6 +142,7 @@ CREATE TABLE `site_settings` (
   `id` INT PRIMARY KEY DEFAULT 1,
   `siteName` VARCHAR(255) NOT NULL DEFAULT 'Travel Without Limits',
   `logoUrl` VARCHAR(255) DEFAULT NULL,
+  `logoDarkUrl` VARCHAR(255) DEFAULT NULL,
   `heroBackgroundUrl` VARCHAR(255) DEFAULT NULL,
   `metaTitle` VARCHAR(255) DEFAULT NULL,
   `metaDescription` TEXT DEFAULT NULL,
