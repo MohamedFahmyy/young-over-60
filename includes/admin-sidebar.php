@@ -64,6 +64,11 @@ $route = $_GET['route'] ?? '';
             </a>
         </li>
         <li>
+            <a href="<?php echo BASE_URL; ?>/admin/reset-db" class="admin-nav-link <?php echo str_contains($route, 'admin/reset-db') ? 'active' : ''; ?>" style="color: #ef4444; opacity: 0.85;">
+                Reset DB
+            </a>
+        </li>
+        <li>
             <a href="<?php echo BASE_URL; ?>/" target="_blank" class="admin-nav-link">
                 View Website
             </a>

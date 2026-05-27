@@ -27,7 +27,7 @@ $parts = explode('/', $route);
 $base = $parts[0] ?? '';
 
 // 4. Perform MVC-style page routing
-if ($base === '') {
+if ($base === '' || $base === 'home') {
     // 4.1 Home Page
     require_once __DIR__ . '/pages/home.php';
 } elseif ($base === 'destinations') {
