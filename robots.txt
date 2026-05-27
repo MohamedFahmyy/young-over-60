@@ -1,0 +1,10 @@
+# robots.txt
+# Travel Without Limits search crawler configurations
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /cache/
+
+Sitemap: sitemap.xml
