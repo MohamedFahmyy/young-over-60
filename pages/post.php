@@ -60,11 +60,11 @@ require_once PATH_ROOT . '/includes/navbar.php';
     
     <div class="container post-hero-content" data-scroll-reveal>
         <!-- Breadcrumbs inside Hero -->
-        <nav aria-label="Breadcrumb" style="margin-bottom: 2rem;">
-            <ol class="breadcrumbs-list" style="color: rgba(255,255,255,0.6);">
-                <li><a href="<?php echo BASE_URL; ?>/" style="color: inherit;">Home</a></li>
+        <nav aria-label="Breadcrumb" class="post-hero-breadcrumb">
+            <ol class="breadcrumbs-list" style="color: rgba(255,255,255,0.7);">
+                <li><a href="<?php echo BASE_URL; ?>/">Home</a></li>
                 <li class="breadcrumb-separator">/</li>
-                <li><a href="<?php echo BASE_URL; ?>/category/<?php echo e($post['categorySlug']); ?>" style="color: inherit;"><?php echo e($post['categoryName']); ?></a></li>
+                <li><a href="<?php echo BASE_URL; ?>/category/<?php echo e($post['categorySlug']); ?>"><?php echo e($post['categoryName']); ?></a></li>
             </ol>
         </nav>
         
@@ -116,7 +116,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
         </aside>
 
         <!-- Main Body -->
-        <div style="max-width: 720px; width: 100%;">
+        <div class="post-content-column">
             <!-- Content -->
             <article class="post-prose animate-in fade-in" data-scroll-reveal>
                 <?php echo $processedContent; ?>
@@ -163,17 +163,17 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
     <!-- Related / Recommended Posts -->
     <?php if (!empty($relatedPosts)): ?>
-        <section style="padding: 6rem 0; border-top: 1px solid var(--accent-color);">
-            <div class="content-list-header" data-scroll-reveal>
-                <h3 class="serif-title" style="font-size: 1.75rem; margin:0;">Recommended Reading</h3>
-                <a href="<?php echo BASE_URL; ?>/category/<?php echo e($post['categorySlug']); ?>" class="btn-underline" style="margin:0;">
+        <section class="related-posts-section">
+            <div class="related-posts-header-row" data-scroll-reveal>
+                <h3 class="serif-title" style="margin: 0;">Recommended Reading</h3>
+                <a href="<?php echo BASE_URL; ?>/category/<?php echo e($post['categorySlug']); ?>" class="btn-underline">
                     Explore more in <?php echo e($post['categoryName']); ?>
                 </a>
             </div>
             
             <div class="story-grid">
                 <?php foreach ($relatedPosts as $relPost): ?>
-                    <?php renderPostCard($relPost); ?>
+                    <?php renderPostCard($relPost, 'landscape'); ?>
                 <?php endforeach; ?>
             </div>
         </section>
@@ -181,8 +181,8 @@ require_once PATH_ROOT . '/includes/navbar.php';
 </main>
 
 <script>
-    // Toc Tracking Scroll Script
     window.addEventListener('DOMContentLoaded', () => {
+        // TOC Tracking Scroll Script
         const links = document.querySelectorAll('.toc-item-link');
         const sections = Array.from(links).map(link => document.querySelector(link.getAttribute('href')));
         
@@ -204,6 +204,18 @@ require_once PATH_ROOT . '/includes/navbar.php';
                 }
             });
         });
+
+        // Reading Progress Bar Logic
+        const progressBar = document.querySelector('.reading-progress-bar');
+        if (progressBar) {
+            window.addEventListener('scroll', () => {
+                const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+                if (totalHeight > 0) {
+                    const progress = (window.scrollY / totalHeight) * 100;
+                    progressBar.style.width = progress + '%';
+                }
+            });
+        }
     });
 </script>
 

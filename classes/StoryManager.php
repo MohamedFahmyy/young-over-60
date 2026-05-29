@@ -26,17 +26,19 @@ class StoryManager {
         $binds = [];
 
         if ($search) {
-            $sql .= " AND (title LIKE :search1 OR excerpt LIKE :search2 OR content LIKE :search3)";
-            $countSql .= " AND (title LIKE :search1 OR excerpt LIKE :search2 OR content LIKE :search3)";
+            $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+            $sql .= " AND (title_{$lang} LIKE :search1 OR excerpt_{$lang} LIKE :search2 OR content_{$lang} LIKE :search3)";
+            $countSql .= " AND (title_{$lang} LIKE :search1 OR excerpt_{$lang} LIKE :search2 OR content_{$lang} LIKE :search3)";
             $binds['search1'] = '%' . $search . '%';
             $binds['search2'] = '%' . $search . '%';
             $binds['search3'] = '%' . $search . '%';
         }
 
         if ($category) {
-            $sql .= " AND category = :category";
-            $countSql .= " AND category = :category";
-            $binds['category'] = $category;
+            $sql .= " AND (category_en = :category_en OR category_ar = :category_ar)";
+            $countSql .= " AND (category_en = :category_en OR category_ar = :category_ar)";
+            $binds['category_en'] = $category;
+            $binds['category_ar'] = $category;
         }
 
         // Count total matching items
@@ -71,7 +73,8 @@ class StoryManager {
 
     // Get distinct categories of stories
     public function getCategories() {
-        $stmt = $this->db->query("SELECT DISTINCT category FROM women_stories WHERE category IS NOT NULL AND category != '' ORDER BY category ASC");
+        $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+        $stmt = $this->db->query("SELECT DISTINCT category_{$lang} FROM women_stories WHERE category_{$lang} IS NOT NULL AND category_{$lang} != '' ORDER BY category_{$lang} ASC");
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
@@ -82,52 +85,76 @@ class StoryManager {
     }
 
     public function getStoryBySlug($slug) {
-        $stmt = $this->db->prepare("SELECT * FROM women_stories WHERE slug = :slug LIMIT 1");
-        $stmt->execute(['slug' => $slug]);
+        $stmt = $this->db->prepare("SELECT * FROM women_stories WHERE slug_en = :slug_en OR slug_ar = :slug_ar LIMIT 1");
+        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug]);
         return $stmt->fetch();
     }
 
     public function createStory($data) {
         $id = bin2hex(random_bytes(16));
-        $sql = "INSERT INTO women_stories (id, title, slug, excerpt, content, cover_image, category, author, read_time) 
-                VALUES (:id, :title, :slug, :excerpt, :content, :cover_image, :category, :author, :read_time)";
+        $sql = "INSERT INTO women_stories (id, title_en, title_ar, slug_en, slug_ar, excerpt_en, excerpt_ar, content_en, content_ar, cover_image, alt_text_en, alt_text_ar, category_en, category_ar, author_en, author_ar, read_time) 
+                VALUES (:id, :title_en, :title_ar, :slug_en, :slug_ar, :excerpt_en, :excerpt_ar, :content_en, :content_ar, :cover_image, :alt_text_en, :alt_text_ar, :category_en, :category_ar, :author_en, :author_ar, :read_time)";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'id' => $id,
-            'title' => $data['title'],
-            'slug' => $data['slug'],
-            'excerpt' => $data['excerpt'] ?? null,
-            'content' => $data['content'],
+            'title_en' => $data['title_en'],
+            'title_ar' => $data['title_ar'] ?? null,
+            'slug_en' => $data['slug_en'],
+            'slug_ar' => $data['slug_ar'] ?? null,
+            'excerpt_en' => $data['excerpt_en'] ?? null,
+            'excerpt_ar' => $data['excerpt_ar'] ?? null,
+            'content_en' => $data['content_en'],
+            'content_ar' => $data['content_ar'] ?? null,
             'cover_image' => $data['cover_image'] ?? null,
-            'category' => $data['category'] ?? null,
-            'author' => $data['author'] ?? 'Guest Writer',
+            'alt_text_en' => $data['alt_text_en'] ?? null,
+            'alt_text_ar' => $data['alt_text_ar'] ?? null,
+            'category_en' => $data['category_en'] ?? null,
+            'category_ar' => $data['category_ar'] ?? null,
+            'author_en' => $data['author_en'] ?? 'Guest Writer',
+            'author_ar' => $data['author_ar'] ?? null,
             'read_time' => $data['read_time'] ?? null
         ]);
     }
 
     public function updateStory($id, $data) {
         $sql = "UPDATE women_stories SET 
-                title = :title, 
-                slug = :slug, 
-                excerpt = :excerpt, 
-                content = :content, 
+                title_en = :title_en, 
+                title_ar = :title_ar, 
+                slug_en = :slug_en, 
+                slug_ar = :slug_ar, 
+                excerpt_en = :excerpt_en, 
+                excerpt_ar = :excerpt_ar, 
+                content_en = :content_en, 
+                content_ar = :content_ar, 
                 cover_image = :cover_image, 
-                category = :category, 
-                author = :author, 
+                alt_text_en = :alt_text_en,
+                alt_text_ar = :alt_text_ar,
+                category_en = :category_en, 
+                category_ar = :category_ar, 
+                author_en = :author_en, 
+                author_ar = :author_ar, 
                 read_time = :read_time
                 WHERE id = :id";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'id' => $id,
-            'title' => $data['title'],
-            'slug' => $data['slug'],
-            'excerpt' => $data['excerpt'] ?? null,
-            'content' => $data['content'],
+            'title_en' => $data['title_en'],
+            'title_ar' => $data['title_ar'] ?? null,
+            'slug_en' => $data['slug_en'],
+            'slug_ar' => $data['slug_ar'] ?? null,
+            'excerpt_en' => $data['excerpt_en'] ?? null,
+            'excerpt_ar' => $data['excerpt_ar'] ?? null,
+            'content_en' => $data['content_en'],
+            'content_ar' => $data['content_ar'] ?? null,
             'cover_image' => $data['cover_image'] ?? null,
-            'category' => $data['category'] ?? null,
-            'author' => $data['author'] ?? 'Guest Writer',
+            'alt_text_en' => $data['alt_text_en'] ?? null,
+            'alt_text_ar' => $data['alt_text_ar'] ?? null,
+            'category_en' => $data['category_en'] ?? null,
+            'category_ar' => $data['category_ar'] ?? null,
+            'author_en' => $data['author_en'] ?? 'Guest Writer',
+            'author_ar' => $data['author_ar'] ?? null,
             'read_time' => $data['read_time'] ?? null
         ]);
     }

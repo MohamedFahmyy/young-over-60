@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `podcasts`;
 DROP TABLE IF EXISTS `women_stories`;
 DROP TABLE IF EXISTS `hero_slides`;
+DROP TABLE IF EXISTS `testimonials`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 1. Users Table
@@ -39,23 +40,35 @@ CREATE TABLE `users` (
 -- 2. Categories Table
 CREATE TABLE `categories` (
   `id` VARCHAR(36) PRIMARY KEY,
-  `name` VARCHAR(255) NOT NULL,
-  `slug` VARCHAR(255) NOT NULL UNIQUE,
-  `description` TEXT DEFAULT NULL,
+  `name_en` VARCHAR(255) NOT NULL,
+  `name_ar` VARCHAR(255) DEFAULT NULL,
+  `slug_en` VARCHAR(255) NOT NULL UNIQUE,
+  `slug_ar` VARCHAR(255) DEFAULT NULL UNIQUE,
+  `description_en` TEXT DEFAULT NULL,
+  `description_ar` TEXT DEFAULT NULL,
   `image` VARCHAR(255) DEFAULT NULL,
+  `alt_text_en` VARCHAR(255) DEFAULT NULL,
+  `alt_text_ar` VARCHAR(255) DEFAULT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX `idx_categories_slug` (`slug`)
+  INDEX `idx_categories_slug_en` (`slug_en`),
+  INDEX `idx_categories_slug_ar` (`slug_ar`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. Posts Table
 CREATE TABLE `posts` (
   `id` VARCHAR(36) PRIMARY KEY,
-  `title` VARCHAR(255) NOT NULL,
-  `slug` VARCHAR(255) NOT NULL UNIQUE,
-  `excerpt` TEXT DEFAULT NULL,
-  `content` LONGTEXT NOT NULL,
+  `title_en` VARCHAR(255) NOT NULL,
+  `title_ar` VARCHAR(255) DEFAULT NULL,
+  `slug_en` VARCHAR(255) NOT NULL UNIQUE,
+  `slug_ar` VARCHAR(255) DEFAULT NULL UNIQUE,
+  `excerpt_en` TEXT DEFAULT NULL,
+  `excerpt_ar` TEXT DEFAULT NULL,
+  `content_en` LONGTEXT NOT NULL,
+  `content_ar` LONGTEXT DEFAULT NULL,
   `coverImage` VARCHAR(255) DEFAULT NULL,
+  `alt_text_en` VARCHAR(255) DEFAULT NULL,
+  `alt_text_ar` VARCHAR(255) DEFAULT NULL,
   `isFeatured` TINYINT(1) NOT NULL DEFAULT 0,
   `status` VARCHAR(50) NOT NULL DEFAULT 'DRAFT',
   `publishedAt` DATETIME DEFAULT NULL,
@@ -64,10 +77,13 @@ CREATE TABLE `posts` (
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` DATETIME DEFAULT NULL,
-  INDEX `idx_posts_slug` (`slug`),
+  INDEX `idx_posts_slug_en` (`slug_en`),
+  INDEX `idx_posts_slug_ar` (`slug_ar`),
   INDEX `idx_posts_category` (`categoryId`),
   INDEX `idx_posts_status` (`status`),
   INDEX `idx_posts_published` (`publishedAt`),
+  FULLTEXT INDEX `ft_posts_search_en` (`title_en`, `content_en`),
+  FULLTEXT INDEX `ft_posts_search_ar` (`title_ar`, `content_ar`),
   FOREIGN KEY (`categoryId`) REFERENCES `categories` (`id`) ON DELETE RESTRICT,
   FOREIGN KEY (`authorId`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -92,7 +108,8 @@ CREATE TABLE `newsletters` (
 -- 6. Menus Table
 CREATE TABLE `menus` (
   `id` VARCHAR(36) PRIMARY KEY,
-  `title` VARCHAR(255) NOT NULL,
+  `title_en` VARCHAR(255) NOT NULL,
+  `title_ar` VARCHAR(255) DEFAULT NULL,
   `slug` VARCHAR(255) NOT NULL UNIQUE,
   `type` VARCHAR(50) NOT NULL, -- e.g. MEGA, SIMPLE
   `layoutType` VARCHAR(50) NOT NULL DEFAULT 'LIST', -- e.g. LIST, GRID
@@ -107,7 +124,8 @@ CREATE TABLE `menus` (
 CREATE TABLE `menu_sections` (
   `id` VARCHAR(36) PRIMARY KEY,
   `menuId` VARCHAR(36) NOT NULL,
-  `title` VARCHAR(255) NOT NULL,
+  `title_en` VARCHAR(255) NOT NULL,
+  `title_ar` VARCHAR(255) DEFAULT NULL,
   `order` INT NOT NULL DEFAULT 0,
   `isActive` TINYINT(1) NOT NULL DEFAULT 1,
   FOREIGN KEY (`menuId`) REFERENCES `menus` (`id`) ON DELETE CASCADE
@@ -117,7 +135,8 @@ CREATE TABLE `menu_sections` (
 CREATE TABLE `menu_links` (
   `id` VARCHAR(36) PRIMARY KEY,
   `sectionId` VARCHAR(36) NOT NULL,
-  `title` VARCHAR(255) NOT NULL,
+  `title_en` VARCHAR(255) NOT NULL,
+  `title_ar` VARCHAR(255) DEFAULT NULL,
   `url` VARCHAR(255) NOT NULL,
   `image` VARCHAR(255) DEFAULT NULL,
   `order` INT NOT NULL DEFAULT 0,
@@ -131,7 +150,8 @@ CREATE TABLE `menu_banners` (
   `id` VARCHAR(36) PRIMARY KEY,
   `menuId` VARCHAR(36) NOT NULL,
   `image` VARCHAR(255) NOT NULL,
-  `title` VARCHAR(255) DEFAULT NULL,
+  `title_en` VARCHAR(255) DEFAULT NULL,
+  `title_ar` VARCHAR(255) DEFAULT NULL,
   `url` VARCHAR(255) DEFAULT NULL,
   `isActive` TINYINT(1) NOT NULL DEFAULT 1,
   FOREIGN KEY (`menuId`) REFERENCES `menus` (`id`) ON DELETE CASCADE
@@ -140,19 +160,35 @@ CREATE TABLE `menu_banners` (
 -- 10. Site Settings Table (Singleton, id=1)
 CREATE TABLE `site_settings` (
   `id` INT PRIMARY KEY DEFAULT 1,
-  `siteName` VARCHAR(255) NOT NULL DEFAULT 'Travel Without Limits',
+  `siteName_en` VARCHAR(255) NOT NULL DEFAULT 'Travel Without Limits',
+  `siteName_ar` VARCHAR(255) DEFAULT NULL,
   `logoUrl` VARCHAR(255) DEFAULT NULL,
   `logoDarkUrl` VARCHAR(255) DEFAULT NULL,
-  `heroBackgroundUrl` VARCHAR(255) DEFAULT NULL,
-  `metaTitle` VARCHAR(255) DEFAULT NULL,
-  `metaDescription` TEXT DEFAULT NULL,
+  `heroBackgroundUrl_en` VARCHAR(255) DEFAULT NULL,
+  `heroBackgroundUrl_ar` VARCHAR(255) DEFAULT NULL,
+  `metaTitle_en` VARCHAR(255) DEFAULT NULL,
+  `metaTitle_ar` VARCHAR(255) DEFAULT NULL,
+  `metaDescription_en` TEXT DEFAULT NULL,
+  `metaDescription_ar` TEXT DEFAULT NULL,
   `ogImage` VARCHAR(255) DEFAULT NULL,
   `faviconUrl` VARCHAR(255) DEFAULT NULL,
-  `primaryColor` VARCHAR(50) NOT NULL DEFAULT '#2d5a88',
+  `primaryColor` VARCHAR(50) NOT NULL DEFAULT '#0F4C81',
   `secondaryColor` VARCHAR(50) NOT NULL DEFAULT '#1e3c5a',
-  `accentColor` VARCHAR(50) NOT NULL DEFAULT '#eaeaea',
-  `backgroundColor` VARCHAR(50) NOT NULL DEFAULT '#ffffff',
-  `textColor` VARCHAR(50) NOT NULL DEFAULT '#111111',
+  `accentColor` VARCHAR(50) NOT NULL DEFAULT '#D4A75C',
+  `backgroundColor` VARCHAR(50) NOT NULL DEFAULT '#F8F6F2',
+  `textColor` VARCHAR(50) NOT NULL DEFAULT '#1F1F1F',
+  `surfaceColor` VARCHAR(50) NOT NULL DEFAULT '#ffffff',
+  `borderColor` VARCHAR(50) NOT NULL DEFAULT 'rgba(0,0,0,0.05)',
+  `themeMode` VARCHAR(50) NOT NULL DEFAULT 'light',
+  `fontFamily` VARCHAR(255) NOT NULL DEFAULT 'Outfit',
+  `fontFamilyBody` VARCHAR(255) NOT NULL DEFAULT 'Inter',
+  `fontFamilyAr` VARCHAR(255) NOT NULL DEFAULT 'Cairo',
+  `fontFamilyArBody` VARCHAR(255) NOT NULL DEFAULT 'Cairo',
+  `fontSize` VARCHAR(50) NOT NULL DEFAULT '16px',
+  `headingWeight` VARCHAR(50) NOT NULL DEFAULT '700',
+  `bodyWeight` VARCHAR(50) NOT NULL DEFAULT '400',
+  `letterSpacing` VARCHAR(50) NOT NULL DEFAULT 'normal',
+  `lineHeight` VARCHAR(50) NOT NULL DEFAULT '1.8',
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -168,156 +204,198 @@ CREATE TABLE `media` (
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
--- ==========================================
--- SEED DATA
--- ==========================================
-
--- Seed Site Settings
-INSERT INTO `site_settings` (`id`, `siteName`, `logoUrl`, `heroBackgroundUrl`, `metaTitle`, `metaDescription`, `faviconUrl`, `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor`)
-VALUES (1, 'Young Over 60', NULL, '/images/hero-bg.png', 'Young Over 60 | Active Travel & Inspiration', 'Premium accessible travel guides, stories, and reviews tailored for active seniors and travelers over 60.', '/favicon.ico', '#2d5a88', '#1e3c5a', '#eaeaea', '#ffffff', '#111111');
-
--- Seed Admin User (password is bcrypt hashed version of 'Password123')
-INSERT INTO `users` (`id`, `email`, `password`, `name`, `bio`, `avatar`, `role`, `website`)
-VALUES ('admin-uuid-1', 'admin@youngover60.com', '$2y$12$tanBCZuENAxM7yFBhzGIIeIJuZ9Cg0BmL2pqNp72WFRuIpD95ASRa', 'Site Admin', 'A passionate travel enthusiast dedicated to uncovering the world\'s most accessible gems. Sharing stories, tips, and guides to help everyone explore without limits.', '/uploads/admin-avatar.png', 'ADMIN', 'https://youngover60.com');
-
--- Seed Categories
-INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `image`) VALUES
-('cat-australia', 'Australia', 'australia', 'Everything you need to know about Australia and accessible travel.', '/images/australia.png'),
-('cat-nsw', 'New South Wales', 'new-south-wales', 'Everything you need to know about New South Wales and accessible travel.', '/images/hero-bg.png'),
-('cat-victoria', 'Victoria', 'victoria', 'Everything you need to know about Victoria and accessible travel.', '/images/hero-bg.png'),
-('cat-queensland', 'Queensland', 'queensland', 'Everything you need to know about Queensland and accessible travel.', '/images/hero-bg.png'),
-('cat-wa', 'Western Australia', 'western-australia', 'Everything you need to know about Western Australia and accessible travel.', '/images/hero-bg.png'),
-('cat-sa', 'South Australia', 'south-australia', 'Everything you need to know about South Australia and accessible travel.', '/images/hero-bg.png'),
-('cat-tasmania', 'Tasmania', 'tasmania', 'Everything you need to know about Tasmania and accessible travel.', '/images/hero-bg.png'),
-('cat-nt', 'Northern Territory', 'northern-territory', 'Everything you need to know about Northern Territory and accessible travel.', '/images/hero-bg.png'),
-('cat-act', 'ACT', 'australian-capital-territory', 'Everything you need to know about ACT and accessible travel.', '/images/hero-bg.png'),
-('cat-asiapacific', 'Asia Pacific', 'asia-pacific', 'Everything you need to know about Asia Pacific and accessible travel.', '/images/asia.png'),
-('cat-europe', 'Europe', 'europe', 'Everything you need to know about Europe and accessible travel.', '/images/europe.png'),
-('cat-africa', 'Africa', 'africa', 'Everything you need to know about Africa and accessible travel.', '/images/hero-bg.png'),
-('cat-americas', 'Americas', 'americas', 'Everything you need to know about Americas and accessible travel.', '/images/americas.png'),
-('cat-animals', 'Assistance Animals', 'assistance-animals', 'Everything you need to know about Assistance Animals and accessible travel.', '/images/animals.png'),
-('cat-vision', 'Blind / Low Vision', 'blind-low-vision', 'Everything you need to know about Blind / Low Vision and accessible travel.', '/images/vision.png'),
-('cat-deaf', 'Deaf / Hard of Hearing', 'deaf-hard-of-hearing', 'Everything you need to know about Deaf / Hard of Hearing and accessible travel.', '/images/hero-bg.png'),
-('cat-hidden', 'Hidden Disabilities', 'hidden-disabilities', 'Everything you need to know about Hidden Disabilities and accessible travel.', '/images/mental.png'),
-('cat-mobility', 'Physical / Mobility', 'physical-mobility', 'Everything you need to know about Physical / Mobility and accessible travel.', '/images/mobility.png'),
-('cat-sensory', 'Sensory Needs', 'sensory-needs', 'Everything you need to know about Sensory Needs and accessible travel.', '/images/sensory.png'),
-('cat-neurodiversity', 'Neurodiversity', 'neurodiversity', 'Everything you need to know about Neurodiversity and accessible travel.', '/images/neurodiversity.png'),
-('cat-accommodation', 'Accommodation', 'accommodation', 'Everything you need to know about Accommodation and accessible travel.', '/images/hero-bg.png'),
-('cat-events', 'Events & Holidays', 'events-holidays', 'Everything you need to know about Events & Holidays and accessible travel.', '/images/hero-bg.png'),
-('cat-inspiration', 'Inspiration', 'inspiration', 'Everything you need to know about Inspiration and accessible travel.', '/images/hero-bg.png'),
-('cat-reviews', 'Resources & Reviews', 'resources-reviews', 'Everything you need to know about Resources & Reviews and accessible travel.', '/images/hero-bg.png'),
-('cat-tips', 'Tips & Tricks', 'tips-tricks', 'Everything you need to know about Tips & Tricks and accessible travel.', '/images/hero-bg.png'),
-('cat-transport', 'Transport', 'transport', 'Everything you need to know about Transport and accessible travel.', '/images/hero-bg.png'),
-('cat-gear', 'Gear & Support', 'gear', 'Everything you need to know about Gear & Support and accessible travel.', '/images/hero-bg.png'),
-('cat-cruises', 'Cruises', 'cruises', 'Everything you need to know about Cruises and accessible travel.', '/images/europe.png'),
-('cat-family', 'Family Travel', 'family-travel', 'Everything you need to know about Family Travel and accessible travel.', '/images/mobility.png'),
-('cat-food', 'Food & Drink', 'food-drink', 'Everything you need to know about Food & Drink and accessible travel.', '/images/hero-bg.png'),
-('cat-animal-encounters', 'Animal Encounters', 'animal-encounters', 'Everything you need to know about Animal Encounters and accessible travel.', '/images/animals.png');
-
--- Seed Posts
-INSERT INTO `posts` (`id`, `title`, `slug`, `excerpt`, `content`, `coverImage`, `isFeatured`, `status`, `publishedAt`, `categoryId`, `authorId`) VALUES
-('post-turtle', 'On Turtle Time at Mon Repos Turtle Centre', 'on-turtle-time-at-mon-repos-turtle-centre', 'A magical encounter where accessible nature meets wonder. Experience the nesting and hatching of marine turtles in the Bundaberg region.', '<div><p>Kerry Heaney shares a magical moment at Mon Repos Turtle Centre in Queensland, where accessible nature meets wonder. The center is a world-class facility that offers people with mobility needs a front-row seat to the cycle of life.</p><p>From the flat, accessible walkways to the dedicated viewing areas, Mon Repos ensures that everyone can enjoy the spectacular sight of marine turtles nesting and hatching on the beach.</p></div>', '/images/australia.png', 1, 'PUBLISHED', '2026-01-15 20:00:00', 'cat-queensland', 'admin-uuid-1'),
-('post-comedy', 'Laughs for all: Melbourne Comedy Festival 2026', 'laughs-for-all-melbourne-international-comedy-festival-2026', 'With nearly 800 shows and accessibility at its heart, the Melbourne Comedy Festival proves that laughter is for everyone.', '<div><p>The Melbourne International Comedy Festival is one of the most accessible major festivals in Australia. With a dedicated accessibility team and venues and shows designed for diverse audiences, it\'s a model for inclusive entertainment.</p><p>Key features include Auslan-interpreted shows, captioning, and wheelchair accessible venues, ensuring that no one misses out on the fun.</p></div>', '/images/australia.png', 0, 'PUBLISHED', '2026-03-22 10:00:00', 'cat-victoria', 'admin-uuid-1'),
-('post-japan', 'Konichiwa, Japan: Serenity in Vibrancy', 'konichiwa-japan', 'Discovering pockets of serenity and world-class accessibility in Japan\'s vibrant cities, from Kyoto\'s temples to Tokyo\'s neon streets.', '<div><p>Japan is a masterclass in modern accessibility blending with ancient culture. Even in the busiest parts of Tokyo, the tactile paving, accessible subways, and welcoming attitude make it a favorite for travelers with limited mobility.</p><p>Experience the quiet beauty of Kyoto\'s accessible temple grounds or the high-tech inclusive facilities of Osaka.</p></div>', '/images/asia.png', 0, 'PUBLISHED', '2026-04-10 14:30:00', 'cat-asiapacific', 'admin-uuid-1'),
-('post-kosci', 'Georgia’s Krazy Kosci Klimb', 'georgias-krazy-kosci-klimb', 'More than a fundraiser, the Krazy Kosci Klimb empowers young travelers to reach the highest peaks of Australia.', '<div><p>The Krazy Kosci Klimb is a unique event that sees participants with disabilities take on the challenge of reaching the summit of Mount Kosciuszko. It\'s a testament to the fact that with the right support, the sky is the limit.</p><p>This annual event raises crucial funds while providing participants with an experience they will never forget.</p></div>', '/images/mobility.png', 0, 'PUBLISHED', '2026-02-18 09:15:00', 'cat-mobility', 'admin-uuid-1'),
-('post-propose', 'Top 10 Wheelchair Accessible Places to Propose', 'top-10-wheelchair-accessible-places-to-propose', 'Ensure your romantic milestone is perfect for everyone with these stunning, fully-accessible locations around the globe.', '<div><p>A marriage proposal is a moment to be shared and remembered. These ten locations provide the perfect backdrop, from the accessible beaches of Australia to the scenic overlooks of Europe.</p><p>We\'ve curated sites that offer both breathtaking beauty and seamless access, so you can focus on the moment.</p></div>', '/images/hero-bg.png', 0, 'PUBLISHED', '2026-05-01 11:00:00', 'cat-inspiration', 'admin-uuid-1'),
-('post-music', 'A European summer of music and discovery', 'a-european-summer-of-music-and-discovery', 'DJ Cooper Smith shares his journey through Europe\'s most iconic music festivals, proving that music knows no limits.', '<div><p>DJ Cooper Smith and his mum, Bron, took on a whirlwind tour of Europe\'s festivals. From Glastonbury to the streets of Berlin, they explored how the continent is making its music scene more inclusive.</p><p>They found a world of assistive technology, dedicated viewing platforms, and a community of music lovers who embrace accessibility.</p></div>', '/images/europe.png', 0, 'PUBLISHED', '2026-05-20 16:45:00', 'cat-europe', 'admin-uuid-1');
-
--- Seed Navigation Menus
-INSERT INTO `menus` (`id`, `title`, `slug`, `type`, `layoutType`, `order`, `isActive`) VALUES
-('menu-destinations', 'DESTINATIONS', 'destinations', 'MEGA', 'LIST', 1, 1),
-('menu-experiences', 'EXPERIENCES', 'experiences', 'MEGA', 'GRID', 2, 1),
-('menu-plan', 'PLAN YOUR TRIP', 'plan-your-trip', 'MEGA', 'GRID', 3, 1);
-
--- Seed Menu Sections
-INSERT INTO `menu_sections` (`id`, `menuId`, `title`, `order`, `isActive`) VALUES
-('sec-australia', 'menu-destinations', 'AUSTRALIA', 1, 1),
-('sec-americas', 'menu-destinations', 'AMERICAS', 2, 1),
-('sec-experiences', 'menu-experiences', 'ALL EXPERIENCES', 1, 1),
-('sec-plan', 'menu-plan', 'PLANNING HELP', 1, 1);
-
--- Seed Menu Links
-INSERT INTO `menu_links` (`id`, `sectionId`, `title`, `url`, `image`, `order`, `isActive`, `target`) VALUES
--- Destinations Link
-('link-act', 'sec-australia', 'ACT', '/category/australian-capital-territory', NULL, 1, 1, NULL),
-('link-nsw', 'sec-australia', 'NEW SOUTH WALES', '/category/new-south-wales', NULL, 2, 1, NULL),
-('link-nt', 'sec-australia', 'NORTHERN TERRITORY', '/category/northern-territory', NULL, 3, 1, NULL),
-('link-qld', 'sec-australia', 'QUEENSLAND', '/category/queensland', NULL, 4, 1, NULL),
-('link-colo', 'sec-americas', 'COLORADO', '/category/americas', NULL, 1, 1, NULL),
-('link-cali', 'sec-americas', 'CALIFORNIA', '/category/americas', NULL, 2, 1, NULL),
-('link-texas', 'sec-americas', 'TEXAS', '/category/americas', NULL, 3, 1, NULL),
--- Experiences Links (GRID Layout)
-('link-encounters', 'sec-experiences', 'ANIMAL ENCOUNTERS', '/category/animal-encounters', '/images/animals.png', 1, 1, NULL),
-('link-beach', 'sec-experiences', 'BEACH GETAWAYS', '/category/australia', '/images/australia.png', 2, 1, NULL),
-('link-cruises', 'sec-experiences', 'CRUISES', '/category/cruises', '/images/europe.png', 3, 1, NULL),
-('link-family', 'sec-experiences', 'FAMILY TRAVEL', '/category/family-travel', '/images/mobility.png', 4, 1, NULL),
--- Plan Links (GRID Layout)
-('link-accom', 'sec-plan', 'ACCOMMODATION', '/category/accommodation', '/images/hero-bg.png', 1, 1, NULL),
-('link-tips', 'sec-plan', 'TIPS & TRICKS', '/category/tips-tricks', '/images/hero-bg.png', 2, 1, NULL),
-('link-transport', 'sec-plan', 'TRANSPORT', '/category/transport', '/images/hero-bg.png', 3, 1, NULL),
-('link-gear', 'sec-plan', 'GEAR & SUPPORT', '/category/gear', '/images/hero-bg.png', 4, 1, NULL);
-
--- Seed Menu Banner
-INSERT INTO `menu_banners` (`id`, `menuId`, `image`, `title`, `url`, `isActive`) VALUES
-('banner-dest', 'menu-destinations', '/images/hero-bg.png', 'Featured Destination', '/featured', 1);
-
 -- 12. Podcasts Table
-CREATE TABLE IF NOT EXISTS `podcasts` (
+CREATE TABLE `podcasts` (
   `id` VARCHAR(36) PRIMARY KEY,
-  `title` VARCHAR(255) NOT NULL,
-  `slug` VARCHAR(255) NOT NULL UNIQUE,
-  `description` TEXT DEFAULT NULL,
+  `title_en` VARCHAR(255) NOT NULL,
+  `title_ar` VARCHAR(255) DEFAULT NULL,
+  `slug_en` VARCHAR(255) NOT NULL UNIQUE,
+  `slug_ar` VARCHAR(255) DEFAULT NULL UNIQUE,
+  `description_en` TEXT DEFAULT NULL,
+  `description_ar` TEXT DEFAULT NULL,
   `audio_file` VARCHAR(255) NOT NULL,
   `cover_image` VARCHAR(255) DEFAULT NULL,
+  `alt_text_en` VARCHAR(255) DEFAULT NULL,
+  `alt_text_ar` VARCHAR(255) DEFAULT NULL,
   `duration` VARCHAR(50) DEFAULT NULL,
-  `category` VARCHAR(255) DEFAULT NULL,
+  `category_en` VARCHAR(255) DEFAULT NULL,
+  `category_ar` VARCHAR(255) DEFAULT NULL,
   `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
-  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_podcasts_slug_en` (`slug_en`),
+  INDEX `idx_podcasts_slug_ar` (`slug_ar`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 13. Women Stories Table
-CREATE TABLE IF NOT EXISTS `women_stories` (
+CREATE TABLE `women_stories` (
   `id` VARCHAR(36) PRIMARY KEY,
-  `title` VARCHAR(255) NOT NULL,
-  `slug` VARCHAR(255) NOT NULL UNIQUE,
-  `excerpt` TEXT DEFAULT NULL,
-  `content` LONGTEXT NOT NULL,
+  `title_en` VARCHAR(255) NOT NULL,
+  `title_ar` VARCHAR(255) DEFAULT NULL,
+  `slug_en` VARCHAR(255) NOT NULL UNIQUE,
+  `slug_ar` VARCHAR(255) DEFAULT NULL UNIQUE,
+  `excerpt_en` TEXT DEFAULT NULL,
+  `excerpt_ar` TEXT DEFAULT NULL,
+  `content_en` LONGTEXT NOT NULL,
+  `content_ar` LONGTEXT DEFAULT NULL,
   `cover_image` VARCHAR(255) DEFAULT NULL,
-  `category` VARCHAR(100) DEFAULT NULL,
-  `author` VARCHAR(255) DEFAULT NULL,
+  `alt_text_en` VARCHAR(255) DEFAULT NULL,
+  `alt_text_ar` VARCHAR(255) DEFAULT NULL,
+  `category_en` VARCHAR(100) DEFAULT NULL,
+  `category_ar` VARCHAR(100) DEFAULT NULL,
+  `author_en` VARCHAR(255) DEFAULT NULL,
+  `author_ar` VARCHAR(255) DEFAULT NULL,
   `read_time` VARCHAR(50) DEFAULT NULL,
-  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_stories_slug_en` (`slug_en`),
+  INDEX `idx_stories_slug_ar` (`slug_ar`),
+  FULLTEXT INDEX `ft_stories_search_en` (`title_en`, `content_en`),
+  FULLTEXT INDEX `ft_stories_search_ar` (`title_ar`, `content_ar`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 14. Hero Slides Table
-CREATE TABLE IF NOT EXISTS `hero_slides` (
+CREATE TABLE `hero_slides` (
   `id` VARCHAR(36) PRIMARY KEY,
-  `title` VARCHAR(255) NOT NULL,
-  `subtitle` VARCHAR(255) DEFAULT NULL,
-  `button_text` VARCHAR(255) DEFAULT NULL,
+  `title_en` VARCHAR(255) NOT NULL,
+  `title_ar` VARCHAR(255) DEFAULT NULL,
+  `subtitle_en` VARCHAR(255) DEFAULT NULL,
+  `subtitle_ar` VARCHAR(255) DEFAULT NULL,
+  `button_text_en` VARCHAR(255) DEFAULT NULL,
+  `button_text_ar` VARCHAR(255) DEFAULT NULL,
   `button_link` VARCHAR(255) DEFAULT NULL,
-  `image` VARCHAR(255) DEFAULT NULL,
+  `image_en` VARCHAR(255) DEFAULT NULL,
+  `image_ar` VARCHAR(255) DEFAULT NULL,
+  `alt_text_en` VARCHAR(255) DEFAULT NULL,
+  `alt_text_ar` VARCHAR(255) DEFAULT NULL,
   `overlay_opacity` DECIMAL(3,2) NOT NULL DEFAULT 0.50,
   `sort_order` INT NOT NULL DEFAULT 0,
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 15. Testimonials Table
+CREATE TABLE `testimonials` (
+  `id` VARCHAR(36) PRIMARY KEY,
+  `quote_en` TEXT NOT NULL,
+  `quote_ar` TEXT NOT NULL,
+  `author_en` VARCHAR(255) NOT NULL,
+  `author_ar` VARCHAR(255) NOT NULL,
+  `role_en` VARCHAR(255) DEFAULT NULL,
+  `role_ar` VARCHAR(255) DEFAULT NULL,
+  `image` VARCHAR(255) DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- ==========================================
+-- SEED DATA
+-- ==========================================
+
+-- Seed Site Settings
+INSERT INTO `site_settings` (`id`, `siteName_en`, `siteName_ar`, `logoUrl`, `heroBackgroundUrl_en`, `heroBackgroundUrl_ar`, `metaTitle_en`, `metaTitle_ar`, `metaDescription_en`, `metaDescription_ar`, `faviconUrl`, `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor`, `surfaceColor`, `borderColor`, `themeMode`, `fontFamily`, `fontFamilyBody`, `fontFamilyAr`, `fontFamilyArBody`, `fontSize`, `headingWeight`, `bodyWeight`, `letterSpacing`, `lineHeight`)
+VALUES (1, 'Young Over 60', 'شباب فوق الستين', NULL, '/images/hero-bg.png', '/images/hero-bg.png', 'Young Over 60 | Active Travel & Inspiration', 'شباب فوق الستين | سفر نشط وإلهام', 'Premium accessible travel guides, stories, and reviews tailored for active seniors and travelers over 60.', 'أدلة سفر متميزة ميسرة لذوي الاحتياجات الخاصة، وقصص ومراجعات مخصصة للمسافرين النشطين فوق الستين من العمر.', '/favicon.ico', '#0F4C81', '#1e3c5a', '#D4A75C', '#F8F6F2', '#1F1F1F', '#ffffff', 'rgba(0,0,0,0.05)', 'light', 'Outfit', 'Inter', 'Cairo', 'Cairo', '16px', '700', '400', 'normal', '1.8');
+
+-- Seed Admin User (password is bcrypt hashed version of 'Password123')
+INSERT INTO `users` (`id`, `email`, `password`, `name`, `bio`, `avatar`, `role`, `website`)
+VALUES ('admin-uuid-1', 'admin@youngover60.com', '$2y$12$tanBCZuENAxM7yFBhzGIIeIJuZ9Cg0BmL2pqNp72WFRuIpD95ASRa', 'Site Admin', 'A passionate travel enthusiast dedicated to uncovering the world\'s most accessible gems. Sharing stories, tips, and guides to help everyone explore without limits.', '/uploads/admin-avatar.png', 'ADMIN', 'https://youngover60.com');
+
+-- Seed Categories
+INSERT INTO `categories` (`id`, `name_en`, `name_ar`, `slug_en`, `slug_ar`, `description_en`, `description_ar`, `image`) VALUES
+('cat-australia', 'Australia', 'أستراليا', 'australia', 'أستراليا', 'Everything you need to know about Australia and accessible travel.', 'كل ما تحتاج لمعرفته حول أستراليا والسياحة الميسرة لسهولة الوصول.', '/images/australia.png'),
+('cat-nsw', 'New South Wales', 'نيو ساوث ويلز', 'new-south-wales', 'نيو-ساوث-ويلز', 'Everything you need to know about New South Wales and accessible travel.', 'كل ما تحتاج لمعرفته حول نيو ساوث ويلز والسياحة الميسرة.', '/images/hero-bg.png'),
+('cat-victoria', 'Victoria', 'فيكتوريا', 'victoria', 'فيكتوريا', 'Everything you need to know about Victoria and accessible travel.', 'كل ما تحتاج لمعرفته حول مقاطعة فيكتوريا الأسترالية والرحلات ميسرة الوصول.', '/images/hero-bg.png'),
+('cat-queensland', 'Queensland', 'كوينزلاند', 'queensland', 'كوينزلاند', 'Everything you need to know about Queensland and accessible travel.', 'كل ما تحتاج لمعرفته حول كوينزلاند ورحلاتها الساحلية الممتازة.', '/images/hero-bg.png'),
+('cat-wa', 'Western Australia', 'غرب أستراليا', 'western-australia', 'غرب-أستراليا', 'Everything you need to know about Western Australia and accessible travel.', 'كل ما تحتاج لمعرفته حول غرب أستراليا.', '/images/hero-bg.png'),
+('cat-sa', 'South Australia', 'جنوب أستراليا', 'south-australia', 'جنوب-أستراليا', 'Everything you need to know about South Australia and accessible travel.', 'كل ما تحتاج لمعرفته حول جنوب أستراليا.', '/images/hero-bg.png'),
+('cat-tasmania', 'Tasmania', 'تاسمانيا', 'tasmania', 'تاسمانيا', 'Everything you need to know about Tasmania and accessible travel.', 'كل ما تحتاج لمعرفته حول تسمانيا.', '/images/hero-bg.png'),
+('cat-nt', 'Northern Territory', 'الإقليم الشمالي', 'northern-territory', 'الإقليم-الشمالي', 'Everything you need to know about Northern Territory and accessible travel.', 'كل ما تحتاج لمعرفته حول الإقليم الشمالي.', '/images/hero-bg.png'),
+('cat-act', 'ACT', 'إقليم العاصمة الأسترالية', 'australian-capital-territory', 'إقليم-العاصمة-الأسترالية', 'Everything you need to know about ACT and accessible travel.', 'كل ما تحتاج لمعرفته حول إقليم العاصمة الأسترالية.', '/images/hero-bg.png'),
+('cat-asiapacific', 'Asia Pacific', 'آسيا والمحيط الهادئ', 'asia-pacific', 'آسيا-والمحيط-الهادئ', 'Everything you need to know about Asia Pacific and accessible travel.', 'أدلة السفر الشاملة لمنطقة آسيا والمحيط الهادئ.', '/images/asia.png'),
+('cat-europe', 'Europe', 'أوروبا', 'europe', 'أوروبا', 'Everything you need to know about Europe and accessible travel.', 'كل ما تحتاج لمعرفته حول أوروبا وتراثها الغني مع أدلة ميسرة الوصول.', '/images/europe.png'),
+('cat-africa', 'Africa', 'أفريقيا', 'africa', 'أفريقيا', 'Everything you need to know about Africa and accessible travel.', 'كل ما تحتاج لمعرفته حول أفريقيا.', '/images/hero-bg.png'),
+('cat-americas', 'Americas', 'الأمريكتان', 'americas', 'الأمريكتان', 'Everything you need to know about Americas and accessible travel.', 'أدلة وقصص السفر عبر الأمريكتين الشمالية والجنوبية.', '/images/americas.png'),
+('cat-animals', 'Assistance Animals', 'حيوانات المساعدة', 'assistance-animals', 'حيوانات-المساعدة', 'Everything you need to know about Assistance Animals and accessible travel.', 'إرشادات وقوانين السفر بصحبة حيوانات الخدمة والمساعدة.', '/images/animals.png'),
+('cat-vision', 'Blind / Low Vision', 'المكفوفين / ضعاف البصر', 'blind-low-vision', 'المكفوفين-وضعاف-البصر', 'Everything you need to know about Blind / Low Vision and accessible travel.', 'أدلة سياحية حسية وخدمات مخصصة لضعاف البصر والمكفوفين.', '/images/vision.png'),
+('cat-deaf', 'Deaf / Hard of Hearing', 'الصم / ضعاف السمع', 'deaf-hard-of-hearing', 'الصم-وضعاف-السمع', 'Everything you need to know about Deaf / Hard of Hearing and accessible travel.', 'الصم وضغاف السمع.', '/images/hero-bg.png'),
+('cat-hidden', 'Hidden Disabilities', 'الإعاقات غير الظاهرة', 'hidden-disabilities', 'الإعاقات-غير-الظاهرة', 'Everything you need to know about Hidden Disabilities and accessible travel.', 'الإعاقات غير الظاهرة.', '/images/mental.png'),
+('cat-mobility', 'Physical / Mobility', 'الحركية والجسدية', 'physical-mobility', 'سهولة-الوصول-الحركي', 'Everything you need to know about Physical / Mobility and accessible travel.', 'نصائح ومصادر للمسافرين ذوي الاحتياجات الحركية ومستخدمي الكراسي المتحركة.', '/images/mobility.png'),
+('cat-sensory', 'Sensory Needs', 'الاحتياجات الحسية', 'sensory-needs', 'الاحتياجات-الحسية', 'Everything you need to know about Sensory Needs and accessible travel.', 'الاحتياجات الحسية.', '/images/sensory.png'),
+('cat-neurodiversity', 'Neurodiversity', 'التنوع العصبي', 'neurodiversity', 'التنوع-العصبي', 'Everything you need to know about Neurodiversity and accessible travel.', 'التنوع العصبي.', '/images/neurodiversity.png'),
+('cat-accommodation', 'Accommodation', 'الإقامة الفندقية', 'accommodation', 'الإقامة-الفندقية', 'Everything you need to know about Accommodation and accessible travel.', 'الإقامة الفندقية.', '/images/hero-bg.png'),
+('cat-events', 'Events & Holidays', 'الفعاليات والعطلات', 'events-holidays', 'الفعاليات-والعطلات', 'Everything you need to know about Events & Holidays and accessible travel.', 'الفعاليات والعطلات.', '/images/hero-bg.png'),
+('cat-inspiration', 'Inspiration', 'الإلهام والقصص', 'inspiration', 'قصص-ملهمة', 'Everything you need to know about Inspiration and accessible travel.', 'قصص سفر حقيقية ملهمة ومحفزة للمسافرين النشطين فوق الستين.', '/images/hero-bg.png'),
+('cat-reviews', 'Resources & Reviews', 'المصادر والمراجعات', 'resources-reviews', 'المصادر-والمراجعات', 'Everything you need to know about Resources & Reviews and accessible travel.', 'المصادر والمراجعات.', '/images/hero-bg.png'),
+('cat-tips', 'Tips & Tricks', 'نصائح وحيل', 'tips-tricks', 'نصائح-وحيل', 'Everything you need to know about Tips & Tricks and accessible travel.', 'نصائح وحيل.', '/images/hero-bg.png'),
+('cat-transport', 'Transport', 'وسائل النقل', 'transport', 'وسائل-النقل', 'Everything you need to know about Transport and accessible travel.', 'وسائل النقل.', '/images/hero-bg.png'),
+('cat-gear', 'Gear & Support', 'المعدات والدعم', 'gear', 'المعدات-والدعم', 'Everything you need to know about Gear & Support and accessible travel.', 'المعدات والدعم.', '/images/hero-bg.png'),
+('cat-cruises', 'Cruises', 'الرحلات البحرية', 'cruises', 'الرحلات-البحرية', 'Everything you need to know about Cruises and accessible travel.', 'رحلات بحرية فاخرة مجهزة بجميع وسائل الراحة وسهولة الوصول.', '/images/europe.png'),
+('cat-family', 'Family Travel', 'السفر العائلي', 'family-travel', 'السفر-العائلي', 'Everything you need to know about Family Travel and accessible travel.', 'نصائح السفر مع العائلة والأحفاد لرحلة مريحة وممتعة للجميع.', '/images/mobility.png'),
+('cat-food', 'Food & Drink', 'الطعام والشراب', 'food-drink', 'الطعام-والشراب', 'Everything you need to know about Food & Drink and accessible travel.', 'تجارب تذوق الطعام الفاخرة حول العالم والمطاعم الميسرة.', '/images/hero-bg.png'),
+('cat-animal-encounters', 'Animal Encounters', 'لقاءات الحيوانات', 'animal-encounters', 'لقاءات-الحيوانات', 'Everything you need to know about Animal Encounters and accessible travel.', 'لقاءات الحيوانات.', '/images/animals.png');
+
+-- Seed Posts
+INSERT INTO `posts` (`id`, `title_en`, `title_ar`, `slug_en`, `slug_ar`, `excerpt_en`, `excerpt_ar`, `content_en`, `content_ar`, `coverImage`, `isFeatured`, `status`, `publishedAt`, `categoryId`, `authorId`) VALUES
+('post-turtle', 'On Turtle Time at Mon Repos Turtle Centre', 'في رحاب السلاحف بمركز مون ريبوس للسلاحف البحرية', 'on-turtle-time-at-mon-repos-turtle-centre', 'السلاحف-البحرية-مركز-مون-ريبوس-ميسر-الوصول', 'A magical encounter where accessible nature meets wonder. Experience the nesting and hatching of marine turtles in the Bundaberg region.', 'لقاء سحري حيث تلتقي الطبيعة الميسرة بالروعة والجمال. استمتع بمشاهدة تعشيش وتفقيس السلاحف البحرية في منطقة بندابيرج الأسترالية.', '<div><p>Kerry Heaney shares a magical moment at Mon Repos Turtle Centre in Queensland, where accessible nature meets wonder. The center is a world-class facility that offers people with mobility needs a front-row seat to the cycle of life.</p><p>From the flat, accessible walkways to the dedicated viewing areas, Mon Repos ensures that everyone can enjoy the spectacular sight of marine turtles nesting and hatching on the beach.</p></div>', '<div><p>تشارك كيري هيني لحظة سحرية في مركز مون ريبوس للسلاحف البحرية في كوينزلاند، حيث تلتقي الطبيعة الميسرة بالروعة والجمال. يعد المركز مرفقاً عالمياً يتيح للأشخاص ذوي الاحتياجات الحركية فرصة فريدة لمشاهدة دورة الحياة الطبيعية عن قرب.</p><p>من الممرات المستوية الميسرة بالكامل إلى مناطق المشاهدة المخصصة، يضمن المركز تمتع الجميع بمشاهدة تعشيش السلاحف البحرية وتفقيسها على الشاطئ دون أي عوائق.</p></div>', '/images/australia.png', 1, 'PUBLISHED', '2026-01-15 20:00:00', 'cat-queensland', 'admin-uuid-1'),
+('post-comedy', 'Laughs for all: Melbourne Comedy Festival 2026', 'الضحك للجميع: مهرجان ملبورن الدولي للكوميديا 2026', 'laughs-for-all-melbourne-international-comedy-festival-2026', 'مهرجان-ملبورن-الدولي-للكوميديا-ميسر-الوصول', 'With nearly 800 shows and accessibility at its heart, the Melbourne Comedy Festival proves that laughter is for everyone.', 'مع وجود ما يقرب من 800 عرض وتركيز كامل على سهولة الوصول، يثبت مهرجان ملبورن للكوميديا أن الضحك حق للجميع.', '<div><p>The Melbourne International Comedy Festival is one of the most accessible major festivals in Australia. With a dedicated accessibility team and venues and shows designed for diverse audiences, it\'s a model for inclusive entertainment.</p><p>Key features include Auslan-interpreted shows, captioning, and wheelchair accessible venues, ensuring that no one misses out on the fun.</p></div>', '<div><p>يعد مهرجان ملبورن الدولي للكوميديا واحداً من أكثر المهرجانات الكبرى سهولة في الوصول بأستراليا. فبفضل فريق العمل المخصص لسهولة الوصول والمسارح المهيأة بشكل كامل للجميع، يمثل المهرجان نموذجاً يحتذى به للترفيه الشامل.</p><p>تتضمن المزايا الرئيسية عروضاً مترجمة بلغة الإشارة، وتوفير نصوص مكتوبة، ومقاعد وسياق كامل ميسر للكراسي المتحركة لضمان عدم تفويت المتعة لأي شخص.</p></div>', '/images/australia.png', 0, 'PUBLISHED', '2026-03-22 10:00:00', 'cat-victoria', 'admin-uuid-1'),
+('post-japan', 'Konichiwa, Japan: Serenity in Vibrancy', 'أهلاً بك في اليابان: سكينة في قلب الحيوية', 'konichiwa-japan', 'اليابان-سكينة-في-قلب-الحيوية-ميسرة-الوصول', 'Discovering pockets of serenity and world-class accessibility in Japan\'s vibrant cities, from Kyoto\'s temples to Tokyo\'s neon streets.', 'اكتشاف واحات من السكينة وسهولة الوصول العالمية في مدن اليابان النابضة بالحياة، من معابد كيوتو الهادئة إلى شوارع طوكيو المضيئة.', '<div><p>Japan is a masterclass in modern accessibility blending with ancient culture. Even in the busiest parts of Tokyo, the tactile paving, accessible subways, and welcoming attitude make it a favorite for travelers with limited mobility.</p><p>Experience the quiet beauty of Kyoto\'s accessible temple grounds or the high-tech inclusive facilities of Osaka.</p></div>', '<div><p>تقدم اليابان درساً في المزج بين سهولة الوصول الحديثة والثقافة العريقة. ففي أكثر أجزاء طوكيو ازدحاماً، تجعل المسارات اللمسية البارزة ووسائل النقل الميسرة والترحاب الكبير اليابان مكاناً مفضلاً للمسافرين ذوي الحركة المحدودة.</p><p>عش الهدوء الجميل لمعابد كيوتو التاريخية ميسرة الوصول أو المرافق التقنية المتطورة والشاملة في أوساكا.</p></div>', '/images/asia.png', 0, 'PUBLISHED', '2026-04-10 14:30:00', 'cat-asiapacific', 'admin-uuid-1'),
+('post-kosci', 'Georgia’s Krazy Kosci Klimb', 'تحّدي كوسي كليمب مع جورجيا', 'georgias-krazy-kosci-klimb', 'تحّدي-كوسي-كليمب-تسلق-جبل-كوسيوسكو', 'More than a fundraiser, the Krazy Kosci Klimb empowers young travelers to reach the highest peaks of Australia.', 'أكثر من مجرد حملة تبرعات، يمكّن تحدي كوزي كليمب المسافرين الشباب من تسلق أعلى قمم أستراليا الشاهقة.', '<div><p>The Krazy Kosci Climb is a unique event that sees participants with disabilities take on the challenge of reaching the summit of Mount Kosciuszko. It\'s a testament to the fact that with the right support, the sky is the limit.</p><p>This annual event raises crucial funds while providing participants with an experience they will never forget.</p></div>', '<div><p>تحدي كوزي كليمب هو حدث فريد يرى المشاركين من ذوي الإعاقة يخوضون غمار تسلق قمة جبل كوسيوسكو، أعلى جبل في أستراليا. إنه دليل حي على أنه مع الدعم المناسب، لا حدود لما يمكن تحقيقه.</p><p>يجمع هذا الحدث السنوي تمويلاً حيوياً كبيراً بينما يقدم للمشاركين تجربة عمر لا تُنسى على الإطلاق.</p></div>', '/images/mobility.png', 0, 'PUBLISHED', '2026-02-18 09:15:00', 'cat-mobility', 'admin-uuid-1'),
+('post-propose', 'Top 10 Wheelchair Accessible Places to Propose', 'أفضل 10 مواقع رومانسية ميسرة لطلب الزواج بالكرسي المتحرك', 'top-10-wheelchair-accessible-places-to-propose', 'افضل-١٠-مواقع-رومانسية-ميسرة-لطلب-الزواج', 'Ensure your romantic milestone is perfect for everyone with these stunning, fully-accessible locations around the globe.', 'اضمن أن تكون هذه الخطوة الرومانسية مثالية وميسرة للجميع مع هذه المواقع الخلابة والمهيأة بالكامل حول العالم.', '<div><p>A marriage proposal is a moment to be shared and remembered. These ten locations provide the perfect backdrop, from the accessible beaches of Australia to the scenic overlooks of Europe.</p><p>We\'ve curated sites that offer both breathtaking beauty and seamless access, so you can focus on the moment.</p></div>', '<div><p>طلب الزواج هو لحظة يجب مشاركتها وتذكرها مدى الحياة. تقدم هذه المواقع العشرة الخلفية المثالية، من الشواطئ الميسرة في أستراليا إلى الإطلالات الجبلية الرائعة في أوروبا.</p><p>لقد اخترنا مواقع توفر كلاً من الجمال الخلاب والوصول السهل والآمن حتى تركز فقط على اللحظة الثمينة.</p></div>', '/images/hero-bg.png', 0, 'PUBLISHED', '2026-05-01 11:00:00', 'cat-inspiration', 'admin-uuid-1'),
+('post-music', 'A European summer of music and discovery', 'صيف موسيقي ممتع في أوروبا واستكشاف لا يهدأ', 'a-european-summer-of-music-and-discovery', 'صيف-موسيقي-في-اوروبا-ميسر-الوصول', 'DJ Cooper Smith shares his journey through Europe\'s most iconic music festivals, proving that music knows no limits.', 'يشارك دي جي كوبر سميث رحلته عبر أشهر المهرجانات الموسيقية في أوروبا، ليثبت أن الموسيقى لا تعرف حدوداً وعوائق.', '<div><p>DJ Cooper Smith and his mum, Bron, took on a whirlwind tour of Europe\'s festivals. From Glastonbury to the streets of Berlin, they explored how the continent is making its music scene more inclusive.</p><p>They found a world of assistive technology, dedicated viewing platforms, and a community of music lovers who embrace accessibility.</p></div>', '<div><p>خاض دي جي كوبر سميث ووالدته برون رحلة مثيرة في مهرجانات أوروبا. من غلاستونبري إلى شوارع برلين، استكشفا كيف تعمل القارة على جعل المشهد الموسيقي أكثر شمولاً وميسراً للجميع.</p><p>لقد وجدا عالمًا متكاملاً من التقنيات المساعدة، والمنصات المخصصة للمشاهدة، ومجتمعاً من عشاق الموسيقى اللذين يرحبون بسهولة الوصول.</p></div>', '/images/europe.png', 0, 'PUBLISHED', '2026-05-20 16:45:00', 'cat-europe', 'admin-uuid-1');
+
+-- Seed Navigation Menus
+INSERT INTO `menus` (`id`, `title_en`, `title_ar`, `slug`, `type`, `layoutType`, `order`, `isActive`) VALUES
+('menu-destinations', 'DESTINATIONS', 'الوجهات', 'destinations', 'MEGA', 'LIST', 1, 1),
+('menu-experiences', 'EXPERIENCES', 'التجارب', 'experiences', 'MEGA', 'GRID', 2, 1),
+('menu-plan', 'PLAN YOUR TRIP', 'خطط لرحلتك', 'plan-your-trip', 'MEGA', 'GRID', 3, 1);
+
+-- Seed Menu Sections
+INSERT INTO `menu_sections` (`id`, `menuId`, `title_en`, `title_ar`, `order`, `isActive`) VALUES
+('sec-australia', 'menu-destinations', 'AUSTRALIA', 'أستراليا', 1, 1),
+('sec-americas', 'menu-destinations', 'AMERICAS', 'الأمريكتان', 2, 1),
+('sec-experiences', 'menu-experiences', 'ALL EXPERIENCES', 'جميع التجارب', 1, 1),
+('sec-plan', 'menu-plan', 'PLANNING HELP', 'المساعدة في التخطيط', 1, 1);
+
+-- Seed Menu Links
+INSERT INTO `menu_links` (`id`, `sectionId`, `title_en`, `title_ar`, `url`, `image`, `order`, `isActive`, `target`) VALUES
+('link-act', 'sec-australia', 'ACT', 'إقليم العاصمة', '/category/australian-capital-territory', NULL, 1, 1, NULL),
+('link-nsw', 'sec-australia', 'NEW SOUTH WALES', 'نيو ساوث ويلز', '/category/new-south-wales', NULL, 2, 1, NULL),
+('link-nt', 'sec-australia', 'NORTHERN TERRITORY', 'الإقليم الشمالي', '/category/northern-territory', NULL, 3, 1, NULL),
+('link-qld', 'sec-australia', 'QUEENSLAND', 'كوينزلاند', '/category/queensland', NULL, 4, 1, NULL),
+('link-colo', 'sec-americas', 'COLORADO', 'كولورادو', '/category/americas', NULL, 1, 1, NULL),
+('link-cali', 'sec-americas', 'CALIFORNIA', 'كاليفورنيا', '/category/americas', NULL, 2, 1, NULL),
+('link-texas', 'sec-americas', 'TEXAS', 'تكساس', '/category/americas', NULL, 3, 1, NULL),
+('link-encounters', 'sec-experiences', 'ANIMAL ENCOUNTERS', 'لقاءات الحيوانات', '/category/animal-encounters', '/images/animals.png', 1, 1, NULL),
+('link-beach', 'sec-experiences', 'BEACH GETAWAYS', 'عطلات الشاطئ', '/category/australia', '/images/australia.png', 2, 1, NULL),
+('link-cruises', 'sec-experiences', 'CRUISES', 'الرحلات البحرية', '/category/cruises', '/images/europe.png', 3, 1, NULL),
+('link-family', 'sec-experiences', 'FAMILY TRAVEL', 'السفر العائلي', '/category/family-travel', '/images/mobility.png', 4, 1, NULL),
+('link-accom', 'sec-plan', 'ACCOMMODATION', 'الإقامة الفندقية', '/category/accommodation', '/images/hero-bg.png', 1, 1, NULL),
+('link-tips', 'sec-plan', 'TIPS & TRICKS', 'نصائح وحيل', '/category/tips-tricks', '/images/hero-bg.png', 2, 1, NULL),
+('link-transport', 'sec-plan', 'TRANSPORT', 'وسائل النقل', '/category/transport', '/images/hero-bg.png', 3, 1, NULL),
+('link-gear', 'sec-plan', 'GEAR & SUPPORT', 'المعدات والدعم', '/category/gear', '/images/hero-bg.png', 4, 1, NULL);
+
+-- Seed Menu Banner
+INSERT INTO `menu_banners` (`id`, `menuId`, `image`, `title_en`, `title_ar`, `url`, `isActive`) VALUES
+('banner-dest', 'menu-destinations', '/images/hero-bg.png', 'Featured Destination', 'الوجهة المميزة', '/featured', 1);
+
 -- Seed Hero Slides
-INSERT INTO `hero_slides` (`id`, `title`, `subtitle`, `button_text`, `button_link`, `image`, `overlay_opacity`, `sort_order`, `is_active`) VALUES
-('slide-1', 'Young Over 60', 'Premium travel guides, reviews, and stories for active seniors', 'Discover More', '/destinations', '/images/hero-bg.png', 0.40, 1, 1),
-('slide-2', 'Inspirational Journeys', 'Real stories of adventurers breaking down physical barriers', 'Read Stories', '/news', '/images/australia.png', 0.45, 2, 1),
-('slide-3', 'Explore Accessible Egypt', 'Pockets of history and magic curated for diverse requirements', 'View Guides', '/women-stories', '/images/europe.png', 0.50, 3, 1);
+INSERT INTO `hero_slides` (`id`, `title_en`, `title_ar`, `subtitle_en`, `subtitle_ar`, `button_text_en`, `button_text_ar`, `button_link`, `image_en`, `image_ar`, `sort_order`, `is_active`) VALUES
+('slide-1', 'Young Over 60', 'شباب فوق الستين', 'Premium travel guides, reviews, and stories for active seniors', 'أدلة سفر متميزة، مراجعات وقصص ملهمة للمسنين النشطين', 'Discover More', 'اكتشف المزيد', '/destinations', '/images/hero-bg.png', '/images/hero-bg.png', 1, 1),
+('slide-2', 'Inspirational Journeys', 'رحلات ملهمة', 'Real stories of adventurers breaking down physical barriers', 'قصص حقيقية لمغامرين يتحدون الحواجز الجسدية والعقبات', 'Read Stories', 'اقرأ القصص', '/news', '/images/australia.png', '/images/australia.png', 2, 1),
+('slide-3', 'Explore Accessible Egypt', 'اكتشف مصر الميسرة', 'Pockets of history and magic curated for diverse requirements', 'تفاصيل تاريخية وجمال فريد منسق ليلائم متطلبات الوصول المتنوعة', 'View Guides', 'عرض الأدلة', '/women-stories', '/images/europe.png', '/images/europe.png', 3, 1);
 
 -- Seed Podcasts
-INSERT INTO `podcasts` (`id`, `title`, `slug`, `description`, `audio_file`, `cover_image`, `duration`, `category`, `is_featured`) VALUES
-('pod-1', 'Accessible Antiquities: Exploring Giza Wheelchair Access', 'accessible-antiquities-exploring-giza-wheelchair-access', 'In this episode, we sit down with local experts and international travellers who share their firsthand experiences navigating the Giza Plateau, the pyramids, and the new Grand Egyptian Museum using mobility devices.', '/uploads/podcasts/episode1.mp3', '/images/europe.png', '24:18', 'Accessible Adventure', 1),
-('pod-2', 'Sensory Calm in the Sinai Desert', 'sensory-calm-in-the-sinai-desert', 'Discover the therapeutic silence of the Sinai. We explore how guided desert excursions are being tailored to provide sensory-friendly wellness retreats for neurodivergent travellers looking to escape the noise.', '/uploads/podcasts/episode2.mp3', '/images/australia.png', '18:45', 'Solo Travel', 0),
-('pod-3', 'Breaking Barriers: Solo Adventuring in Alexandria', 'breaking-barriers-solo-adventuring-in-alexandria', 'A deep dive into navigating the coastal city of Alexandria as a solo female traveller with low vision. Tips on tactile paths, audio-guided museum exhibits, and local sensory highlights.', '/uploads/podcasts/episode3.mp3', '/images/hero-bg.png', '31:12', 'Cultural Journeys', 0);
+INSERT INTO `podcasts` (`id`, `title_en`, `title_ar`, `slug_en`, `slug_ar`, `description_en`, `description_ar`, `audio_file`, `cover_image`, `duration`, `category_en`, `category_ar`, `is_featured`) VALUES
+('pod-1', 'Accessible Antiquities: Exploring Giza Wheelchair Access', 'الآثار ميسرة الوصول: استكشاف أهرامات الجيزة', 'accessible-antiquities-exploring-giza-wheelchair-access', 'استكشاف-اهرامات-الجيزة-سهل-الوصول', 'In this episode, we sit down with local experts and international travellers who share their firsthand experiences navigating the Giza Plateau, the pyramids, and the new Grand Egyptian Museum using mobility devices.', 'في هذه الحلقة، نلتقي بخبراء محليين ومسافرين دوليين يشاركون تجاربهم الحية في استكشاف هضبة الجيزة والأهرامات والمتحف المصري الكبير الجديد باستخدام الكراسي المتحركة والأجهزة المساعدة.', '/uploads/podcasts/episode1.mp3', '/images/europe.png', '24:18', 'Accessible Adventure', 'مغامرة ميسرة', 1),
+('pod-2', 'Sensory Calm in the Sinai Desert', 'الهدوء الحسي في صحراء سيناء', 'sensory-calm-in-the-sinai-desert', 'الهدوء-الحسي-في-صحراء-سيناء', 'Discover the therapeutic silence of the Sinai. We explore how guided desert excursions are being tailored to provide sensory-friendly wellness retreats for neurodivergent travellers looking to escape the noise.', 'اكتشف الصمت العلاجي لصحراء سيناء. نستكشف كيف يتم تصميم الرحلات الصحراوية لتوفير ملاذ استرخاء حسي مريح ومناسب للمسافرين ذوي الاحتياجات الحسية الفائقة.', '/uploads/podcasts/episode2.mp3', '/images/australia.png', '18:45', 'Solo Travel', 'السفر المنفرد', 0),
+('pod-3', 'Breaking Barriers: Solo Adventuring in Alexandria', 'تحدي الحواجز: مغامرة منفردة في الإسكندرية', 'breaking-barriers-solo-adventuring-in-alexandria', 'تحدي-الحواجز-مغامرة-في-الاسكندرية', 'A deep dive into navigating the coastal city of Alexandria as a solo female traveller with low vision. Tips on tactile paths, audio-guided museum exhibits, and local sensory highlights.', 'غوص عميق في استكشاف مدينة الإسكندرية الساحلية كمسافرة منفردة من ضعاف البصر. نصائح حول المسارات اللمسية والمعارض الإرشادية الصوتية والمعالم الحسية المميزة.', '/uploads/podcasts/episode3.mp3', '/images/hero-bg.png', '31:12', 'Cultural Journeys', 'رحلات ثقافية', 0);
 
 -- Seed Women Stories
-INSERT INTO `women_stories` (`id`, `title`, `slug`, `excerpt`, `content`, `cover_image`, `category`, `author`, `read_time`) VALUES
-('story-1', 'Solo Travel Through Cairo: A Wheelchair User’s Journal', 'solo-travel-through-cairo-wheelchair-journal', 'A firsthand account of navigating Cairo\'s historic sites, bustling streets, and the pyramids using a mobility device.', '<h3>A Solo Wheelchair Traveler\'s Encounter with the Pyramids</h3><p>For as long as I can remember, the Pyramids of Giza were a distant dream locked behind an intimidating barrier of sand, stairs, and steep pathways. When I finally decided to embark on a solo trip to Cairo, my wheelchair was packed alongside a healthy dose of anxiety. However, what I discovered was a city eager to open its historic gates to everyone.</p><p>Entering the Giza Plateau with a custom ramp setup and the assistance of local guides who understood my physical needs, the monumental stone structures felt closer than ever. The dry air, the golden sandstone against the clear blue sky, and the sheer majesty of the Sphinx standing guard left me breathless. It was not just about the sites, but the warmth of the people. Everywhere I went, from the busy alleys of Khan el-Khalili to the spacious halls of the new Grand Egyptian Museum, locals went out of their way to ensure I had clear sightlines and easy access.</p><h4>Top 3 Accessibility Tips for Cairo:</h4><ul><li><strong>Hire an accessible-certified local driver:</strong> Cairo\'s traffic is legendary, and having a ramp-equipped van makes all the difference.</li><li><strong>Grand Egyptian Museum (GEM):</strong> This state-of-the-art facility is built to international ADA standards, featuring elevators, tactile maps, and spacious paths.</li><li><strong>Sunset at Giza:</strong> Watch the sunset from the accessible paved viewing platform near the panorama area. It offers a majestic view of all three pyramids without needing to cross deep sand.</li></ul>', '/images/europe.png', 'Solo Travel', 'Emily Watson', '6 min read'),
-('story-2', 'Navigating the Temples of Luxor with Sensory Needs', 'navigating-temples-of-luxor-sensory-needs', 'Luxor\'s ancient monuments are awe-inspiring, but can be sensory-heavy. Here is a guide to finding quiet moments in Karnak Temple.', '<h3>Luxor Temples: Navigating Sacred Spaces with Sensory Sensitivity</h3><p>The ruins of Luxor and Karnak Temples are visual spectacles, but their colossal scale, busy tour groups, and echoey columns can be overwhelming for travellers with sensory processing sensitivities. As a neurodivergent woman, my journey to Southern Egypt was a lesson in planning, presence, and finding silence within ancient stones.</p><p>I chose to visit the Karnak Temple complex at sunrise. Entering before the crowds, the great Hypostyle Hall felt like a quiet forest of stone. The early morning light cast soft shadows across the giant pillars, each carved with stories of pharaohs and gods. By timing my visits to coincide with typical lunch hours, I managed to explore the Luxor Temple in near solitude. It allowed me to appreciate the intricate hieroglyphics and connect with the spiritual history of the place without the sensory clutter of megaphones and chatter.</p><h4>My Recommendations for Sensory Balance:</h4><ul><li><strong>Noise-canceling headphones:</strong> Essential for busy entrance plazas and bazaar areas.</li><li><strong>Go early or late:</strong> Aim for 6:00 AM or 5:00 PM. Not only is the weather cooler, but the crowd level drops by 80%.</li><li><strong>Take a Felucca:</strong> A traditional sailboat ride on the Nile at sunset provides the perfect sensory reset after a long day of touring.</li></ul>', '/images/australia.png', 'Accessible Adventure', 'Sarah Jenkins', '5 min read'),
-('story-3', 'A Deaf Traveller’s Guide to the Vibrant Bazaars of Khan el-Khalili', 'deaf-traveller-guide-khan-el-khalili', 'Exploring the sights, smells, and textures of Cairo\'s famous marketplace through the lens of visual and tactile connection.', '<h3>Sounds and Scents of Cairo: A Blind Traveler\'s Perspective</h3><p>Most travel brochures focus on the sights of Egypt, but the true essence of Cairo lies in its auditory and olfactory landscape. Exploring the historic Islamic Cairo as a blind woman opened my senses to a symphony of sights unheard and textures unfelt.</p><p>Navigating the medieval gates of Bab Zuwayla, the air smelled of roasted cardamom, fresh mint, and the rich earthy scent of tanned leather. Walking through Al-Muizz Street, the voice of the muezzin calling for prayer echoed from towering minarets, wrapping the ancient street in a blanket of peace. Hand-carved brass lamps felt cold and detailed under my fingertips, and the warmth of a freshly baked Aish Baladi (Egyptian flatbread) handed to me by a smiling baker was a moment of pure connection. Cairo does not require sight to be seen; it demands that you listen, smell, and touch.</p><h4>Key Insights for Visually Impaired Visitors:</h4><ul><li><strong>Tactile exploration:</strong> Many museums allow supervised touching of selected replica statues. Always ask for \'tactile guides\'.</li><li><strong>Scent mapping:</strong> Khan el-Khalili\'s spice section is a wonderful sensory journey. Local merchants are proud to let you sample incense, spices, and perfumes.</li><li><strong>Companion guides:</strong> Work with specialized operators who are trained in descriptive narration of architectural details.</li></ul>', '/images/hero-bg.png', 'Cultural Journeys', 'Amina Mansour', '7 min read');
+INSERT INTO `women_stories` (`id`, `title_en`, `title_ar`, `slug_en`, `slug_ar`, `excerpt_en`, `excerpt_ar`, `content_en`, `content_ar`, `cover_image`, `category_en`, `category_ar`, `author_en`, `author_ar`, `read_time`) VALUES
+('story-1', 'Solo Travel Through Cairo: A Wheelchair User’s Journal', 'السفر المنفرد في القاهرة: يوميات مستخدمة كرسي متحرك', 'solo-travel-through-cairo-wheelchair-journal', 'يوميات-مسافرة-بكرسي-متحرك-في-القاهرة', 'A firsthand account of navigating Cairo\'s historic sites, bustling streets, and the pyramids using a mobility device.', 'تقرير شخصي عن استكشاف المواقع التاريخية في القاهرة، شوارعها المزدحمة، والأهرامات العظيمة باستخدام الأجهزة المساعدة وحلول سهولة الحركة.', '<h3>A Solo Wheelchair Traveler\'s Encounter with the Pyramids</h3><p>For as long as I can remember, the Pyramids of Giza were a distant dream locked behind an intimidating barrier of sand, stairs, and steep pathways. When I finally decided to embark on a solo trip to Cairo, my wheelchair was packed alongside a healthy dose of anxiety. However, what I discovered was a city eager to open its historic gates to everyone.</p><p>Entering the Giza Plateau with a custom ramp setup and the assistance of local guides who understood my physical needs, the monumental stone structures felt closer than ever. The dry air, the golden sandstone against the clear blue sky, and the sheer majesty of the Sphinx standing guard left me breathless. It was not just about the sites, but the warmth of the people. Everywhere I went, from the busy alleys of Khan el-Khalili to the spacious halls of the new Grand Egyptian Museum, locals went out of their way to ensure I had clear sightlines and easy access.</p><h4>Top 3 Accessibility Tips for Cairo:</h4><ul><li><strong>Hire an accessible-certified local driver:</strong> Cairo\'s traffic is legendary, and having a ramp-equipped van makes all the difference.</li><li><strong>Grand Egyptian Museum (GEM):</strong> This state-of-the-art facility is built to international ADA standards, featuring elevators, tactile maps, and spacious paths.</li><li><strong>Sunset at Giza:</strong> Watch the sunset from the accessible paved viewing platform near the panorama area. It offers a majestic view of all three pyramids without needing to cross deep sand.</li></ul>', '<h3>مسافرة منفردة بالكرسي المتحرك تلتقي بالأهرامات</h3><p>لطالما كانت أهرامات الجيزة حلماً بعيد المنال، يكتنفه الخوف من الرمال والدرج والمسارات الشديدة الانحدار. عندما قررت خوض هذه الرحلة إلى القاهرة، حزمت كرسيي المتحرك ومعي الكثير من القلق. ولكن، ما اكتشفته هو مدينة تفتح أبوابها التاريخية بكل ترحيب للجميع.</p><p>بمساعدة المنصات المهيأت والمرشدين المحليين اللذين تفهموا احتياجاتي الحركية، بدت الأهرامات الحجرية العملاقة أقرب من أي وقت مضى. نسيم الجو الجاف، وأحجار الجيزة الذهبية على خلفية السماء الزرقاء، ومهابة أبو الهول، كلها تفاصيل تركتني مندهشة. لم يكن الأمر يتعلق بالمواقع التاريخية فحسب، بل بدفء الناس؛ ففي كل مكان، من خان الخليلي إلى المتحف المصري الكبير، كان الجميع يبذلون قصارى جهدهم لضمان وضوح رؤيتي وسهولة حركتي.</p>', '/images/europe.png', 'Solo Travel', 'السفر المنفرد', 'Emily Watson', 'إميلي واتسون', '6 min read'),
+('story-2', 'Navigating the Temples of Luxor with Sensory Needs', 'استكشاف معابد الأقصر بذوي الاحتياجات الحسية', 'navigating-temples-of-luxor-sensory-needs', 'معابد-الاقصر-وذوي-الاحتياجات-الحسية', 'Luxor\'s ancient monuments are awe-inspiring, but can be sensory-heavy. Here is a guide to finding quiet moments in Karnak Temple.', 'معالم الأقصر القديمة مذهلة، ولكنها قد تكون مزدحمة حسياً. إليك دليلك للعثور على لحظات الهدوء والسلام داخل معبد الكرنك.', '<h3>Luxor Temples: Navigating Sacred Spaces with Sensory Sensitivity</h3><p>The ruins of Luxor and Karnak Temples are visual spectacles, but their colossal scale, busy tour groups, and echoey columns can be overwhelming for travellers with sensory processing sensitivities. As a neurodivergent woman, my journey to Southern Egypt was a lesson in planning, presence, and finding silence within ancient stones.</p><p>I chose to visit the Karnak Temple complex at sunrise. Entering before the crowds, the great Hypostyle Hall felt like a quiet forest of stone. The early morning light cast soft shadows across the giant pillars, each carved with stories of pharaohs and gods. By timing my visits to coincide with typical lunch hours, I managed to explore the Luxor Temple in near solitude. It allowed me to appreciate the intricate hieroglyphics and connect with the spiritual history of the place without the sensory clutter of megaphones and chatter.</p><h4>My Recommendations for Sensory Balance:</h4><ul><li><strong>Noise-canceling headphones:</strong> Essential for busy entrance plazas and bazaar areas.</li><li><strong>Go early or late:</strong> Aim for 6:00 AM or 5:00 PM. Not only is the weather cooler, but the crowd level drops by 80%.</li><li><strong>Take a Felucca:</strong> A traditional sailboat ride on the Nile at sunset provides the perfect sensory reset after a long day of touring.</li></ul>', '<h3>معابد الأقصر: التنقل في المساحات المقدسة مع الحساسية الحسية</h3><p>أطلال معابد الأقصر والكرنك هي تحف بصرية رائعة، ولكن حجمها الضخم ومجموعاتها المزدحمة قد يسبب ضغطاً حسياً للمسافرين الذين يعانون من فرط الحساسية الحسية. كوني امرأة من ذوي الاختلاف العصبي، كانت رحلتي إلى جنوب مصر درساً في التخطيط والبحث عن الهدوء وسط الحجارة القديمة.</p><p>اخترت زيارة مجمع معابد الكرنك عند شروق الشمس. بالدخول قبل بدء المجموعات السياحية، بدت قاعة الأعمدة الكبرى كغابة هادئة من الحجر. ألقى ضوء الصباح الباكر ظلالاً ناعمة على الأعمدة الضخمة، المنقوشة بقصص الفراعنة والآلهة. بتنسيق أوقات الزيارة لتتزامن مع وقت الغداء السياحي المعتاد، تمكنت من استكشاف معبد الأقصر في هدوء تام.</p>', '/images/australia.png', 'Accessible Adventure', 'مغامرة ميسرة', 'Sarah Jenkins', 'سارة جينكينز', '5 min read'),
+('story-3', 'A Deaf Traveller’s Guide to the Vibrant Bazaars of Khan el-Khalili', 'دليل المسافرة الكفيفة إلى أسواق خان الخليلي المزدحمة', 'deaf-traveller-guide-khan-el-khalili', 'دليل-المسافرة-الكفيفة-خان-الخليلي', 'Exploring the sights, smells, and textures of Cairo\'s famous marketplace through the lens of visual and tactile connection.', 'استكشاف المناظر والروائح والأقمشة في أشهر أسواق القاهرة القديمة من منظور التواصل البصري الحسي واللمسي الفريد.', '<h3>Sounds and Scents of Cairo: A Blind Traveler\'s Perspective</h3><p>Most travel brochures focus on the sights of Egypt, but the true essence of Cairo lies in its auditory and olfactory landscape. Exploring the historic Islamic Cairo as a blind woman opened my senses to a symphony of sights unheard and textures unfelt.</p><p>Navigating the medieval gates of Bab Zuwayla, the air smelled of roasted cardamom, fresh mint, and the rich earthy scent of tanned leather. Walking through Al-Muizz Street, the voice of the muezzin calling for prayer echoed from towering minarets, wrapping the ancient street in a blanket of peace. Hand-carved brass lamps felt cold and detailed under my fingertips, and the warmth of a freshly baked Aish Baladi (Egyptian flatbread) handed to me by a smiling baker was a moment of pure connection. Cairo does not require sight to be seen; it demands that you listen, smell, and touch.</p><h4>Key Insights for Visually Impaired Visitors:</h4><ul><li><strong>Tactile exploration:</strong> Many museums allow supervised touching of selected replica statues. Always ask for \'tactile guides\'.</li><li><strong>Scent mapping:</strong> Khan el-Khalili\'s spice section is a wonderful sensory journey. Local merchants are proud to let you sample incense, spices, and perfumes.</li><li><strong>Companion guides:</strong> Work with specialized operators who are trained in descriptive narration of architectural details.</li></ul>', '<h3>روائح وأصوات القاهرة: منظور مسافرة كفيفة</h3><p>تركز معظم الكتيبات السياحية على المشاهد المرئية، لكن الجوهر الحقيقي للقاهرة يكمن في أصواتها وروائحها الفريدة. استكشاف القاهرة الإسلامية كمسافرة كفيفة فتح حواسي على سمفونية متناغمة من الروائح التي لا نراها والملامس التي نتحسسها.</p><p>عند المشي بجوار بوابة باب زويلة، تفوح في الهواء رائحة الهيل المحمص والنعناع الطازج ورائحة الجلود العتيقة الدافئة. وخلال السير في شارع المعز، يتردد صدى صوت المؤذن داعياً للصلاة من المآذن الشاهقة، ليغمر الشارع القديم بعباءة من السلام والسكينة. مصابيح النحاس المنقوشة يدوياً كانت باردة ومليئة بالتفاصيل تحت أطراف أصابعي.</p>', '/images/hero-bg.png', 'Cultural Journeys', 'رحلات ثقافية', 'Amina Mansour', 'أمينة منصور', '7 min read');
+
+-- Seed Testimonials
+INSERT INTO `testimonials` (`id`, `quote_en`, `quote_ar`, `author_en`, `author_ar`, `role_en`, `role_ar`, `image`) VALUES
+('test-1', 'Young Over 60 transformed the way I travel. Their detailed reports on wheelchair accessibility in historic sites let me explore Giza with total confidence.', 'لقد غيّر موقع شباب فوق الستين طريقتي في السفر بالكامل. تقاريرهم الدقيقة والمفصلة حول سهولة حركة الكراسي المتحركة في المواقع الأثرية مكنتني من زيارة الجيزة بثقة تامة.', 'Sarah Jenkins', 'سارة جينكينز', 'Active Adventurer, UK', 'مغامرة نشطة، بريطانيا', '/uploads/admin-avatar.png'),
+('test-2', 'Finally, a luxury travel portal that treats accessibility as a core editorial theme rather than an afterthought. The recommendations are spot on!', 'أخيراً، بوابة سفر فاخرة تتعامل مع سهولة الوصول كفكرة تحريرية محورية وجوهرية وليست كفكرة ثانوية طارئة. توصياتهم في غاية الدقة!', 'Amina Mansour', 'أمينة منصور', 'Sensory Explorer, Egypt', 'مستكشفة حسية، مصر', '/uploads/admin-avatar.png');
+

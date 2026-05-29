@@ -94,40 +94,40 @@ if (!empty($slug)) {
                 </div>
 
                 <!-- Egypt-Focused Accessibility Tips Sidebar -->
-                <aside class="story-reader-sidebar" style="background: #fafafa; border: 1px solid var(--accent-color); border-radius: 12px; padding: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                <aside class="story-reader-sidebar">
                     <div style="font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em; color: var(--primary-color);">Accessible Egypt</div>
-                    <h3 class="serif-title" style="font-size: 1.4rem; margin: 0; line-height: 1.2;">Egypt Quick Guidelines</h3>
+                    <h3 class="serif-title" style="font-size: 1.4rem; margin: 0; line-height: 1.2; color: var(--text-color);">Egypt Quick Guidelines</h3>
                     <div style="width: 2rem; height: 1px; background: var(--primary-color);"></div>
-                    <p style="color: #666; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                    <p style="color: var(--text-color); opacity: 0.8; font-size: 0.85rem; line-height: 1.6; margin: 0;">
                         Navigating historic locations can present physical bottlenecks. Here are vital guides to planning a seamless adventure:
                     </p>
                     
                     <ul class="guidelines-bullets-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.25rem;">
-                        <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: #444;">
+                        <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: var(--text-color); opacity: 0.9;">
                             <span style="font-size: 1.2rem; line-height: 1; color: var(--primary-color);">♿</span>
                             <div>
-                                <strong>Terrain & Wheelchairs:</strong>
+                                <strong style="color: var(--text-color);">Terrain & Wheelchairs:</strong>
                                 Giza pyramids, Karnak, and Luxor temples have paved tactile access corridors, but historic paths remain sandy. Hire helper guides.
                             </div>
                         </li>
-                        <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: #444;">
+                        <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: var(--text-color); opacity: 0.9;">
                             <span style="font-size: 1.2rem; line-height: 1; color: var(--primary-color);">👁️</span>
                             <div>
-                                <strong>Sensory Landscapes:</strong>
+                                <strong style="color: var(--text-color);">Sensory Landscapes:</strong>
                                 The sights of Khan el-Khalili are rich. Use local registered guides trained in descriptive narrations for sensory mappings.
                             </div>
                         </li>
-                        <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: #444;">
+                        <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: var(--text-color); opacity: 0.9;">
                             <span style="font-size: 1.2rem; line-height: 1; color: var(--primary-color);">🚆</span>
                             <div>
-                                <strong>Metro Accessibility:</strong>
+                                <strong style="color: var(--text-color);">Metro Accessibility:</strong>
                                 Cairo Metro Line 3 is equipped with elevators and modern wheelchair-accessible cabins at most terminal stations.
                             </div>
                         </li>
-                        <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: #444;">
+                        <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: var(--text-color); opacity: 0.9;">
                             <span style="font-size: 1.2rem; line-height: 1; color: var(--primary-color);">🦮</span>
                             <div>
-                                <strong>Service Animals:</strong>
+                                <strong style="color: var(--text-color);">Service Animals:</strong>
                                 Ensure international veterinary certifications are carried. While hotels are obliging, many archaeological sites restrict animal entry.
                             </div>
                         </li>
@@ -138,21 +138,22 @@ if (!empty($slug)) {
 
         <!-- Related Stories Recommendations -->
         <?php if (!empty($relatedStories)): ?>
-            <section class="related-stories-section" style="background: #fafafa; padding: 5rem 0; border-top: 1px solid var(--accent-color);">
+            <section class="related-stories-section">
                 <div class="container">
                     <div class="intro-content" style="margin-bottom: 3rem;">
                         <span class="section-label">Read Next</span>
-                        <h3 class="serif-title" style="margin: 0; font-size: 2rem;">Related Chronicles</h3>
+                        <h3 class="serif-title" style="margin: 0; font-size: 2rem; color: var(--text-color);">Related Chronicles</h3>
                     </div>
                     
                     <div class="story-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
                         <?php foreach ($relatedStories as $rel): 
                             $relCover = !empty($rel['cover_image']) ? $rel['cover_image'] : '/images/hero-bg.png';
                             ?>
-                            <article class="post-card group" style="background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #eee;">
+                            <article class="post-card group">
                                 <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e($rel['slug']); ?>" class="post-card-link" aria-label="Read <?php echo e($rel['title']); ?>">
-                                    <div class="post-card-media" style="aspect-ratio: 16/10; overflow: hidden;">
-                                        <img src="<?php echo e(BASE_URL . $relCover); ?>" alt="<?php echo e($rel['title']); ?>" class="post-card-img" />
+                                    <div class="post-card-media ratio-landscape">
+                                        <div class="progressive-image-placeholder"></div>
+                                        <img src="<?php echo e(BASE_URL . $relCover); ?>" alt="<?php echo e($rel['title']); ?>" class="post-card-img" onload="this.classList.add('loaded');" />
                                     </div>
                                     <div class="post-card-body" style="padding: 1.5rem;">
                                         <div class="post-card-meta">
@@ -160,7 +161,7 @@ if (!empty($slug)) {
                                             <span class="meta-dot"></span>
                                             <span><?php echo e($rel['read_time']); ?></span>
                                         </div>
-                                        <h4 class="serif-title" style="font-size: 1.1rem; margin: 0.5rem 0;"><?php echo e($rel['title']); ?></h4>
+                                        <h4 class="serif-title" style="font-size: 1.1rem; margin: 0.5rem 0; color: var(--text-color);"><?php echo e($rel['title']); ?></h4>
                                     </div>
                                 </a>
                             </article>
@@ -209,21 +210,21 @@ if (!empty($slug)) {
         <?php renderBreadcrumbs(['Women Stories' => '']); ?>
 
         <!-- Grand Cinematic Parallax Header -->
-        <section class="women-stories-hero-banner" data-scroll-reveal style="position: relative; border-radius: 12px; overflow: hidden; background: #111; color: #fff; margin-bottom: 4rem; aspect-ratio: 21/9; display: flex; align-items: center; justify-content: center; padding: 2rem;">
-            <div class="parallax-bg-wrapper" style="position: absolute; top:0; left:0; width:100%; height:120%; background-image: url('<?php echo BASE_URL; ?>/images/hero-bg.png'); background-size: cover; background-position: center; transform: translateY(-5%); z-index: 1;"></div>
-            <div class="banner-gradient-overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%); z-index: 2;"></div>
+        <section class="women-stories-hero-banner" data-scroll-reveal style="aspect-ratio: 21/9; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+            <div class="parallax-bg-wrapper" style="background-image: url('<?php echo BASE_URL; ?>/images/hero-bg.png'); background-size: cover; background-position: center; transform: translateY(-5%); z-index: 1;"></div>
+            <div class="banner-gradient-overlay" style="z-index: 2;"></div>
             <div class="banner-content" style="position: relative; z-index: 3; text-align: center; max-width: 700px;">
-                <span class="section-label" style="color: #fff; opacity: 0.9; letter-spacing: 0.3em;">Egypt Chronicles</span>
-                <h1 class="serif-title" style="font-size: 3rem; margin-top: 1rem; margin-bottom: 1rem; text-shadow: 0 4px 12px rgba(0,0,0,0.4);">Women's Travel Stories</h1>
-                <p style="font-weight: 300; font-size: 1.1rem; line-height: 1.6; opacity: 0.9; margin: 0;">
+                <span class="section-label" style="color: #ffffff; opacity: 0.9; letter-spacing: 0.3em;">Egypt Chronicles</span>
+                <h1 class="serif-title" style="font-size: 3rem; margin-top: 1rem; margin-bottom: 1rem; text-shadow: 0 4px 12px rgba(0,0,0,0.4); color: #ffffff;">Women's Travel Stories</h1>
+                <p style="font-weight: 300; font-size: 1.1rem; line-height: 1.6; opacity: 0.9; margin: 0; color: #ffffff;">
                     Inspiring travel memoirs, sensory roadmaps, and accessibility reviews written by women exploring the ancient mysteries of Egypt.
                 </p>
             </div>
         </section>
 
         <!-- Search Bar and Category Tabs -->
-        <section class="filterable-section" style="padding-top: 0; margin-bottom: 4rem;">
-            <div style="display: flex; flex-direction: column; gap: 2rem; border-bottom: 1px solid var(--accent-color); padding-bottom: 2rem;">
+        <section class="filterable-section" style="padding-top: 0; margin-bottom: 4rem; border: none;">
+            <div style="display: flex; flex-direction: column; gap: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem;">
                 <!-- Search bar -->
                 <form action="<?php echo BASE_URL; ?>/women-stories" method="GET" style="max-width: 500px; display: flex; gap: 0.5rem; align-self: flex-start; width: 100%;">
                     <?php if ($category): ?>
@@ -262,18 +263,19 @@ if (!empty($slug)) {
             <?php if ($featuredStory): 
                 $featCover = !empty($featuredStory['cover_image']) ? $featuredStory['cover_image'] : '/images/hero-bg.png';
                 ?>
-                <section class="cinematic-featured-story" data-scroll-reveal style="margin-bottom: 4rem;">
-                    <div class="featured-story-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 3rem; background: #fafafa; border: 1px solid var(--accent-color); border-radius: 12px; overflow: hidden; align-items: center;">
-                        <div class="featured-story-media" style="position: relative; aspect-ratio: 16/10; overflow: hidden; height: 100%; min-height: 380px;">
-                            <img src="<?php echo e(BASE_URL . $featCover); ?>" alt="<?php echo e($featuredStory['title']); ?>" style="width:100%; height:100%; object-fit:cover; transition: transform 0.8s ease;" />
-                            <div class="story-overlay-gradient" style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(0deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 50%);"></div>
+                <section class="cinematic-featured-story" data-scroll-reveal>
+                    <div class="featured-story-grid">
+                        <div class="featured-story-media">
+                            <div class="progressive-image-placeholder"></div>
+                            <img src="<?php echo e(BASE_URL . $featCover); ?>" alt="<?php echo e($featuredStory['title']); ?>" class="post-card-img" onload="this.classList.add('loaded');" />
+                            <div class="story-overlay-gradient"></div>
                             <span class="badge-text" style="position: absolute; top: 1.5rem; left: 1.5rem; background: var(--primary-color); color: #fff; z-index: 10;"><?php echo e($featuredStory['category']); ?></span>
                         </div>
-                        <div class="featured-story-body" style="padding: 3rem; display: flex; flex-direction: column; justify-content: center; gap: 1rem;">
+                        <div class="featured-story-body">
                             <span class="section-label" style="letter-spacing: 0.2em;">FEATURED MEMOIR</span>
-                            <h2 class="serif-title" style="font-size: 2.2rem; line-height: 1.2; margin: 0;"><?php echo e($featuredStory['title']); ?></h2>
-                            <p style="color: #666; font-size: 1rem; font-weight: 300; line-height: 1.6; margin: 0;"><?php echo e($featuredStory['excerpt']); ?></p>
-                            <div style="display: flex; gap: 1.5rem; align-items: center; font-size: 0.75rem; color: #888; font-weight: bold; margin-top: 0.5rem;">
+                            <h2 class="serif-title" style="font-size: 2.2rem; line-height: 1.2; margin: 0; color: var(--text-color);"><?php echo e($featuredStory['title']); ?></h2>
+                            <p style="color: var(--text-color); opacity: 0.8; font-size: 1rem; font-weight: 300; line-height: 1.6; margin: 0;"><?php echo e($featuredStory['excerpt']); ?></p>
+                            <div style="display: flex; gap: 1.5rem; align-items: center; font-size: 0.75rem; color: var(--text-color); opacity: 0.6; font-weight: bold; margin-top: 0.5rem;">
                                 <span>By <?php echo e($featuredStory['author']); ?></span>
                                 <span class="meta-dot"></span>
                                 <span><?php echo e($featuredStory['read_time']); ?></span>
@@ -287,22 +289,23 @@ if (!empty($slug)) {
             <?php endif; ?>
 
             <!-- 2. Grid & Sidebar Layout -->
-            <div class="grid-sidebar-layout" style="display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: start;">
-                <div class="content-and-sidebar-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 4rem;">
+            <div class="grid-sidebar-layout">
+                <div class="content-and-sidebar-grid">
                     
                     <!-- Stories Cards Grid -->
                     <div class="stories-cards-section">
-                        <h3 class="serif-title" style="font-size: 1.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--accent-color); padding-bottom: 0.5rem;">Latest Diaries</h3>
+                        <h3 class="serif-title" style="font-size: 1.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; color: var(--text-color);">Latest Diaries</h3>
                         
                         <?php if (!empty($stories)): ?>
                             <div class="story-list-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem;">
                                 <?php foreach ($stories as $story): 
                                     $storyCover = !empty($story['cover_image']) ? $story['cover_image'] : '/images/hero-bg.png';
                                     ?>
-                                    <article class="post-card group" data-scroll-reveal style="border-radius: 12px; overflow: hidden; background: #ffffff; border: 1px solid #eee;">
+                                    <article class="post-card group" data-scroll-reveal>
                                         <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e($story['slug']); ?>" class="post-card-link" aria-label="Read <?php echo e($story['title']); ?>">
-                                            <div class="post-card-media" style="aspect-ratio: 16/10; position: relative;">
-                                                <img src="<?php echo e(BASE_URL . $storyCover); ?>" alt="<?php echo e($story['title']); ?>" loading="lazy" class="post-card-img" />
+                                            <div class="post-card-media ratio-landscape">
+                                                <div class="progressive-image-placeholder"></div>
+                                                <img src="<?php echo e(BASE_URL . $storyCover); ?>" alt="<?php echo e($story['title']); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
                                                 <div class="post-card-badge">
                                                     <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e($story['category']); ?></span>
                                                 </div>
@@ -315,9 +318,9 @@ if (!empty($slug)) {
                                                     <span>By <?php echo e($story['author']); ?></span>
                                                 </div>
                                                 
-                                                <h3 class="post-card-title" style="font-size: 1.2rem; margin-bottom: 0; line-height: 1.3;"><?php echo e($story['title']); ?></h3>
+                                                <h3 class="post-card-title" style="font-size: 1.2rem; margin-bottom: 0; line-height: 1.3; color: var(--text-color);"><?php echo e($story['title']); ?></h3>
                                                 
-                                                <p class="post-card-excerpt" style="font-size: 0.85rem; line-height: 1.5; color: #666; -webkit-line-clamp: 2; flex-grow: 1; margin-bottom: 0;">
+                                                <p class="post-card-excerpt" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-color); opacity: 0.8; -webkit-line-clamp: 2; flex-grow: 1; margin-bottom: 0;">
                                                     <?php echo e($story['excerpt']); ?>
                                                 </p>
                                                 
@@ -325,7 +328,7 @@ if (!empty($slug)) {
                                                     <span class="cta-text" style="font-size: 0.65rem; font-weight: 900; color: var(--primary-color);">
                                                         READ STORY <span class="cta-arrow" aria-hidden="true">&rarr;</span>
                                                     </span>
-                                                    <span style="font-size: 0.65rem; color: #999; font-weight: bold;"><?php echo e($story['read_time']); ?></span>
+                                                    <span style="font-size: 0.65rem; color: var(--text-color); opacity: 0.6; font-weight: bold;"><?php echo e($story['read_time']); ?></span>
                                                 </div>
                                             </div>
                                         </a>
@@ -353,42 +356,42 @@ if (!empty($slug)) {
                             <?php endif; ?>
 
                         <?php else: ?>
-                            <div style="text-align: center; padding: 5rem 0; border: 1px dashed var(--accent-color); background-color: #fafafa; border-radius: 12px; margin-top: 1rem;">
+                            <div style="text-align: center; padding: 5rem 0; border: 1px dashed var(--border-color); background-color: var(--surface-color); border-radius: 12px; margin-top: 1rem;">
                                 <div style="font-size: 3rem; margin-bottom: 1rem;">📖</div>
-                                <h3 class="serif-title" style="font-size: 1.3rem; margin-bottom: 0.5rem;">No Stories Found</h3>
-                                <p style="color: #888; font-weight: 300; font-size: 0.9rem;">We couldn't find any travel logs matching your criteria.</p>
+                                <h3 class="serif-title" style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text-color);">No Stories Found</h3>
+                                <p style="color: var(--text-color); opacity: 0.6; font-weight: 300; font-size: 0.9rem;">We couldn't find any travel logs matching your criteria.</p>
                             </div>
                         <?php endif; ?>
                     </div>
 
                     <!-- Sidebar Guidelines -->
-                    <aside class="stories-index-sidebar" style="background: #fafafa; border: 1px solid var(--accent-color); border-radius: 12px; padding: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; max-width: 380px; width: 100%;">
+                    <aside class="stories-index-sidebar">
                         <div style="font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em; color: var(--primary-color);">Accessible Egypt</div>
-                        <h3 class="serif-title" style="font-size: 1.4rem; margin: 0; line-height: 1.2;">Egypt Quick Guidelines</h3>
+                        <h3 class="serif-title" style="font-size: 1.4rem; margin: 0; line-height: 1.2; color: var(--text-color);">Egypt Quick Guidelines</h3>
                         <div style="width: 2rem; height: 1px; background: var(--primary-color);"></div>
-                        <p style="color: #666; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                        <p style="color: var(--text-color); opacity: 0.8; font-size: 0.85rem; line-height: 1.6; margin: 0;">
                             Plan your journey to the historic marvels of Egypt with ease. Quick highlights for accessible route planning:
                         </p>
                         
                         <ul class="guidelines-bullets-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.25rem;">
-                            <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: #444;">
+                            <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: var(--text-color); opacity: 0.9;">
                                 <span style="font-size: 1.2rem; line-height: 1; color: var(--primary-color);">♿</span>
                                 <div>
-                                    <strong>Ancient Sites:</strong>
+                                    <strong style="color: var(--text-color);">Ancient Sites:</strong>
                                     Giza pyramids, Karnak, and Luxor temples now feature paved mobility corridors. Deep sand paths remain; helper guides are recommended.
                                 </div>
                             </li>
-                            <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: #444;">
+                            <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: var(--text-color); opacity: 0.9;">
                                 <span style="font-size: 1.2rem; line-height: 1; color: var(--primary-color);">👁️</span>
                                 <div>
-                                    <strong>Sensory Assistance:</strong>
+                                    <strong style="color: var(--text-color);">Sensory Assistance:</strong>
                                     Traditional markets like Khan el-Khalili are rich. Hiring descriptive guides can enhance the navigation experience significantly.
                                 </div>
                             </li>
-                            <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: #444;">
+                            <li style="display: flex; gap: 0.75rem; font-size: 0.8rem; line-height: 1.5; color: var(--text-color); opacity: 0.9;">
                                 <span style="font-size: 1.2rem; line-height: 1; color: var(--primary-color);">🚆</span>
                                 <div>
-                                    <strong>Transit Systems:</strong>
+                                    <strong style="color: var(--text-color);">Transit Systems:</strong>
                                     Cairo Metro Line 3 is modern and offers passenger lifts, accessible restrooms, and wheelchair space inside train cabins.
                                 </div>
                             </li>

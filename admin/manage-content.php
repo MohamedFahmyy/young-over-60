@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $image = $_POST['image'] ?? '';
 
             if (empty($name)) {
-                $error = "Category name is required.";
+                $error = __('manage_cat_fields_required');
             } else {
                 $slug = slugify(empty($slug) ? $name : $slug);
                 
@@ -39,22 +39,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ];
 
                 if ($pm->createCategory($catData)) {
-                    $success = "Category successfully created!";
+                    $success = __('manage_cat_added');
                 } else {
-                    $error = "Failed to create category in database.";
+                    $error = __('admin_error');
                 }
             }
         } elseif ($action === 'save_settings') {
             if ($pm->updateSiteSettings($_POST)) {
-                $success = "Settings updated successfully!";
+                $success = __('settings_success_save');
                 // Refresh local settings cache
                 $settings = $pm->getSiteSettings();
             } else {
-                $error = "Failed to update site configurations.";
+                $error = __('admin_error');
             }
         }
     } catch (Exception $e) {
-        $error = "Error: " . $e->getMessage();
+        $error = __('admin_error') . ": " . $e->getMessage();
     }
 }
 
@@ -67,13 +67,13 @@ if (isset($_GET['action'])) {
         if ($action === 'delete_category') {
             $catId = $_GET['id'] ?? '';
             if ($pm->deleteCategory($catId)) {
-                $success = "Category deleted successfully.";
+                $success = __('manage_test_deleted');
             } else {
-                $error = "Unable to delete category. Verify no posts are linked to it.";
+                $error = __('admin_error');
             }
         }
     } else {
-        $error = "Security validation mismatch.";
+        $error = __('dash_security_failed');
     }
 }
 

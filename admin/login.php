@@ -19,14 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $_POST['password'] ?? '';
         
         if (empty($email) || empty($password)) {
-            $error = "Please fill in all fields.";
+            $error = __('login_fields_required');
         } else {
             if (Auth::login($email, $password)) {
                 // Success redirect
                 header("Location: " . BASE_URL . "/admin/dashboard");
                 exit();
             } else {
-                $error = "Invalid email address or password.";
+                $error = __('login_invalid');
             }
         }
     } catch (Exception $e) {
@@ -73,6 +73,10 @@ require_once PATH_ROOT . '/includes/header.php';
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         box-sizing: border-box;
         text-align: left;
+    }
+    
+    html.rtl .admin-login-card {
+        text-align: right;
     }
     
     .admin-login-card:hover {
@@ -216,10 +220,10 @@ require_once PATH_ROOT . '/includes/header.php';
     <div class="admin-login-card">
         <div style="text-align: center; margin-bottom: 2.5rem;">
             <a href="<?php echo BASE_URL; ?>/" class="brand-title">
-                Young Over 60
+                <?php echo e($settings['siteName'] ?? 'Young Over 60'); ?>
             </a>
             <p class="brand-sub">
-                Administrative Console
+                <?php echo __('login_console'); ?>
             </p>
         </div>
 
@@ -234,23 +238,23 @@ require_once PATH_ROOT . '/includes/header.php';
             <?php echo Auth::csrfInput(); ?>
             
             <div class="form-group">
-                <label for="login-email" class="form-input-label">Email Address</label>
+                <label for="login-email" class="form-input-label"><?php echo __('login_email'); ?></label>
                 <input type="email" id="login-email" name="email" class="login-input" placeholder="admin@youngover60.com" required />
             </div>
 
             <div class="form-group">
-                <label for="login-password" class="form-input-label">Password</label>
+                <label for="login-password" class="form-input-label"><?php echo __('login_password'); ?></label>
                 <input type="password" id="login-password" name="password" class="login-input" placeholder="••••••••" required />
             </div>
 
             <button type="submit" class="login-btn">
-                Log In
+                <?php echo __('login_sign_in'); ?>
             </button>
         </form>
         
         <div style="text-align: center; margin-top: 2rem;">
             <a href="<?php echo BASE_URL; ?>/" class="back-link">
-                Back to Site homepage
+                <?php echo __('login_back_home'); ?>
             </a>
         </div>
     </div>

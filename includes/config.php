@@ -9,6 +9,13 @@ ini_set('display_errors', 1);
 // Set timezone to Sydney (default for TWL Australia)
 date_default_timezone_set('Australia/Sydney');
 
+// Central Multilingual Registry
+define('SUPPORTED_LANGUAGES', [
+    'en' => ['dir' => 'ltr', 'name' => 'English', 'locale' => 'en_US', 'font' => 'Outfit'],
+    'ar' => ['dir' => 'rtl', 'name' => 'العربية', 'locale' => 'ar_EG', 'font' => 'Cairo']
+]);
+define('DEFAULT_LANG', 'en');
+
 // Secure Session Start
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);

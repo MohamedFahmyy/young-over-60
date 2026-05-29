@@ -48,7 +48,7 @@ class SeoManager {
             $title = 'Accessibility Compliance & Tools | ' . $siteName;
             $description = 'Our commitment to accessibility. Use our custom accessibility widget to adjust font size, contrast, and layout.';
         } elseif ($type === 'admin') {
-            $title = 'Admin Panel | ' . $siteName;
+            $title = __('admin_dashboard_area') . ' | ' . $siteName;
             $robots = 'noindex, nofollow';
         } elseif ($type === '404') {
             $title = 'Page Not Found | ' . $siteName;

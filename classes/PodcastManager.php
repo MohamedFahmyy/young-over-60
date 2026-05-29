@@ -27,9 +27,10 @@ class PodcastManager {
         $binds = [];
 
         if ($category) {
-            $sql .= " AND category = :category";
-            $countSql .= " AND category = :category";
-            $binds['category'] = $category;
+            $sql .= " AND (category_en = :category_en OR category_ar = :category_ar)";
+            $countSql .= " AND (category_en = :category_en OR category_ar = :category_ar)";
+            $binds['category_en'] = $category;
+            $binds['category_ar'] = $category;
         }
 
         if ($isFeatured !== null) {
@@ -39,8 +40,9 @@ class PodcastManager {
         }
 
         if ($search) {
-            $sql .= " AND (title LIKE :search1 OR description LIKE :search2)";
-            $countSql .= " AND (title LIKE :search1 OR description LIKE :search2)";
+            $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+            $sql .= " AND (title_{$lang} LIKE :search1 OR description_{$lang} LIKE :search2)";
+            $countSql .= " AND (title_{$lang} LIKE :search1 OR description_{$lang} LIKE :search2)";
             $binds['search1'] = '%' . $search . '%';
             $binds['search2'] = '%' . $search . '%';
         }
@@ -82,52 +84,70 @@ class PodcastManager {
     }
 
     public function getPodcastBySlug($slug) {
-        $stmt = $this->db->prepare("SELECT * FROM podcasts WHERE slug = :slug LIMIT 1");
-        $stmt->execute(['slug' => $slug]);
+        $stmt = $this->db->prepare("SELECT * FROM podcasts WHERE slug_en = :slug_en OR slug_ar = :slug_ar LIMIT 1");
+        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug]);
         return $stmt->fetch();
     }
 
     public function createPodcast($data) {
         $id = bin2hex(random_bytes(16));
-        $sql = "INSERT INTO podcasts (id, title, slug, description, audio_file, cover_image, duration, category, is_featured) 
-                VALUES (:id, :title, :slug, :description, :audio_file, :cover_image, :duration, :category, :is_featured)";
+        $sql = "INSERT INTO podcasts (id, title_en, title_ar, slug_en, slug_ar, description_en, description_ar, audio_file, cover_image, alt_text_en, alt_text_ar, duration, category_en, category_ar, is_featured) 
+                VALUES (:id, :title_en, :title_ar, :slug_en, :slug_ar, :description_en, :description_ar, :audio_file, :cover_image, :alt_text_en, :alt_text_ar, :duration, :category_en, :category_ar, :is_featured)";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'id' => $id,
-            'title' => $data['title'],
-            'slug' => $data['slug'],
-            'description' => $data['description'] ?? null,
+            'title_en' => $data['title_en'],
+            'title_ar' => $data['title_ar'] ?? null,
+            'slug_en' => $data['slug_en'],
+            'slug_ar' => $data['slug_ar'] ?? null,
+            'description_en' => $data['description_en'] ?? null,
+            'description_ar' => $data['description_ar'] ?? null,
             'audio_file' => $data['audio_file'],
             'cover_image' => $data['cover_image'] ?? null,
+            'alt_text_en' => $data['alt_text_en'] ?? null,
+            'alt_text_ar' => $data['alt_text_ar'] ?? null,
             'duration' => $data['duration'] ?? null,
-            'category' => $data['category'] ?? null,
+            'category_en' => $data['category_en'] ?? null,
+            'category_ar' => $data['category_ar'] ?? null,
             'is_featured' => !empty($data['is_featured']) ? 1 : 0
         ]);
     }
 
     public function updatePodcast($id, $data) {
         $sql = "UPDATE podcasts SET 
-                title = :title, 
-                slug = :slug, 
-                description = :description, 
+                title_en = :title_en, 
+                title_ar = :title_ar, 
+                slug_en = :slug_en, 
+                slug_ar = :slug_ar, 
+                description_en = :description_en, 
+                description_ar = :description_ar, 
                 audio_file = :audio_file, 
                 cover_image = :cover_image, 
+                alt_text_en = :alt_text_en,
+                alt_text_ar = :alt_text_ar,
                 duration = :duration, 
-                category = :category, 
+                category_en = :category_en, 
+                category_ar = :category_ar, 
                 is_featured = :is_featured
                 WHERE id = :id";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'id' => $id,
-            'title' => $data['title'],
-            'slug' => $data['slug'],
-            'description' => $data['description'] ?? null,
+            'title_en' => $data['title_en'],
+            'title_ar' => $data['title_ar'] ?? null,
+            'slug_en' => $data['slug_en'],
+            'slug_ar' => $data['slug_ar'] ?? null,
+            'description_en' => $data['description_en'] ?? null,
+            'description_ar' => $data['description_ar'] ?? null,
             'audio_file' => $data['audio_file'],
             'cover_image' => $data['cover_image'] ?? null,
+            'alt_text_en' => $data['alt_text_en'] ?? null,
+            'alt_text_ar' => $data['alt_text_ar'] ?? null,
             'duration' => $data['duration'] ?? null,
-            'category' => $data['category'] ?? null,
+            'category_en' => $data['category_en'] ?? null,
+            'category_ar' => $data['category_ar'] ?? null,
             'is_featured' => !empty($data['is_featured']) ? 1 : 0
         ]);
     }
@@ -146,12 +166,21 @@ class PodcastManager {
 
     // Static Categories List
     public function getCategories() {
+        if (defined('CURRENT_LANG') && CURRENT_LANG === 'ar') {
+            return [
+                'Guides & Tips' => 'أدلة ونصائح',
+                'Interviews' => 'مقابلات',
+                'Destinations' => 'الوجهات',
+                'Personal Stories' => 'قصص شخصية',
+                'Inspiration' => 'الإلهام'
+            ];
+        }
         return [
-            'Guides & Tips',
-            'Interviews',
-            'Destinations',
-            'Personal Stories',
-            'Inspiration'
+            'Guides & Tips' => 'Guides & Tips',
+            'Interviews' => 'Interviews',
+            'Destinations' => 'Destinations',
+            'Personal Stories' => 'Personal Stories',
+            'Inspiration' => 'Inspiration'
         ];
     }
 }

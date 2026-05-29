@@ -27,16 +27,16 @@ require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
 ?>
 
-<main class="container">
+<main class="container dark-podcast-theme" style="padding: 3rem 2rem; border-radius: var(--border-radius-card); margin-top: 2rem; margin-bottom: 4rem; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
     <!-- Breadcrumbs -->
     <?php renderBreadcrumbs(['Podcasts' => '']); ?>
 
     <!-- Search & Title Header -->
     <section class="content-list-section" style="padding-bottom: 2rem;">
         <div class="mb-16 text-center max-w-3xl mx-auto" data-scroll-reveal>
-            <span class="section-label">Audio Journeys</span>
-            <h1 class="serif-title" style="margin-top: 1rem;"><?php echo e($settings['siteName'] ?? 'Young Over 60'); ?> Podcasts</h1>
-            <p style="color: #666666; font-size: 1.1rem; font-weight: 300; margin-top: 1rem; margin-bottom: 3rem;">
+            <span class="section-label" style="color: var(--accent-color);">Audio Journeys</span>
+            <h1 class="serif-title" style="margin-top: 1rem; color: #ffffff;"><?php echo e($settings['siteName'] ?? 'Young Over 60'); ?> Podcasts</h1>
+            <p style="color: #b3b3b3; font-size: 1.1rem; font-weight: 300; margin-top: 1rem; margin-bottom: 3rem;">
                 Listen to inspiring conversations, travel guides, and real accounts of travellers with disabilities navigating the globe.
             </p>
             
@@ -52,7 +52,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     placeholder="Search episodes..." 
                     class="form-input" 
                     aria-label="Search podcasts query"
-                    style="border-radius: 8px; flex-grow: 1;"
+                    style="border-radius: 8px; flex-grow: 1; background-color: #2a2a2a; border-color: #3e3e3e; color: #ffffff;"
                 />
                 <button type="submit" class="btn-primary" style="padding: 0 2rem; border-radius: 8px; font-size: 0.75rem;">
                     Search
@@ -60,7 +60,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
             </form>
             <?php if ($search): ?>
                 <p style="margin-top: 1rem; font-size: 0.85rem; color: #888;">
-                    Showing results for "<strong><?php echo e($search); ?></strong>" &bull; <a href="<?php echo BASE_URL; ?>/podcasts<?php echo $category ? '?category='.urlencode($category) : ''; ?>" style="text-decoration: underline;">Clear search</a>
+                    Showing results for "<strong><?php echo e($search); ?></strong>" &bull; <a href="<?php echo BASE_URL; ?>/podcasts<?php echo $category ? '?category='.urlencode($category) : ''; ?>" style="text-decoration: underline; color: var(--accent-color);">Clear search</a>
                 </p>
             <?php endif; ?>
         </div>
@@ -70,40 +70,41 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <?php if (!empty($featuredPodcasts) && !$category && !$search): ?>
         <section class="featured-podcasts-section" style="margin-bottom: 5rem;" data-scroll-reveal>
             <div class="intro-content" style="gap: 0.5rem; margin-bottom: 2rem;">
-                <span class="section-label">Editor's Picks</span>
-                <h3 class="serif-title" style="margin:0; font-size: 1.75rem;">Featured Episodes</h3>
+                <span class="section-label" style="color: var(--accent-color);">Editor's Picks</span>
+                <h3 class="serif-title" style="margin:0; font-size: 1.75rem; color: #ffffff;">Featured Episodes</h3>
             </div>
             
-            <div class="podcast-carousel-wrapper" style="position: relative; overflow: hidden;">
-                <div class="podcast-carousel-inner" style="display: flex; gap: 2rem; overflow-x: auto; padding-bottom: 1.5rem; scrollbar-width: none; snap-type: x mandatory;">
+            <div class="podcast-carousel-wrapper">
+                <div class="podcast-carousel-inner">
                     <?php foreach ($featuredPodcasts as $pod): 
                         $cover = !empty($pod['cover_image']) ? $pod['cover_image'] : '/images/hero-bg.png';
                         ?>
-                        <div class="podcast-featured-card" style="flex: 0 0 100%; max-width: 800px; display: grid; grid-template-columns: 1fr; background: #fafafa; border: 1px solid var(--accent-color); snap-align: center; border-radius: 12px; overflow: hidden; margin: 0 auto;">
+                        <div class="podcast-featured-card">
                             <!-- Large tablet/desktop split view -->
-                            <div class="podcast-featured-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-                                <div class="podcast-featured-media" style="position: relative; aspect-ratio: 16/10; overflow: hidden; background: #222;">
-                                    <img src="<?php echo e(BASE_URL . $cover); ?>" alt="<?php echo e($pod['title']); ?>" style="width: 100%; height: 100%; object-fit: cover;" />
+                            <div class="podcast-featured-grid">
+                                <div class="podcast-featured-media">
+                                    <div class="progressive-image-placeholder"></div>
+                                    <img src="<?php echo e(BASE_URL . $cover); ?>" alt="<?php echo e(t($pod, 'title')); ?>" class="post-card-img" onload="this.classList.add('loaded');" />
                                     <button class="podcast-play-overlay-btn" 
                                             data-audio="<?php echo e(BASE_URL . $pod['audio_file']); ?>" 
-                                            data-title="<?php echo e(e($pod['title'])); ?>" 
+                                            data-title="<?php echo e(e(t($pod, 'title'))); ?>" 
                                             data-cover="<?php echo e(BASE_URL . $cover); ?>"
                                             data-id="<?php echo e($pod['id']); ?>"
-                                            aria-label="Play <?php echo e($pod['title']); ?>">
+                                            aria-label="Play <?php echo e(t($pod, 'title')); ?>">
                                         <svg style="width: 3rem; height: 3rem; fill: #ffffff;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                     </button>
                                 </div>
                                 <div class="podcast-featured-content" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: 1rem;">
-                                    <span class="badge-text" style="align-self: flex-start; background: var(--primary-color); color: #fff;"><?php echo e($pod['category']); ?></span>
-                                    <h4 class="serif-title" style="font-size: 1.6rem; margin: 0;"><?php echo e($pod['title']); ?></h4>
-                                    <p style="color: #666; font-size: 0.95rem; font-weight: 300; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"><?php echo e($pod['description']); ?></p>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #999; font-weight: bold; margin-top: 1rem;">
+                                    <span class="badge-text" style="align-self: flex-start; background: var(--primary-color); color: #fff;"><?php echo e(t($pod, 'category')); ?></span>
+                                    <h4 class="serif-title" style="font-size: 1.6rem; margin: 0; color: #ffffff;"><?php echo e(t($pod, 'title')); ?></h4>
+                                    <p style="color: #b3b3b3; font-size: 0.95rem; font-weight: 300; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"><?php echo e(t($pod, 'description')); ?></p>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #888; font-weight: bold; margin-top: 1rem;">
                                         <span>Duration: <?php echo e($pod['duration']); ?></span>
                                         <span>Published: <?php echo formatDate($pod['created_at']); ?></span>
                                     </div>
                                     <button class="btn-primary play-trigger-btn" 
                                             data-audio="<?php echo e(BASE_URL . $pod['audio_file']); ?>" 
-                                            data-title="<?php echo e(e($pod['title'])); ?>" 
+                                            data-title="<?php echo e(e(t($pod, 'title'))); ?>" 
                                             data-cover="<?php echo e(BASE_URL . $cover); ?>"
                                             data-id="<?php echo e($pod['id']); ?>"
                                             style="margin-top: 1.5rem; border-radius: 8px; font-size: 0.7rem; padding: 1rem 2rem;">
@@ -121,8 +122,8 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <!-- 2. Recently Played Section (Hydrated via JS) -->
     <section id="recently-played-section" style="display: none; margin-bottom: 5rem;" data-scroll-reveal>
         <div class="intro-content" style="gap: 0.5rem; margin-bottom: 2rem;">
-            <span class="section-label">Your History</span>
-            <h3 class="serif-title" style="margin:0; font-size: 1.75rem;">Recently Played</h3>
+            <span class="section-label" style="color: var(--accent-color);">Your History</span>
+            <h3 class="serif-title" style="margin:0; font-size: 1.75rem; color: #ffffff;">Recently Played</h3>
         </div>
         <div id="recently-played-list" class="story-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
             <!-- Dynamically populated -->
@@ -130,18 +131,18 @@ require_once PATH_ROOT . '/includes/navbar.php';
     </section>
 
     <!-- 3. Main Podcast Listing & Category Tabs -->
-    <section class="filterable-section" style="padding-top: 0;">
+    <section class="filterable-section" style="padding-top: 0; border: none;">
         <div class="filterable-header-row" style="margin-bottom: 3rem;">
             <div class="intro-content" style="gap: 0.5rem;">
-                <span class="section-label">All Episodes</span>
-                <h3 class="serif-title" style="margin:0; font-size: 1.75rem;">Browse Episodes</h3>
+                <span class="section-label" style="color: var(--accent-color);">All Episodes</span>
+                <h3 class="serif-title" style="margin:0; font-size: 1.75rem; color: #ffffff;">Browse Episodes</h3>
             </div>
             
             <!-- Category Tabs -->
             <div class="tabs-container" role="tablist" aria-label="Podcast categories">
-                <a href="<?php echo BASE_URL; ?>/podcasts" class="tab-btn <?php echo !$category ? 'active' : ''; ?>" role="tab">ALL</a>
+                <a href="<?php echo BASE_URL; ?>/podcasts" class="tab-btn <?php echo !$category ? 'active' : ''; ?>" role="tab" style="background-color: #1c1c1c; border-color: #2e2e2e; color: #b3b3b3;">ALL</a>
                 <?php foreach ($categories as $cat): ?>
-                    <a href="<?php echo BASE_URL; ?>/podcasts?category=<?php echo urlencode($cat); ?>" class="tab-btn <?php echo $category === $cat ? 'active' : ''; ?>" role="tab">
+                    <a href="<?php echo BASE_URL; ?>/podcasts?category=<?php echo urlencode($cat); ?>" class="tab-btn <?php echo $category === $cat ? 'active' : ''; ?>" role="tab" style="background-color: #1c1c1c; border-color: #2e2e2e; color: #b3b3b3;">
                         <?php echo e(strtoupper($cat)); ?>
                     </a>
                 <?php endforeach; ?>
@@ -154,44 +155,45 @@ require_once PATH_ROOT . '/includes/navbar.php';
                 <?php foreach ($podcasts as $pod): 
                     $cover = !empty($pod['cover_image']) ? $pod['cover_image'] : '/images/hero-bg.png';
                     ?>
-                    <article class="post-card group" data-scroll-reveal style="border-radius: 12px; overflow: hidden; background: #ffffff;">
+                    <article class="post-card group" data-scroll-reveal style="border-radius: 12px; overflow: hidden; background: var(--surface-color); border-color: var(--border-color);">
                         <div class="post-card-media" style="aspect-ratio: 16/10; position: relative;">
-                            <img src="<?php echo e(BASE_URL . $cover); ?>" alt="<?php echo e($pod['title']); ?>" loading="lazy" class="post-card-img" />
+                            <div class="progressive-image-placeholder"></div>
+                            <img src="<?php echo e(BASE_URL . $cover); ?>" alt="<?php echo e(t($pod, 'title')); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
                             <div class="post-card-badge">
-                                <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e($pod['category']); ?></span>
+                                <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e(t($pod, 'category')); ?></span>
                             </div>
                             <!-- Play button overlay -->
                             <button class="podcast-card-play-btn" 
                                     data-audio="<?php echo e(BASE_URL . $pod['audio_file']); ?>" 
-                                    data-title="<?php echo e(e($pod['title'])); ?>" 
+                                    data-title="<?php echo e(e(t($pod, 'title'))); ?>" 
                                     data-cover="<?php echo e(BASE_URL . $cover); ?>"
                                     data-id="<?php echo e($pod['id']); ?>"
-                                    aria-label="Play <?php echo e($pod['title']); ?>">
+                                    aria-label="Play <?php echo e(t($pod, 'title')); ?>">
                                 <svg style="width: 1.5rem; height: 1.5rem; fill: #ffffff;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             </button>
                         </div>
                         
                         <div class="post-card-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
                             <div class="post-card-meta" style="margin-bottom: 0;">
-                                <time datetime="<?php echo e($pod['created_at']); ?>"><?php echo formatDate($pod['created_at']); ?></time>
+                                <time datetime="<?php echo e($pod['created_at']); ?>" style="color: #b3b3b3;"><?php echo formatDate($pod['created_at']); ?></time>
                                 <span class="meta-dot"></span>
-                                <span>Duration: <?php echo e($pod['duration']); ?></span>
+                                <span style="color: #b3b3b3;">Duration: <?php echo e($pod['duration']); ?></span>
                             </div>
                             
-                            <h3 class="post-card-title" style="font-size: 1.25rem; margin-bottom: 0;"><?php echo e($pod['title']); ?></h3>
+                            <h3 class="post-card-title" style="font-size: 1.25rem; margin-bottom: 0; color: #ffffff;"><?php echo e(t($pod, 'title')); ?></h3>
                             
-                            <p class="post-card-excerpt" style="font-size: 0.85rem; line-height: 1.5; color: #666; -webkit-line-clamp: 2; flex-grow: 1; margin-bottom: 0;">
-                                <?php echo e($pod['description']); ?>
+                            <p class="post-card-excerpt" style="font-size: 0.85rem; line-height: 1.5; color: #b3b3b3; -webkit-line-clamp: 2; flex-grow: 1; margin-bottom: 0;">
+                                <?php echo e(t($pod, 'description')); ?>
                             </p>
                             
                             <div class="post-card-cta" style="margin-top: 0.5rem;">
                                 <button class="cta-text btn-reset play-trigger-btn" 
                                         data-audio="<?php echo e(BASE_URL . $pod['audio_file']); ?>" 
-                                        data-title="<?php echo e(e($pod['title'])); ?>" 
+                                        data-title="<?php echo e(e(t($pod, 'title'))); ?>" 
                                         data-cover="<?php echo e(BASE_URL . $cover); ?>"
                                         data-id="<?php echo e($pod['id']); ?>"
-                                        style="font-size: 0.65rem; border: none; cursor: pointer; background: transparent; font-weight: 900; letter-spacing: 0.1em; color: var(--primary-color);">
-                                    PLAY NOW <span class="cta-arrow" aria-hidden="true" style="margin-left: 0.25rem;">&rarr;</span>
+                                        style="font-size: 0.65rem; border: none; cursor: pointer; background: transparent; font-weight: 900; letter-spacing: 0.1em; color: var(--accent-color);">
+                                    PLAY NOW <span class="cta-arrow" aria-hidden="true" style="margin-left: 0.25rem; color: var(--accent-color);">&rarr;</span>
                                 </button>
                             </div>
                         </div>
@@ -203,26 +205,26 @@ require_once PATH_ROOT . '/includes/navbar.php';
             <?php if ($meta['totalPages'] > 1): ?>
                 <div class="pagination-row" data-scroll-reveal>
                     <?php if ($page > 1): ?>
-                        <a href="?page=<?php echo $page - 1; ?><?php echo $category ? '&category='.urlencode($category) : ''; ?><?php echo $search ? '&search='.urlencode($search) : ''; ?>" class="page-link">&larr;</a>
+                        <a href="?page=<?php echo $page - 1; ?><?php echo $category ? '&category='.urlencode($category) : ''; ?><?php echo $search ? '&search='.urlencode($search) : ''; ?>" class="page-link" style="background: var(--surface-color); border-color: var(--border-color); color: #ffffff;">&larr;</a>
                     <?php endif; ?>
 
                     <?php for ($i = 1; $i <= $meta['totalPages']; $i++): ?>
-                        <a href="?page=<?php echo $i; ?><?php echo $category ? '&category='.urlencode($category) : ''; ?><?php echo $search ? '&search='.urlencode($search) : ''; ?>" class="page-link <?php echo $i === $page ? 'active' : ''; ?>">
+                        <a href="?page=<?php echo $i; ?><?php echo $category ? '&category='.urlencode($category) : ''; ?><?php echo $search ? '&search='.urlencode($search) : ''; ?>" class="page-link <?php echo $i === $page ? 'active' : ''; ?>" style="background: var(--surface-color); border-color: var(--border-color); color: #ffffff;">
                             <?php echo $i; ?>
                         </a>
                     <?php endfor; ?>
 
                     <?php if ($page < $meta['totalPages']): ?>
-                        <a href="?page=<?php echo $page + 1; ?><?php echo $category ? '&category='.urlencode($category) : ''; ?><?php echo $search ? '&search='.urlencode($search) : ''; ?>" class="page-link">&rarr;</a>
+                        <a href="?page=<?php echo $page + 1; ?><?php echo $category ? '&category='.urlencode($category) : ''; ?><?php echo $search ? '&search='.urlencode($search) : ''; ?>" class="page-link" style="background: var(--surface-color); border-color: var(--border-color); color: #ffffff;">&rarr;</a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
 
         <?php else: ?>
-            <div style="text-align: center; padding: 6rem 0; border: 1px dashed var(--accent-color); background-color: #fafafa; border-radius: 12px;" data-scroll-reveal>
+            <div style="text-align: center; padding: 6rem 0; border: 1px dashed var(--border-color); background-color: var(--surface-color); border-radius: 12px;" data-scroll-reveal>
                 <div style="font-size: 3rem; margin-bottom: 1.5rem;">🎙️</div>
-                <h3 class="serif-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">No Episodes Found</h3>
-                <p style="color: #888; font-weight: 300;">We couldn't find any podcast episodes matching your queries.</p>
+                <h3 class="serif-title" style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #ffffff;">No Episodes Found</h3>
+                <p style="color: #b3b3b3; font-weight: 300;">We couldn't find any podcast episodes matching your queries.</p>
             </div>
         <?php endif; ?>
     </section>

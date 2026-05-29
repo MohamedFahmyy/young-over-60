@@ -12,19 +12,19 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <!-- Breadcrumbs -->
     <?php renderBreadcrumbs(['Accessibility Policy' => '']); ?>
 
-    <section class="content-list-section" style="max-width: 800px; margin: 0 auto;">
+    <section class="accessibility-container">
         <div class="mb-12" data-scroll-reveal>
             <span class="section-label">Our Commitment</span>
-            <h1 class="serif-title" style="margin-top: 1rem; margin-bottom: 2rem;">Accessibility at <?php echo e($settings['siteName'] ?? 'Young Over 60'); ?></h1>
-            <p style="color: #666; font-size: 1.15rem; font-weight: 300;">
+            <h1 class="serif-title">Accessibility at <?php echo e($settings['siteName'] ?? 'Young Over 60'); ?></h1>
+            <p style="font-size: 1.15rem; font-weight: 300; opacity: 0.85;">
                 We are dedicated to ensuring that our digital resources and editorial stories are accessible to travellers with diverse requirements. We design our structures around W3C WCAG 2.1 compliance criteria and welcome feedback on any barriers encountered.
             </p>
         </div>
 
         <!-- Custom Widget Toggles Page Integration -->
-        <div class="admin-card-box" data-scroll-reveal style="padding: 3rem; background-color: #fafafa; border: 1px solid var(--accent-color); border-radius: 12px; margin-bottom: 4rem;">
-            <h2 class="serif-title" style="font-size: 1.75rem; margin-bottom: 1.5rem;">Visual & Display Settings</h2>
-            <p style="font-size: 0.95rem; color: #666; margin-bottom: 2rem; font-weight: 300;">
+        <div class="accessibility-card-box" data-scroll-reveal>
+            <h2 class="serif-title" style="margin-bottom: 1.5rem;">Visual & Display Settings</h2>
+            <p style="font-size: 0.95rem; margin-bottom: 2rem; font-weight: 300; opacity: 0.85;">
                 Customize the layout and text rendering of the platform using these toggles. Your settings are instantly applied and saved to your device.
             </p>
             
@@ -33,7 +33,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <span class="toggle-card-label">Readable Font</span>
                 </button>
-                <button class="toggle-card" data-toggle="highContrast" aria-label="Toggle high contrast black and yellow visual theme">
+                <button class="toggle-card" data-toggle="highContrast" aria-label="Toggle high contrast black and blue visual theme">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                     <span class="toggle-card-label">Contrast Mode</span>
                 </button>
@@ -47,9 +47,9 @@ require_once PATH_ROOT . '/includes/navbar.php';
                 </button>
             </div>
             
-            <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-                <button class="btn-primary" data-open-accessibility style="flex-grow: 1; border-radius: 8px;">Open Size Controls Panel</button>
-                <button class="btn-reset" data-accessibility-action="reset" style="flex-grow: 1; border-radius: 8px;">Reset to Default Theme</button>
+            <div class="accessibility-actions">
+                <button class="btn-primary" data-open-accessibility>Open Size Controls Panel</button>
+                <button class="btn-reset" data-accessibility-action="reset">Reset to Default Theme</button>
             </div>
         </div>
 

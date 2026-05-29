@@ -14,6 +14,8 @@ if (!defined('PATH_ROOT')) {
 require_once PATH_ROOT . '/config/database.php';
 require_once PATH_ROOT . '/classes/Database.php';
 require_once PATH_ROOT . '/classes/PostManager.php';
+require_once PATH_ROOT . '/classes/PodcastManager.php';
+require_once PATH_ROOT . '/classes/StoryManager.php';
 
 // 2. Initialize the PostManager object safely
 if (!isset($pm) || !($pm instanceof PostManager)) {
@@ -45,9 +47,8 @@ if ($pm instanceof PostManager) {
 $planCats = [];
 if (!empty($categories)) {
     $planCats = array_filter($categories, function($c) {
-        return isset($c['slug']) && in_array($c['slug'], ['accommodation', 'inspiration', 'tips-tricks', 'transport']);
+        return isset($c['slug_en']) && in_array($c['slug_en'], ['accommodation', 'inspiration', 'tips-tricks', 'transport']);
     });
-    // Fallback if none exist
     if (empty($planCats)) {
         $planCats = array_slice($categories, 0, 4);
     }
@@ -57,9 +58,8 @@ if (!empty($categories)) {
 $expCats = [];
 if (!empty($categories)) {
     $expCats = array_filter($categories, function($c) {
-        return isset($c['slug']) && in_array($c['slug'], ['animal-encounters', 'cruises', 'family-travel', 'food-drink']);
+        return isset($c['slug_en']) && in_array($c['slug_en'], ['animal-encounters', 'cruises', 'family-travel', 'food-drink']);
     });
-    // Fallback if none exist
     if (empty($expCats)) {
         $expCats = array_slice($categories, 4, 3);
     }
@@ -97,6 +97,60 @@ try {
     error_log("Failed to fetch hero slides: " . $e->getMessage());
 }
 
+// Fetch Specific Needs Categories Dynamically
+$needsCategoriesList = [];
+$needsSlugs = ['physical-mobility', 'cruises', 'accommodation', 'gear', 'sensory-needs', 'tips-tricks'];
+if ($pm instanceof PostManager) {
+    foreach ($needsSlugs as $slug) {
+        $catData = $pm->getCategoryBySlug($slug);
+        if ($catData) {
+            $needsCategoriesList[] = $catData;
+        }
+    }
+}
+
+// Fetch Destinations Regions dynamically
+$destSlidersList = [];
+$destSlugs = ['australia', 'asia-pacific', 'europe', 'americas'];
+if ($pm instanceof PostManager) {
+    foreach ($destSlugs as $slug) {
+        $catData = $pm->getCategoryBySlug($slug);
+        if ($catData) {
+            $destSlidersList[] = $catData;
+        }
+    }
+}
+
+// Fetch Podcasts for homepage
+$podcastMgr = new PodcastManager();
+$homePodcasts = [];
+try {
+    $podResult = $podcastMgr->getPodcasts(['limit' => 3]);
+    $homePodcasts = $podResult['data'] ?? [];
+} catch (Exception $e) {
+    error_log("Failed to fetch homepage podcasts: " . $e->getMessage());
+}
+
+// Fetch Women Stories for homepage
+$storyMgr = new StoryManager();
+$homeStories = [];
+try {
+    $storiesResult = $storyMgr->getStories(['limit' => 3]);
+    $homeStories = $storiesResult['data'] ?? [];
+} catch (Exception $e) {
+    error_log("Failed to fetch homepage stories: " . $e->getMessage());
+}
+
+// Fetch Testimonials
+$testimonials = [];
+if ($pm instanceof PostManager) {
+    try {
+        $testimonials = $pm->getTestimonials() ?: [];
+    } catch (Exception $e) {
+        error_log("Failed to fetch testimonials: " . $e->getMessage());
+    }
+}
+
 // Include Header & Navbar
 require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
@@ -107,7 +161,10 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <section class="hero-slider-section" aria-label="Featured content slider">
         <div class="hero-slider-container">
             <?php foreach ($slides as $index => $slide): 
-                $slideImg = !empty($slide['image']) ? $slide['image'] : '/images/hero-bg.png';
+                $slideImg = t($slide, 'image');
+                if (empty($slideImg)) {
+                    $slideImg = !empty($slide['image_en']) ? $slide['image_en'] : '/images/hero-bg.png';
+                }
                 $isActive = ($index === 0) ? 'active' : '';
                 ?>
                 <div class="hero-slide <?php echo $isActive; ?>" data-index="<?php echo $index; ?>" role="group" aria-roledescription="slide" aria-label="<?php echo $index + 1; ?> of <?php echo count($slides); ?>">
@@ -119,7 +176,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" 
                             data-src="<?php echo e(BASE_URL . $slideImg); ?>" 
                         <?php endif; ?>
-                        alt="<?php echo e($slide['title']); ?>" 
+                        alt="<?php echo e(t($slide, 'alt_text') ?: t($slide, 'title')); ?>" 
                         class="hero-slide-img" 
                         loading="<?php echo ($index === 0) ? 'eager' : 'lazy'; ?>" 
                     />
@@ -127,13 +184,13 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     <div class="hero-slide-overlay" style="background: rgba(0,0,0,<?php echo floatval($slide['overlay_opacity']); ?>);"></div>
                     
                     <div class="hero-slide-content container">
-                        <?php if (!empty($slide['subtitle'])): ?>
-                            <p class="hero-slide-subtitle"><?php echo e($slide['subtitle']); ?></p>
+                        <?php if (t($slide, 'subtitle') !== ''): ?>
+                            <p class="hero-slide-subtitle"><?php echo e(t($slide, 'subtitle')); ?></p>
                         <?php endif; ?>
-                        <h1 class="hero-slide-title"><?php echo e($slide['title']); ?></h1>
-                        <?php if (!empty($slide['button_text']) && !empty($slide['button_link'])): ?>
-                            <a href="<?php echo e(BASE_URL . $slide['button_link']); ?>" class="btn-primary hero-slide-btn" style="border-radius: 8px; margin-top: 1rem;">
-                                <?php echo e($slide['button_text']); ?>
+                        <h1 class="hero-slide-title"><?php echo e(t($slide, 'title')); ?></h1>
+                        <?php if (t($slide, 'button_text') !== '' && !empty($slide['button_link'])): ?>
+                            <a href="<?php echo url($slide['button_link']); ?>" class="btn-primary hero-slide-btn" style="border-radius: 8px; margin-top: 1rem;">
+                                <?php echo e(t($slide, 'button_text')); ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -161,7 +218,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
 <?php else: ?>
     <!-- Fallback if no slides exist in DB -->
     <section class="hero-section">
-        <img src="<?php echo e($settings['heroBackgroundUrl'] ?? '/images/hero-bg.png'); ?>" alt="<?php echo e($siteTitle); ?> Cover" class="hero-img" />
+        <img src="<?php echo e(t($settings, 'heroBackgroundUrl') ?: ($settings['logoUrl'] ?? '/images/hero-bg.png')); ?>" alt="<?php echo e($siteTitle); ?> Cover" class="hero-img" />
         <div class="hero-gradient"></div>
         <div class="hero-content">
             <h1 class="hero-title animate-in fade-in" data-scroll-reveal>
@@ -180,7 +237,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <div class="intro-grid">
         <!-- Content Side -->
         <div class="intro-content">
-            <span class="section-label">The Story</span>
+            <span class="section-label"><?php echo __('footer_about_title'); ?></span>
             <h2 class="serif-title">Travel Without <br><span class="italic">Limits</span></h2>
             <div class="intro-divider"></div>
             <div class="intro-text">
@@ -191,7 +248,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     From hidden local gems to iconic global destinations, we share the stories, tips, and insights needed to navigate the world with confidence and joy. No matter your needs, the world is waiting for you.
                 </p>
             </div>
-            <a href="<?php echo BASE_URL; ?>/accessibility" class="btn-underline">
+            <a href="<?php echo url('accessibility'); ?>" class="btn-underline">
                 Discover Our Mission
             </a>
         </div>
@@ -220,6 +277,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
 </section>
 
 <!-- 3. Specific Needs Quick Access Grid -->
+<?php if (!empty($needsCategoriesList)): ?>
 <section class="needs-section container" data-scroll-reveal>
     <div class="section-header">
         <span class="section-label">Quick Access</span>
@@ -227,36 +285,28 @@ require_once PATH_ROOT . '/includes/navbar.php';
     </div>
     
     <div class="needs-grid">
-        <?php
-        $needsCategories = [
-            ['title' => 'Mobility & Ease', 'slug' => 'physical-mobility', 'image' => '/images/mobility.png'],
-            ['title' => 'Scenic Cruises', 'slug' => 'cruises', 'image' => '/images/europe.png'],
-            ['title' => 'Comfort Lodging', 'slug' => 'accommodation', 'image' => '/images/hero-bg.png'],
-            ['title' => 'Support & Gear', 'slug' => 'gear', 'image' => '/images/hero-bg.png'],
-            ['title' => 'Quiet & Sensory Spaces', 'slug' => 'sensory-needs', 'image' => '/images/sensory.png'],
-            ['title' => 'Senior Travel Tips', 'slug' => 'tips-tricks', 'image' => '/images/australia.png']
-        ];
-        foreach ($needsCategories as $cat):
-            ?>
-            <a href="<?php echo BASE_URL; ?>/category/<?php echo $cat['slug']; ?>" class="needs-card" aria-label="Explore stories for <?php echo e($cat['title']); ?>">
-                <img src="<?php echo BASE_URL . $cat['image']; ?>" alt="<?php echo e($cat['title']); ?>" loading="lazy" />
+        <?php foreach ($needsCategoriesList as $cat): ?>
+            <a href="<?php echo url('category/' . e(t($cat, 'slug'))); ?>" class="needs-card" aria-label="Explore stories for <?php echo e(t($cat, 'name')); ?>">
+                <img src="<?php echo e(!empty($cat['image']) ? $cat['image'] : '/images/hero-bg.png'); ?>" alt="<?php echo e(t($cat, 'alt_text') ?: t($cat, 'name')); ?>" loading="lazy" />
                 <div class="needs-card-overlay">
                     <div class="needs-card-line"></div>
-                    <h4 class="needs-card-title"><?php echo e($cat['title']); ?></h4>
+                    <h4 class="needs-card-title"><?php echo e(t($cat, 'name')); ?></h4>
                     <div class="needs-card-hover-text">
-                        <span class="hover-label-btn">View Stories</span>
+                        <span class="hover-label-btn"><?php echo __('btn_view_stories'); ?></span>
                     </div>
                 </div>
             </a>
         <?php endforeach; ?>
     </div>
 </section>
+<?php endif; ?>
 
-<!-- 4. Plan Your Trip (Filterable Story Grid) -->
+<!-- 4. Plan Your Trip / Editor's Picks (Filterable Story Grid) -->
+<?php if (!empty($planCats)): ?>
 <section class="filterable-section container" data-scroll-reveal>
     <div class="filterable-header-row">
         <div class="intro-content" style="gap: 1rem;">
-            <span class="section-label">Resources & Guides</span>
+            <span class="section-label">Editor's Picks</span>
             <h3 class="serif-title" style="margin:0;">Plan Your Trip</h3>
         </div>
         
@@ -272,9 +322,9 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     data-category="<?php echo e($cat['id']); ?>"
                     role="tab"
                     aria-selected="<?php echo $isFirst ? 'true' : 'false'; ?>"
-                    aria-label="Filter by <?php echo e($cat['name']); ?>"
+                    aria-label="Filter by <?php echo e(t($cat, 'name')); ?>"
                 >
-                    <?php echo e($cat['name']); ?>
+                    <?php echo e(t($cat, 'name')); ?>
                 </button>
                 <?php 
                 $isFirst = false;
@@ -287,7 +337,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <div id="plan-grid" class="story-grid">
         <?php if (!empty($initialPlanPosts)): ?>
             <?php foreach ($initialPlanPosts as $post): ?>
-                <?php renderPostCard($post); ?>
+                <?php renderPostCard($post, 'featured'); ?>
             <?php endforeach; ?>
         <?php else: ?>
             <div style="grid-column: 1/-1; text-align:center; color:#999; padding: 4rem 0; font-style:italic;">
@@ -297,13 +347,15 @@ require_once PATH_ROOT . '/includes/navbar.php';
     </div>
     
     <div class="section-footer">
-        <a href="<?php echo BASE_URL; ?>/destinations" class="btn-underline">
+        <a href="<?php echo url('destinations'); ?>" class="btn-underline">
             Explore All Guides
         </a>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- 5. Destinations (Region Slider) -->
+<?php if (!empty($destSlidersList)): ?>
 <section class="slider-section">
     <div class="container slider-header">
         <div class="intro-content" style="gap: 1rem;">
@@ -323,20 +375,12 @@ require_once PATH_ROOT . '/includes/navbar.php';
     
     <div class="slider-outer">
         <div class="slider-inner">
-            <?php
-            $regionSliders = [
-                ['name' => 'Australia', 'slug' => 'australia', 'image' => '/images/australia.png'],
-                ['name' => 'Asia Pacific', 'slug' => 'asia-pacific', 'image' => '/images/asia.png'],
-                ['name' => 'Europe', 'slug' => 'europe', 'image' => '/images/europe.png'],
-                ['name' => 'Americas', 'slug' => 'americas', 'image' => '/images/americas.png']
-            ];
-            foreach ($regionSliders as $region):
-                ?>
-                <a href="<?php echo BASE_URL; ?>/category/<?php echo $region['slug']; ?>" class="slider-card" aria-label="Explore <?php echo e($region['name']); ?> stories">
-                    <img src="<?php echo BASE_URL . $region['image']; ?>" alt="" loading="lazy" />
+            <?php foreach ($destSlidersList as $region): ?>
+                <a href="<?php echo url('category/' . e(t($region, 'slug'))); ?>" class="slider-card" aria-label="Explore <?php echo e(t($region, 'name')); ?> stories">
+                    <img src="<?php echo e(!empty($region['image']) ? $region['image'] : '/images/hero-bg.png'); ?>" alt="<?php echo e(t($region, 'alt_text') ?: t($region, 'name')); ?>" loading="lazy" />
                     <div class="slider-card-overlay">
                         <span class="slider-card-label">Region</span>
-                        <h4 class="slider-card-title"><?php echo e($region['name']); ?></h4>
+                        <h4 class="slider-card-title"><?php echo e(t($region, 'name')); ?></h4>
                         <div class="slider-card-line"></div>
                     </div>
                 </a>
@@ -344,8 +388,166 @@ require_once PATH_ROOT . '/includes/navbar.php';
         </div>
     </div>
 </section>
+<?php endif; ?>
+
+<!-- 5.2 Women Stories Section (Storytelling Editorial Asymmetric Columns) -->
+<?php if (!empty($homeStories)): ?>
+<section class="filterable-section container" data-scroll-reveal>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem;">
+        <div class="intro-content" style="gap: 1rem;">
+            <span class="section-label"><?php echo __('nav_stories'); ?></span>
+            <h3 class="serif-title" style="margin:0;">Women <span class="italic">Chronicles</span></h3>
+        </div>
+        <a href="<?php echo url('women-stories'); ?>" class="btn-underline">
+            Read All Chronicles
+        </a>
+    </div>
+    
+    <div class="story-grid-asymmetric">
+        <!-- Main Large Story -->
+        <?php 
+        $mainStory = $homeStories[0];
+        $otherStories = array_slice($homeStories, 1);
+        $mainCover = !empty($mainStory['cover_image']) ? $mainStory['cover_image'] : '/images/hero-bg.png';
+        ?>
+        <article class="post-card group" style="border: none;">
+            <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e(t($mainStory, 'slug')); ?>" class="post-card-link" aria-label="Read <?php echo e(t($mainStory, 'title')); ?>">
+                <div class="post-card-media ratio-story">
+                    <div class="progressive-image-placeholder"></div>
+                    <img src="<?php echo e(BASE_URL . $mainCover); ?>" alt="<?php echo e(t($mainStory, 'title')); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
+                    <div class="post-card-badge">
+                        <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e(t($mainStory, 'category')); ?></span>
+                    </div>
+                </div>
+                <div class="post-card-body" style="padding: 2rem 0;">
+                    <div class="post-card-meta">
+                        <span>By <?php echo e(t($mainStory, 'author')); ?></span>
+                        <span class="meta-dot"></span>
+                        <span><?php echo e($mainStory['read_time']); ?></span>
+                    </div>
+                    <h3 class="serif-title" style="font-size: 2rem; line-height: 1.2; margin-bottom: 1rem; color: var(--text-color);"><?php echo e(t($mainStory, 'title')); ?></h3>
+                    <p class="post-card-excerpt" style="font-size: 1rem; line-height: 1.6; color: var(--text-color); opacity: 0.8;"><?php echo e(t($mainStory, 'excerpt')); ?></p>
+                </div>
+            </a>
+        </article>
+        
+        <!-- Small Stories List (Side Column) -->
+        <div style="display: flex; flex-direction: column; gap: 2.5rem;">
+            <?php foreach ($otherStories as $story): 
+                $storyCover = !empty($story['cover_image']) ? $story['cover_image'] : '/images/hero-bg.png';
+                ?>
+                <article style="display: flex; gap: 1.5rem; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem;">
+                    <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e(t($story, 'slug')); ?>" style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="width: 120px; height: 120px; flex-shrink: 0; border-radius: 8px; overflow: hidden; position: relative;">
+                            <img src="<?php echo e(BASE_URL . $storyCover); ?>" alt="" style="width:100%; height:100%; object-fit:cover;" />
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1;">
+                            <div class="post-card-meta" style="margin: 0;">
+                                <span><?php echo e(t($story, 'author')); ?></span>
+                                <span class="meta-dot"></span>
+                                <span><?php echo e($story['read_time']); ?></span>
+                            </div>
+                            <h4 class="serif-title" style="font-size: 1.15rem; margin: 0; line-height: 1.3; color: var(--text-color);"><?php echo e(t($story, 'title')); ?></h4>
+                            <p style="font-size: 0.85rem; color: var(--text-color); opacity: 0.7; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                <?php echo e(t($story, 'excerpt')); ?>
+                            </p>
+                        </div>
+                    </a>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- 5.3 Podcasts Section (Dark Spotify-Inspired layout) -->
+<?php if (!empty($homePodcasts)): ?>
+<section class="slider-section dark-podcast-theme" style="padding: 6rem 0;" data-scroll-reveal>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem; flex-wrap: wrap; gap: 1.5rem;">
+            <div class="intro-content" style="gap: 1rem;">
+                <span class="section-label" style="color: var(--accent-color);"><?php echo __('nav_podcasts'); ?></span>
+                <h3 class="serif-title" style="margin:0; color: #ffffff;">Audio <span class="italic">Journeys</span></h3>
+            </div>
+            <a href="<?php echo url('podcasts'); ?>" class="btn-underline" style="color: var(--accent-color); border-bottom-color: var(--accent-color);">
+                Listen to All Episodes
+            </a>
+        </div>
+        
+        <div class="story-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <?php foreach ($homePodcasts as $pod): 
+                $cover = !empty($pod['cover_image']) ? $pod['cover_image'] : '/images/hero-bg.png';
+                ?>
+                <article class="post-card group" style="background: #181818; border-color: #282828;">
+                    <div class="post-card-media" style="aspect-ratio: 16/10; position: relative;">
+                        <div class="progressive-image-placeholder"></div>
+                        <img src="<?php echo e(BASE_URL . $cover); ?>" alt="<?php echo e(t($pod, 'title')); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
+                        <div class="post-card-badge">
+                            <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e(t($pod, 'category')); ?></span>
+                        </div>
+                        <button class="podcast-card-play-btn" 
+                                data-audio="<?php echo e(BASE_URL . $pod['audio_file']); ?>" 
+                                data-title="<?php echo e(e(t($pod, 'title'))); ?>" 
+                                data-cover="<?php echo e(BASE_URL . $cover); ?>"
+                                data-id="<?php echo e($pod['id']); ?>"
+                                aria-label="Play <?php echo e(t($pod, 'title')); ?>">
+                            <svg style="width: 1.5rem; height: 1.5rem; fill: #ffffff;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                    <div class="post-card-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div class="post-card-meta">
+                            <span style="color: #b3b3b3;"><?php echo formatDate($pod['created_at']); ?></span>
+                            <span class="meta-dot"></span>
+                            <span style="color: #b3b3b3;"><?php echo e($pod['duration']); ?></span>
+                        </div>
+                        <h4 class="post-card-title" style="color: #ffffff; font-size: 1.2rem;"><?php echo e(t($pod, 'title')); ?></h4>
+                        <p class="post-card-excerpt" style="color: #b3b3b3; font-size: 0.85rem; line-height: 1.5; opacity: 0.8;">
+                            <?php echo e(t($pod, 'description')); ?>
+                        </p>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- 5.5 Testimonials Section (Luxury Glassmorphism layout) -->
+<?php if (!empty($testimonials)): ?>
+<section class="testimonials-section container" data-scroll-reveal style="margin-top: 6rem; margin-bottom: 6rem;">
+    <div class="section-header text-center" style="max-width: 600px; margin: 0 auto 4rem auto;">
+        <span class="section-label" style="text-align: center; display: block;"><?php echo __('test_label'); ?></span>
+        <h3 class="serif-title" style="margin-top: 1rem; text-align: center;"><?php echo __('test_title'); ?></h3>
+    </div>
+    
+    <div class="testimonials-slider-outer">
+        <div class="testimonials-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <?php foreach ($testimonials as $t): ?>
+                <div class="testimonial-card" style="padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px;">
+                    <div>
+                        <div class="testimonial-quote-icon" style="font-family: serif; font-size: 4rem; line-height: 1; color: var(--primary-color); opacity: 0.3; margin-bottom: -1rem; margin-top: -1rem; text-align: start;">“</div>
+                        <p class="testimonial-quote" style="font-size: 1.1rem; line-height: 1.6; font-style: italic; margin-bottom: 2rem; color: var(--text-color); font-weight: 300;">
+                            <?php echo e(t($t, 'quote')); ?>
+                        </p>
+                    </div>
+                    <div class="testimonial-author-meta" style="display: flex; align-items: center; gap: 1rem; padding-top: 1.5rem;">
+                        <?php if (!empty($t['image'])): ?>
+                            <img src="<?php echo e(BASE_URL . $t['image']); ?>" alt="<?php echo e(t($t, 'author')); ?>" class="testimonial-avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" />
+                        <?php endif; ?>
+                        <div>
+                            <h4 class="testimonial-name" style="font-family: var(--base-font); font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-color);"><?php echo e(t($t, 'author')); ?></h4>
+                            <p class="testimonial-role" style="font-size: 0.8rem; color: var(--text-color); opacity: 0.6; margin: 0; font-weight: 300;"><?php echo e(t($t, 'role')); ?></p>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
 
 <!-- 6. Experiences (Filterable Story Grid) -->
+<?php if (!empty($expCats)): ?>
 <section class="filterable-section container" data-scroll-reveal>
     <div class="filterable-header-row">
         <div class="intro-content" style="gap: 1rem;">
@@ -365,9 +567,9 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     data-category="<?php echo e($cat['id']); ?>"
                     role="tab"
                     aria-selected="<?php echo $isFirst ? 'true' : 'false'; ?>"
-                    aria-label="Filter by <?php echo e($cat['name']); ?>"
+                    aria-label="Filter by <?php echo e(t($cat, 'name')); ?>"
                 >
-                    <?php echo e($cat['name']); ?>
+                    <?php echo e(t($cat, 'name')); ?>
                 </button>
                 <?php 
                 $isFirst = false;
@@ -380,7 +582,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <div id="exp-grid" class="story-grid">
         <?php if (!empty($initialExpPosts)): ?>
             <?php foreach ($initialExpPosts as $post): ?>
-                <?php renderPostCard($post); ?>
+                <?php renderPostCard($post, 'story'); ?>
             <?php endforeach; ?>
         <?php else: ?>
             <div style="grid-column: 1/-1; text-align:center; color:#999; padding: 4rem 0; font-style:italic;">
@@ -390,11 +592,12 @@ require_once PATH_ROOT . '/includes/navbar.php';
     </div>
     
     <div class="section-footer">
-        <a href="<?php echo BASE_URL; ?>/experiences" class="btn-underline">
+        <a href="<?php echo url('experiences'); ?>" class="btn-underline">
             Explore All Experiences
         </a>
     </div>
 </section>
+<?php endif; ?>
 
 <?php 
 // Include Footer

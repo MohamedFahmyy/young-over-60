@@ -60,20 +60,24 @@ function e($value) {
 }
 
 // 7. Renders the luxury Post Card component (reusable card)
-function renderPostCard($post) {
-    $url = BASE_URL . '/posts/' . e($post['slug']);
-    $categoryUrl = BASE_URL . '/category/' . e($post['categoryId']);
+function renderPostCard($post, $ratioType = 'landscape') {
+    $url = url('posts/' . e(t($post, 'slug')));
+    $categorySlug = t($post, 'categorySlug');
+    $categoryUrl = url('category/' . e($categorySlug));
     $cover = !empty($post['coverImage']) ? e($post['coverImage']) : '/images/hero-bg.png';
     $published = formatDate($post['publishedAt']);
-    $author = e($post['authorName'] ?? 'Site Admin');
+    $author = e(t($post, 'authorName') ?: ($post['authorName'] ?? 'Site Admin'));
+    $alt = e(t($post, 'alt_text'));
     
+    $ratioClass = 'ratio-' . $ratioType;
     ?>
-    <article class="post-card group" data-scroll-reveal>
-        <a href="<?php echo $url; ?>" class="post-card-link" aria-label="Read <?php echo e($post['title']); ?>">
-            <div class="post-card-media">
-                <img src="<?php echo $cover; ?>" alt="<?php echo e($post['title']); ?>" loading="lazy" class="post-card-img" />
+    <article class="post-card group ratio-card-<?php echo $ratioType; ?>" data-scroll-reveal>
+        <a href="<?php echo $url; ?>" class="post-card-link" aria-label="<?php echo __('btn_read_story'); ?> <?php echo e(t($post, 'title')); ?>">
+            <div class="post-card-media <?php echo $ratioClass; ?>">
+                <div class="progressive-image-placeholder"></div>
+                <img src="<?php echo $cover; ?>" alt="<?php echo $alt ?: e(t($post, 'title')); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
                 <div class="post-card-badge">
-                    <span class="badge-text"><?php echo e($post['categoryName'] ?? 'Category'); ?></span>
+                    <span class="badge-text"><?php echo e(t($post, 'categoryName')); ?></span>
                 </div>
             </div>
             
@@ -84,14 +88,14 @@ function renderPostCard($post) {
                     <span><?php echo $author; ?></span>
                 </div>
                 
-                <h3 class="post-card-title"><?php echo e($post['title']); ?></h3>
+                <h3 class="post-card-title"><?php echo e(t($post, 'title')); ?></h3>
                 
                 <p class="post-card-excerpt">
-                    <?php echo e($post['excerpt'] ?? ''); ?>
+                    <?php echo e(t($post, 'excerpt')); ?>
                 </p>
                 
                 <div class="post-card-cta">
-                    <span class="cta-text">Read Story <span class="cta-arrow" aria-hidden="true">→</span></span>
+                    <span class="cta-text"><?php echo __('btn_read_story'); ?> <span class="cta-arrow" aria-hidden="true"><?php echo isRTL() ? '←' : '→'; ?></span></span>
                 </div>
             </div>
         </a>
@@ -105,7 +109,7 @@ function renderBreadcrumbs($crumbs) {
     <nav class="breadcrumbs" aria-label="Breadcrumb">
         <ol class="breadcrumbs-list">
             <li class="breadcrumb-item">
-                <a href="<?php echo BASE_URL; ?>/" class="breadcrumb-link">Home</a>
+                <a href="<?php echo url('/'); ?>" class="breadcrumb-link"><?php echo __('nav_home'); ?></a>
             </li>
             <?php 
             $total = count($crumbs);
@@ -117,9 +121,9 @@ function renderBreadcrumbs($crumbs) {
                 <li class="breadcrumb-separator" aria-hidden="true">/</li>
                 <li class="breadcrumb-item">
                     <?php if ($isLast): ?>
-                        <span class="breadcrumb-current" aria-current="page"><?php echo e($title); ?></span>
+                        <span class="breadcrumb-current" aria-current="page"><?php echo e(__($title)); ?></span>
                     <?php else: ?>
-                        <a href="<?php echo e($url); ?>" class="breadcrumb-link"><?php echo e($title); ?></a>
+                        <a href="<?php echo e($url ? url($url) : '#'); ?>" class="breadcrumb-link"><?php echo e(__($title)); ?></a>
                     <?php endif; ?>
                 </li>
             <?php endforeach; ?>
@@ -138,7 +142,7 @@ function sendAdminNotificationEmail($submission) {
 
     $pm = new PostManager();
     $settings = $pm->getSiteSettings();
-    $siteName = $settings['siteName'] ?? 'Young Over 60';
+    $siteName = t($settings, 'siteName') ?: ($settings['siteName'] ?? 'Young Over 60');
 
     if (!$adminEmail) {
         // Fallback email address
@@ -164,5 +168,93 @@ function sendAdminNotificationEmail($submission) {
     } catch (Exception $e) {
         error_log("Failed to send contact notification email: " . $e->getMessage());
     }
+}
+
+// 10. Check if current layout is RTL
+function isRTL() {
+    if (!defined('CURRENT_LANG')) return false;
+    $languages = defined('SUPPORTED_LANGUAGES') ? SUPPORTED_LANGUAGES : [];
+    return isset($languages[CURRENT_LANG]) && $languages[CURRENT_LANG]['dir'] === 'rtl';
+}
+
+// 11. Translate dynamic record field with automatic fallback to English
+function t($record, $field, $fallback = true) {
+    if (!$record) return '';
+    $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+    
+    // Check primary translation column (e.g. title_ar)
+    $fieldLang = $field . '_' . $lang;
+    if (isset($record[$fieldLang]) && $record[$fieldLang] !== '') {
+        return $record[$fieldLang];
+    }
+    
+    // Check default translation column (e.g. title_en)
+    $fieldDefault = $field . '_' . DEFAULT_LANG;
+    if (isset($record[$fieldDefault]) && $record[$fieldDefault] !== '') {
+        return $record[$fieldDefault];
+    }
+    
+    // Fallback to the non-suffixed field if it exists (e.g. title)
+    if (isset($record[$field]) && $record[$field] !== '') {
+        return $record[$field];
+    }
+    
+    // Fallback to any other language in registry
+    if ($fallback && defined('SUPPORTED_LANGUAGES')) {
+        foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
+            $f = $field . '_' . $lCode;
+            if (isset($record[$f]) && $record[$f] !== '') {
+                return $record[$f];
+            }
+        }
+    }
+    
+    return '';
+}
+
+// 12. Static dictionary translations with local caching
+function __($key) {
+    static $dictionary = [];
+    $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+    
+    if (empty($dictionary[$lang])) {
+        $filePath = PATH_ROOT . '/lang/' . $lang . '.php';
+        if (file_exists($filePath)) {
+            $dictionary[$lang] = include $filePath;
+        } else {
+            $dictionary[$lang] = [];
+        }
+    }
+    
+    return $dictionary[$lang][$key] ?? $key;
+}
+
+// 13. Smart URL helper pre-pending language prefix
+function url($path = '') {
+    $path = ltrim($path, '/');
+    
+    // Do not alter admin or api routing prefixes
+    if (strpos($path, 'admin') === 0 || strpos($path, 'api') === 0) {
+        return BASE_URL . '/' . $path;
+    }
+    
+    $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+    if ($lang !== DEFAULT_LANG) {
+        return BASE_URL . '/' . $lang . '/' . $path;
+    }
+    return BASE_URL . '/' . $path;
+}
+
+// 14. Slugify bilingual strings (retaining Arabic characters)
+function slugify_bilingual($text) {
+    // If it contains Arabic characters, slugify accordingly
+    if (preg_match('/[\x{0600}-\x{06FF}]/u', $text)) {
+        // Replace spaces and special characters with hyphens
+        $text = preg_replace('/[^\p{L}\p{N}]+/u', '-', $text);
+        $text = trim($text, '-');
+        return $text;
+    }
+    // ASCII fallback slugify
+    return slugify($text);
 }
 ?>

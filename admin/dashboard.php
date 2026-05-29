@@ -17,7 +17,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'git_pull') {
     
     if (verifyCsrf($token)) {
         if (!function_exists('exec')) {
-            $_SESSION['admin_flash_error'] = "The Git pull feature is not supported on your server because the PHP function 'exec()' is disabled by your host (Hostinger). Please pull updates or deploy changes manually.";
+            $_SESSION['admin_flash_error'] = __('dash_git_no_exec');
             $git_output = "Error: PHP execution function 'exec()' is disabled in hosting configurations.";
         } else {
             $output = [];
@@ -26,14 +26,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'git_pull') {
             
             $git_output = implode("\n", $output);
             if ($return_var === 0) {
-                $_SESSION['admin_flash_success'] = "System successfully updated from GitHub repository!";
+                $_SESSION['admin_flash_success'] = __('dash_pull_success');
             } else {
-                $_SESSION['admin_flash_error'] = "Git pull failed: " . $git_output;
+                $_SESSION['admin_flash_error'] = __('dash_pull_error') . ' ' . $git_output;
             }
             $pm->clearCache();
         }
     } else {
-        $_SESSION['admin_flash_error'] = "Security check failed. Unable to pull updates.";
+        $_SESSION['admin_flash_error'] = __('dash_security_failed');
         $git_output = "CSRF Verification Failed.";
     }
     header("Location: " . BASE_URL . "/admin/dashboard?pull_result=" . urlencode($git_output));
@@ -47,9 +47,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
     
     if (verifyCsrf($token)) {
         $pm->deletePost($postId, true); // True triggers soft delete
-        $_SESSION['admin_flash_success'] = "Story successfully moved to trash.";
+        $_SESSION['admin_flash_success'] = __('dash_soft_delete_success');
     } else {
-        $_SESSION['admin_flash_error'] = "Security check failed. Unable to delete.";
+        $_SESSION['admin_flash_error'] = __('dash_security_failed');
     }
     header("Location: " . BASE_URL . "/admin/dashboard");
     exit();
@@ -82,16 +82,16 @@ require_once PATH_ROOT . '/includes/header.php';
     <main class="admin-main">
         <div class="admin-header-row">
             <div>
-                <h1 class="admin-title">Dashboard</h1>
-                <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;">Overview of site metrics and recent content logs.</p>
+                <h1 class="admin-title"><?php echo __('admin_dashboard'); ?></h1>
+                <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;"><?php echo __('dash_overview'); ?></p>
             </div>
             <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                <a href="<?php echo BASE_URL; ?>/admin/dashboard?action=git_pull&csrf_token=<?php echo csrfToken(); ?>" class="btn-primary" style="background-color: #10b981; border-color: #10b981; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;" onclick="this.style.opacity='0.6'; this.textContent='Pulling...';">
+                <a href="<?php echo BASE_URL; ?>/admin/dashboard?action=git_pull&csrf_token=<?php echo csrfToken(); ?>" class="btn-primary" style="background-color: #10b981; border-color: #10b981; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;" onclick="this.style.opacity='0.6'; this.textContent='<?php echo addslashes(__('btn_view_guides')); /* or a pulling text if we want, but let's keep it simple or just translate */ ?>';">
                     <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Update Site (Git Pull)
+                    <?php echo __('dash_update_site'); ?>
                 </a>
                 <a href="<?php echo BASE_URL; ?>/admin/add-post" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none;">
-                    Create New Story
+                    <?php echo __('dash_create_story'); ?>
                 </a>
             </div>
         </div>
@@ -101,7 +101,7 @@ require_once PATH_ROOT . '/includes/header.php';
             <div class="admin-card-box" style="margin-bottom: 2rem; border-left: 4px solid var(--primary-color);">
                 <h3 style="font-size: 0.9rem; font-weight: bold; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; color: var(--primary-color);">
                     <svg style="width:1.25rem; height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    Git Update Log
+                    <?php echo __('dash_git_log'); ?>
                 </h3>
                 <pre style="background: #1e293b; color: #f8fafc; padding: 1.25rem; border-radius: 8px; font-family: monospace; font-size: 0.75rem; white-space: pre-wrap; overflow-x: auto; line-height: 1.5; margin: 0;"><?php echo e($_GET['pull_result']); ?></pre>
             </div>
@@ -129,7 +129,7 @@ require_once PATH_ROOT . '/includes/header.php';
                     <svg style="width:1.5rem; height:1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
                 <div>
-                    <span class="stat-label">Total Articles</span>
+                    <span class="stat-label"><?php echo __('dash_total_articles'); ?></span>
                     <h3 class="stat-value"><?php echo $totalPosts; ?></h3>
                 </div>
             </div>
@@ -140,7 +140,7 @@ require_once PATH_ROOT . '/includes/header.php';
                     <svg style="width:1.5rem; height:1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                 </div>
                 <div>
-                    <span class="stat-label">Categories</span>
+                    <span class="stat-label"><?php echo __('admin_manage_content'); /* Categories */ ?></span>
                     <h3 class="stat-value"><?php echo $totalCategories; ?></h3>
                 </div>
             </div>
@@ -151,7 +151,7 @@ require_once PATH_ROOT . '/includes/header.php';
                     <svg style="width:1.5rem; height:1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 </div>
                 <div>
-                    <span class="stat-label">Subscribers</span>
+                    <span class="stat-label"><?php echo __('manage_subscribers'); ?></span>
                     <h3 class="stat-value"><?php echo $totalSubscribers; ?></h3>
                 </div>
             </div>
@@ -159,25 +159,25 @@ require_once PATH_ROOT . '/includes/header.php';
 
         <!-- Recent Posts Workspace Table -->
         <section class="admin-card-box">
-            <h2 class="admin-card-title">Recent Stories</h2>
+            <h2 class="admin-card-title"><?php echo __('dash_recent_stories'); ?></h2>
             
             <div class="admin-table-wrapper">
                 <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>Cover</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Published</th>
-                            <th>Actions</th>
+                            <th><?php echo __('dash_cover'); ?></th>
+                            <th><?php echo __('dash_title'); ?></th>
+                            <th><?php echo __('dash_category'); ?></th>
+                            <th><?php echo __('admin_status'); ?></th>
+                            <th><?php echo __('admin_published'); ?></th>
+                            <th><?php echo __('admin_actions'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (!empty($recentPosts)): ?>
                             <?php foreach ($recentPosts as $post): 
-                                $editUrl = BASE_URL . '/admin/edit-post/' . $post['id'];
-                                $deleteUrl = BASE_URL . '/admin/dashboard?action=delete&id=' . $post['id'] . '&csrf_token=' . csrfToken();
+                                $editUrl = BASE_URL . $lang_prefix_url . '/admin/edit-post/' . $post['id'];
+                                $deleteUrl = BASE_URL . $lang_prefix_url . '/admin/dashboard?action=delete&id=' . $post['id'] . '&csrf_token=' . csrfToken();
                                 $cover = !empty($post['coverImage']) ? $post['coverImage'] : '/images/hero-bg.png';
                                 ?>
                                 <tr>
@@ -190,16 +190,16 @@ require_once PATH_ROOT . '/includes/header.php';
                                     <td><?php echo e($post['categoryName']); ?></td>
                                     <td>
                                         <span class="status-badge <?php echo $post['status'] === 'PUBLISHED' ? 'published' : 'draft'; ?>">
-                                            <?php echo e($post['status']); ?>
+                                            <?php echo e($post['status'] === 'PUBLISHED' ? __('admin_published') : __('admin_draft')); ?>
                                         </span>
                                     </td>
                                     <td>
-                                        <?php echo $post['publishedAt'] ? formatDate($post['publishedAt']) : '<span style="color:#aaa; font-style:italic;">Not Published</span>'; ?>
+                                        <?php echo $post['publishedAt'] ? formatDate($post['publishedAt']) : '<span style="color:#aaa; font-style:italic;">' . __('admin_draft') . '</span>'; ?>
                                     </td>
                                     <td>
                                         <div class="btn-actions">
-                                            <a href="<?php echo $editUrl; ?>" class="btn-sm-action">Edit</a>
-                                            <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('Are you sure you want to delete this story?');" class="btn-sm-action delete">Delete</a>
+                                            <a href="<?php echo $editUrl; ?>" class="btn-sm-action"><?php echo __('admin_edit'); ?></a>
+                                            <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('<?php echo addslashes(__('dash_confirm_delete')); ?>');" class="btn-sm-action delete"><?php echo __('admin_delete'); ?></a>
                                         </div>
                                     </td>
                                 </tr>
@@ -207,7 +207,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         <?php else: ?>
                             <tr>
                                 <td colspan="6" style="text-align: center; color: #999; padding: 2rem 0; font-style: italic;">
-                                    No stories written yet.
+                                    <?php echo __('dash_no_stories'); ?>
                                 </td>
                             </tr>
                         <?php endif; ?>

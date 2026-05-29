@@ -16,15 +16,70 @@ require_once __DIR__ . '/classes/PodcastManager.php';
 require_once __DIR__ . '/classes/StoryManager.php';
 require_once __DIR__ . '/classes/SliderManager.php';
 
-// Initialize PostManager globally for all page templates
-$pm = new PostManager();
-
 // 3. Parse Route Query (From .htaccess rewrite rules)
 $route = $_GET['route'] ?? '';
 $route = trim($route, '/');
 
 $parts = explode('/', $route);
+
+// First check if the route starts with a language prefix
+$lang_prefix = null;
+if (isset($parts[0]) && array_key_exists($parts[0], SUPPORTED_LANGUAGES)) {
+    $lang_prefix = $parts[0];
+}
+
+// Determine if this is an admin route
+$isAdminRoute = false;
+if ($lang_prefix !== null) {
+    $isAdminRoute = (isset($parts[1]) && $parts[1] === 'admin');
+} else {
+    $isAdminRoute = (isset($parts[0]) && $parts[0] === 'admin');
+}
+
+$lang = DEFAULT_LANG;
+
+if ($isAdminRoute) {
+    // Admin language logic (fully independent of frontend language)
+    if ($lang_prefix !== null) {
+        $lang = $lang_prefix;
+        $_SESSION['admin_lang'] = $lang;
+        setcookie('admin_lang', $lang, time() + 30 * 24 * 60 * 60, '/');
+        array_shift($parts); // Remove language prefix
+        $route = implode('/', $parts);
+    } elseif (isset($_GET['lang']) && array_key_exists($_GET['lang'], SUPPORTED_LANGUAGES)) {
+        $lang = $_GET['lang'];
+        $_SESSION['admin_lang'] = $lang;
+        setcookie('admin_lang', $lang, time() + 30 * 24 * 60 * 60, '/');
+    } elseif (isset($_SESSION['admin_lang']) && array_key_exists($_SESSION['admin_lang'], SUPPORTED_LANGUAGES)) {
+        $lang = $_SESSION['admin_lang'];
+    } elseif (isset($_COOKIE['admin_lang']) && array_key_exists($_COOKIE['admin_lang'], SUPPORTED_LANGUAGES)) {
+        $lang = $_COOKIE['admin_lang'];
+    }
+} else {
+    // Frontend language logic
+    if ($lang_prefix !== null) {
+        $lang = $lang_prefix;
+        $_SESSION['lang'] = $lang;
+        setcookie('lang', $lang, time() + 30 * 24 * 60 * 60, '/');
+        array_shift($parts); // Remove language prefix
+        $route = implode('/', $parts);
+    } elseif (isset($_GET['lang']) && array_key_exists($_GET['lang'], SUPPORTED_LANGUAGES)) {
+        $lang = $_GET['lang'];
+        $_SESSION['lang'] = $lang;
+        setcookie('lang', $lang, time() + 30 * 24 * 60 * 60, '/');
+    } elseif (isset($_SESSION['lang']) && array_key_exists($_SESSION['lang'], SUPPORTED_LANGUAGES)) {
+        $lang = $_SESSION['lang'];
+    } elseif (isset($_COOKIE['lang']) && array_key_exists($_COOKIE['lang'], SUPPORTED_LANGUAGES)) {
+        $lang = $_COOKIE['lang'];
+    }
+}
+
+define('CURRENT_LANG', $lang);
+$route_clean = $route;
 $base = $parts[0] ?? '';
+
+// Initialize PostManager globally for all page templates
+$pm = new PostManager();
 
 // 4. Perform MVC-style page routing
 if ($base === '' || $base === 'home') {
