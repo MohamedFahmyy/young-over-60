@@ -172,22 +172,47 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . $queryString;
                 </li>
             <?php endforeach; ?>
             
-            <!-- Core pages static routes -->
+            <!-- Core pages static routes (admin-controlled visibility) -->
+            <?php if (($settings['nav_show_podcasts'] ?? '1') === '1'): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('podcasts'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_podcasts'); ?></a>
             </li>
+            <?php endif; ?>
+            <?php if (($settings['nav_show_stories'] ?? '1') === '1'): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('women-stories'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_stories'); ?></a>
             </li>
+            <?php endif; ?>
+            <?php if (($settings['nav_show_news'] ?? '1') === '1'): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('news'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_news'); ?></a>
             </li>
+            <?php endif; ?>
+            <?php
+            // Dynamic custom pages set to show_in_menu=1
+            if (!class_exists('PageManager')) {
+                require_once PATH_ROOT . '/classes/PageManager.php';
+            }
+            $navPageMgr = new PageManager();
+            $menuCustomPages = $navPageMgr->getMenuPages();
+            foreach ($menuCustomPages as $menuPage):
+                $menuLabel = !empty($menuPage['menu_title_' . $activeLang]) ? $menuPage['menu_title_' . $activeLang] : ($menuPage['menu_title_en'] ?: ($menuPage['title_en'] ?? ''));
+                $menuSlug  = !empty($menuPage['slug_' . $activeLang]) ? $menuPage['slug_' . $activeLang] : ($menuPage['slug_en'] ?? '');
+            ?>
+            <li class="nav-item" role="none">
+                <a href="<?php echo url('pages/' . $menuSlug); ?>" class="nav-link" role="menuitem"><?php echo e($menuLabel); ?></a>
+            </li>
+            <?php endforeach; ?>
+            <?php if (($settings['nav_show_accessibility'] ?? '1') === '1'): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('accessibility'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_accessibility'); ?></a>
             </li>
+            <?php endif; ?>
+            <?php if (($settings['nav_show_contact'] ?? '1') === '1'): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('contact'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_contact'); ?></a>
             </li>
+            <?php endif; ?>
         </ul>
 
         <!-- Action Items (Search + Accessibility + Language Switcher) -->
@@ -253,21 +278,43 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . $queryString;
             </li>
         <?php endforeach; ?>
         
+        <!-- Core pages (admin-controlled visibility) -->
+        <?php if (($settings['nav_show_podcasts'] ?? '1') === '1'): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('podcasts'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_podcasts'); ?></a>
         </li>
+        <?php endif; ?>
+        <?php if (($settings['nav_show_stories'] ?? '1') === '1'): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('women-stories'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_stories'); ?></a>
         </li>
+        <?php endif; ?>
+        <?php if (($settings['nav_show_news'] ?? '1') === '1'): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('news'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_news'); ?></a>
         </li>
+        <?php endif; ?>
+        <?php
+        // Dynamic custom pages in mobile menu
+        if (!empty($menuCustomPages)):
+            foreach ($menuCustomPages as $menuPage):
+                $mMenuLabel = !empty($menuPage['menu_title_' . $activeLang]) ? $menuPage['menu_title_' . $activeLang] : ($menuPage['menu_title_en'] ?: ($menuPage['title_en'] ?? ''));
+                $mMenuSlug  = !empty($menuPage['slug_' . $activeLang]) ? $menuPage['slug_' . $activeLang] : ($menuPage['slug_en'] ?? '');
+        ?>
+        <li class="mobile-nav-item">
+            <a href="<?php echo url('pages/' . $mMenuSlug); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo e($mMenuLabel); ?></a>
+        </li>
+        <?php endforeach; endif; ?>
+        <?php if (($settings['nav_show_accessibility'] ?? '1') === '1'): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('accessibility'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_accessibility'); ?></a>
         </li>
+        <?php endif; ?>
+        <?php if (($settings['nav_show_contact'] ?? '1') === '1'): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('contact'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_contact'); ?></a>
         </li>
+        <?php endif; ?>
     </ul>
 </div>
 

@@ -22,10 +22,10 @@ if (!empty($slug)) {
     
     $relatedStories = $storyMgr->getRelatedStories($story['id'], 3);
     $cover = !empty($story['cover_image']) ? $story['cover_image'] : '/images/hero-bg.png';
-    $storyUrl = urlencode(BASE_URL . '/women-stories/' . $story['slug']);
-    $settings = $pm->getSiteSettings();
-    $storyTitle = urlencode($story['title'] . " - " . ($settings['siteName'] ?? 'Young Over 60'));
-    $storyExcerpt = urlencode($story['excerpt'] ?? '');
+    $storyUrl   = urlencode(BASE_URL . '/women-stories/' . ($story['slug_en'] ?? ''));
+    $settings   = $pm->getSiteSettings();
+    $storyTitle   = urlencode(t($story, 'title') . " - " . ($settings['siteName'] ?? 'Young Over 60'));
+    $storyExcerpt = urlencode(t($story, 'excerpt') ?? '');
     $storyCoverUrl = urlencode(BASE_URL . $cover);
 
     // Custom SEO Meta for this Story
@@ -44,7 +44,7 @@ if (!empty($slug)) {
                 <span class="badge-text" style="background: var(--primary-color); color: #fff; align-self: flex-start; margin-bottom: 1rem; text-transform: uppercase;">
                     <?php echo e($story['category'] ?? 'Egypt Travel'); ?>
                 </span>
-                <h1 class="serif-title story-main-title"><?php echo e($story['title']); ?></h1>
+                <h1 class="serif-title story-main-title"><?php echo e(t($story, 'title')); ?></h1>
                 <div class="story-hero-meta">
                     <span>Written by <strong><?php echo e($story['author'] ?? 'Guest Writer'); ?></strong></span>
                     <span class="meta-dot"></span>

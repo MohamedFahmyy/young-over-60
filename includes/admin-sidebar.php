@@ -53,6 +53,11 @@ $lang_prefix_url = CURRENT_LANG === 'ar' ? '/ar' : '/en';
             </a>
         </li>
         <li>
+            <a href="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/pages" class="admin-nav-link <?php echo (str_contains($route, 'admin/pages') || str_contains($route, 'admin/add-page') || str_contains($route, 'admin/edit-page')) ? 'active' : ''; ?>">
+                <?php echo __('admin_custom_pages'); ?>
+            </a>
+        </li>
+        <li>
             <a href="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/podcasts" class="admin-nav-link <?php echo str_contains($route, 'admin/podcasts') ? 'active' : ''; ?>">
                 <?php echo __('admin_podcasts'); ?>
             </a>

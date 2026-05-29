@@ -35,7 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'headingWeight' => trim($_POST['headingWeight'] ?? '700'),
             'bodyWeight' => trim($_POST['bodyWeight'] ?? '400'),
             'letterSpacing' => trim($_POST['letterSpacing'] ?? 'normal'),
-            'lineHeight' => trim($_POST['lineHeight'] ?? '1.8')
+            'lineHeight'    => trim($_POST['lineHeight'] ?? '1.8'),
+            // Navigation Visibility Toggles
+            'nav_show_podcasts'       => isset($_POST['nav_show_podcasts']) ? '1' : '0',
+            'nav_show_stories'        => isset($_POST['nav_show_stories']) ? '1' : '0',
+            'nav_show_news'           => isset($_POST['nav_show_news']) ? '1' : '0',
+            'nav_show_accessibility'  => isset($_POST['nav_show_accessibility']) ? '1' : '0',
+            'nav_show_contact'        => isset($_POST['nav_show_contact']) ? '1' : '0',
         ];
 
         if (empty($data['siteName'])) {
@@ -492,12 +498,46 @@ require_once PATH_ROOT . '/includes/header.php';
                 </div>
             </div>
 
+            <!-- ===== Navigation Visibility ===== -->
+            <div class="admin-card-box" style="margin: 0; padding: 2rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <?php echo __('settings_nav_visibility'); ?>
+                </h3>
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 1.5rem;"><?php echo __('settings_nav_visibility_desc'); ?></p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <?php
+                    $navItems = [
+                        'nav_show_podcasts'      => __('nav_podcasts'),
+                        'nav_show_stories'       => __('nav_stories'),
+                        'nav_show_news'          => __('nav_news'),
+                        'nav_show_accessibility' => __('nav_accessibility'),
+                        'nav_show_contact'       => __('nav_contact'),
+                    ];
+                    foreach ($navItems as $key => $label):
+                        $isOn = ($settings[$key] ?? '1') === '1';
+                    ?>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: background 0.2s; background: var(--surface-color);" onmouseover="this.style.background='rgba(15,76,129,0.05)'" onmouseout="this.style.background='var(--surface-color)'">
+                        <input type="checkbox" name="<?php echo $key; ?>" value="1" <?php echo $isOn ? 'checked' : ''; ?> style="width: 1rem; height: 1rem; accent-color: var(--primary-color); cursor: pointer;" />
+                        <span style="font-size: 0.9rem; font-weight: 500;"><?php echo e($label); ?></span>
+                        <span style="margin-inline-start: auto; font-size: 0.7rem; color: <?php echo $isOn ? '#10b981' : '#f59e0b'; ?>; font-weight: 600;">
+                            <?php echo $isOn ? __('pages_status_published') : __('pages_status_draft'); ?>
+                        </span>
+                    </label>
+                    <?php endforeach; ?>
+                </div>
+
+                <p style="font-size: 0.75rem; color: #888; margin-top: 1rem;">
+                    <?php echo __('settings_nav_custom_pages_note'); ?>
+                </p>
+            </div>
+
             <!-- Form Actions -->
             <div style="border-top: 1px solid #e5e7eb; padding-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
                 <button type="submit" class="btn-primary" style="padding: 1rem 3.5rem; border-radius: 8px;"><?php echo __('admin_save'); ?></button>
             </div>
 
-        </form>
         </form>
 
         <script>

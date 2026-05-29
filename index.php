@@ -15,6 +15,7 @@ require_once __DIR__ . '/classes/SeoManager.php';
 require_once __DIR__ . '/classes/PodcastManager.php';
 require_once __DIR__ . '/classes/StoryManager.php';
 require_once __DIR__ . '/classes/SliderManager.php';
+require_once __DIR__ . '/classes/PageManager.php';
 
 // 3. Parse Route Query (From .htaccess rewrite rules)
 $route = $_GET['route'] ?? '';
@@ -78,8 +79,9 @@ define('CURRENT_LANG', $lang);
 $route_clean = $route;
 $base = $parts[0] ?? '';
 
-// Initialize PostManager globally for all page templates
+// Initialize PostManager and PageManager globally for all page templates
 $pm = new PostManager();
+$pageMgrGlobal = new PageManager();
 
 // 4. Perform MVC-style page routing
 if ($base === '' || $base === 'home') {
@@ -116,8 +118,24 @@ if ($base === '' || $base === 'home') {
     $slug = $parts[1] ?? '';
     $_GET['slug'] = $slug;
     require_once __DIR__ . '/pages/post.php';
+} elseif ($base === 'pages') {
+    // 4.9 Custom CMS Pages (frontend)
+    $customPageSlug = $parts[1] ?? '';
+    if (empty($customPageSlug)) {
+        header("HTTP/1.0 404 Not Found");
+        require_once __DIR__ . '/pages/404.php';
+    } else {
+        // Check slug redirect first
+        $redirectSlug = $pageMgrGlobal->findRedirect($customPageSlug);
+        if ($redirectSlug) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . BASE_URL . '/' . ($lang !== 'en' ? $lang . '/' : '') . 'pages/' . $redirectSlug);
+            exit();
+        }
+        require_once __DIR__ . '/pages/custom-page.php';
+    }
 } elseif ($base === 'admin') {
-    // 4.9 Admin Panel Subsections
+    // 4.10 Admin Panel Subsections
     $action = $parts[1] ?? 'dashboard';
     
     if ($action === 'login') {
@@ -150,6 +168,16 @@ if ($base === '' || $base === 'home') {
     } elseif ($action === 'settings') {
         Auth::requireAdmin();
         require_once __DIR__ . '/admin/settings.php';
+    } elseif ($action === 'pages') {
+        Auth::requireAdmin();
+        require_once __DIR__ . '/admin/pages.php';
+    } elseif ($action === 'add-page') {
+        Auth::requireAdmin();
+        require_once __DIR__ . '/admin/add-page.php';
+    } elseif ($action === 'edit-page') {
+        Auth::requireAdmin();
+        $_GET['id'] = $parts[2] ?? '';
+        require_once __DIR__ . '/admin/edit-page.php';
     } else {
         header("HTTP/1.0 404 Not Found");
         require_once __DIR__ . '/pages/404.php';

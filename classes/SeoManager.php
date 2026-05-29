@@ -54,6 +54,14 @@ class SeoManager {
         } elseif ($type === 'admin') {
             $title = __('admin_dashboard_area') . ' | ' . $siteName;
             $robots = 'noindex, nofollow';
+        } elseif ($type === 'custom_page' && $data) {
+            // Custom CMS Page
+            $title = !empty($data['title']) ? $data['title'] : $siteName;
+            $description = !empty($data['description']) ? $data['description'] : $description;
+            if (!empty($data['ogImage'])) {
+                $ogImage = $data['ogImage'];
+            }
+            $robots = 'index, follow';
         } elseif ($type === '404') {
             $title = 'Page Not Found | ' . $siteName;
             $robots = 'noindex, nofollow';

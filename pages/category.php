@@ -37,7 +37,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
 <!-- Category Hero Banner -->
 <section class="category-hero">
-    <img src="<?php echo e(!empty($category['image']) ? $category['image'] : '/images/hero-bg.png'); ?>" alt="<?php echo e($category['name']); ?> Cover" />
+    <img src="<?php echo e(!empty($category['image']) ? $category['image'] : '/images/hero-bg.png'); ?>" alt="<?php echo e(t($category, 'name')); ?> Cover" />
     <div class="category-hero-overlay"></div>
     
     <div class="container category-hero-content">
@@ -45,9 +45,9 @@ require_once PATH_ROOT . '/includes/navbar.php';
             <span>&larr;</span> Back to Home
         </a>
         <div style="max-width: 48rem;" data-scroll-reveal>
-            <h1 class="category-title"><?php echo e($category['name']); ?></h1>
+            <h1 class="category-title"><?php echo e(t($category, 'name')); ?></h1>
             <p class="category-desc">
-                <?php echo e($category['description']); ?>
+                <?php echo e(t($category, 'description')); ?>
             </p>
         </div>
     </div>
@@ -58,7 +58,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <section class="content-list-section">
         <div class="content-list-header" data-scroll-reveal>
             <h2 class="serif-title" style="font-size: 1.75rem; margin:0;">
-                Latest in <?php echo e($category['name']); ?>
+                Latest in <?php echo e(t($category, 'name')); ?>
             </h2>
             <span class="list-count-label">
                 <?php echo $meta['total']; ?> <?php echo $meta['total'] === 1 ? 'Story' : 'Stories'; ?> available
@@ -96,7 +96,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
             <div style="text-align: center; padding: 6rem 0; border: 1px dashed var(--accent-color); background-color: #fafafa;" data-scroll-reveal>
                 <div style="font-size: 3rem; margin-bottom: 1.5rem;">📰</div>
                 <h3 class="serif-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">No Stories Yet</h3>
-                <p style="color: #888; font-weight: 300;">We are currently researching and drafting stories for <?php echo e($category['name']); ?>. Check back soon!</p>
+                <p style="color: #888; font-weight: 300;">We are currently researching and drafting stories for <?php echo e(t($category, 'name')); ?>. Check back soon!</p>
             </div>
         <?php endif; ?>
     </section>
