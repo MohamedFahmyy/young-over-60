@@ -625,4 +625,86 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // ==========================================
+    // 10. Featured News Slider
+    // ==========================================
+    const newsSlider = document.querySelector('.featured-news-section');
+    if (newsSlider) {
+        const slides = newsSlider.querySelectorAll('.news-slide');
+        const prevBtn = newsSlider.querySelector('.news-arrow.prev-news');
+        const nextBtn = newsSlider.querySelector('.news-arrow.next-news');
+        const dots = newsSlider.querySelectorAll('.news-dot');
+        let currentIndex = 0;
+        let autoplayTimer = null;
+        const autoplayInterval = 8000; // 8 seconds
+
+        function showSlide(index) {
+            if (index === currentIndex) return;
+
+            // Handle boundaries
+            if (index >= slides.length) index = 0;
+            if (index < 0) index = slides.length - 1;
+
+            const prevSlide = slides[currentIndex];
+            const nextSlide = slides[index];
+
+            // Toggle active classes
+            prevSlide.classList.remove('active');
+            nextSlide.classList.add('active');
+
+            // Update dots
+            dots.forEach((dot, idx) => {
+                if (idx === index) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+
+        if (nextBtn) nextBtn.addEventListener('click', () => {
+            nextSlide();
+            resetAutoplay();
+        });
+
+        if (prevBtn) prevBtn.addEventListener('click', () => {
+            prevSlide();
+            resetAutoplay();
+        });
+
+        dots.forEach(dot => {
+            dot.addEventListener('click', function() {
+                const targetIdx = parseInt(this.getAttribute('data-slide-to'), 10);
+                showSlide(targetIdx);
+                resetAutoplay();
+            });
+        });
+
+        function startAutoplay() {
+            if (slides.length > 1) {
+                autoplayTimer = setInterval(nextSlide, autoplayInterval);
+            }
+        }
+
+        function resetAutoplay() {
+            if (autoplayTimer) {
+                clearInterval(autoplayTimer);
+                startAutoplay();
+            }
+        }
+
+        // Initialize autoplay
+        startAutoplay();
+    }
+
 });

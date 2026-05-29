@@ -20,15 +20,19 @@ class SeoManager {
 
         // Parse dynamic pages
         if ($type === 'post' && $data) {
-            $title = $data['title'] . ' | ' . $siteName;
-            $description = !empty($data['excerpt']) ? $data['excerpt'] : substr(strip_tags($data['content']), 0, 160);
+            $title = t($data, 'title') . ' | ' . $siteName;
+            $excerpt = t($data, 'excerpt');
+            $content = t($data, 'content');
+            $description = !empty($excerpt) ? $excerpt : substr(strip_tags($content), 0, 160);
             $coverField = !empty($data['coverImage']) ? $data['coverImage'] : ($data['cover_image'] ?? null);
             if ($coverField) {
                 $ogImage = $coverField;
             }
         } elseif ($type === 'category' && $data) {
-            $title = $data['name'] . ' | ' . $siteName;
-            $description = !empty($data['description']) ? $data['description'] : "Read accessible stories and destinations in {$data['name']}.";
+            $catName = t($data, 'name');
+            $catDesc = t($data, 'description');
+            $title = $catName . ' | ' . $siteName;
+            $description = !empty($catDesc) ? $catDesc : "Read accessible stories and destinations in {$catName}.";
             if (!empty($data['image'])) {
                 $ogImage = $data['image'];
             }

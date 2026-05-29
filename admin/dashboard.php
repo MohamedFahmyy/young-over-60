@@ -185,9 +185,9 @@ require_once PATH_ROOT . '/includes/header.php';
                                         <img src="<?php echo e($cover); ?>" alt="" style="width: 60px; height: 38px; object-fit: cover; border-radius: 4px;" />
                                     </td>
                                     <td>
-                                        <strong style="font-weight: 600;"><?php echo e($post['title']); ?></strong>
+                                        <strong style="font-weight: 600;"><?php echo e(t($post, 'title')); ?></strong>
                                     </td>
-                                    <td><?php echo e($post['categoryName']); ?></td>
+                                    <td><?php echo e(t($post, 'categoryName')); ?></td>
                                     <td>
                                         <span class="status-badge <?php echo $post['status'] === 'PUBLISHED' ? 'published' : 'draft'; ?>">
                                             <?php echo e($post['status'] === 'PUBLISHED' ? __('admin_published') : __('admin_draft')); ?>

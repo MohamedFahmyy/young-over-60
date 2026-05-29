@@ -96,8 +96,8 @@ require_once PATH_ROOT . '/includes/header.php';
     <main class="admin-main">
         <div class="admin-header-row" style="margin-bottom: 2.5rem;">
             <div>
-                <h1 class="admin-title">Content Manager</h1>
-                <p style="color:#888; font-size:0.9rem; margin-top:0.25rem;">Adjust visual styles, browse subscriptions, and modify categories.</p>
+                <h1 class="admin-title"><?php echo __('manage_title'); ?></h1>
+                <p style="color:#888; font-size:0.9rem; margin-top:0.25rem;"><?php echo __('manage_desc'); ?></p>
             </div>
         </div>
 
@@ -117,10 +117,10 @@ require_once PATH_ROOT . '/includes/header.php';
 
         <!-- Tabs Navigation -->
         <div class="admin-tabs-row">
-            <button class="admin-tab-trigger <?php echo $activeTab === 'categories' ? 'active' : ''; ?>" data-target="tab-categories">Categories</button>
-            <button class="admin-tab-trigger <?php echo $activeTab === 'settings' ? 'active' : ''; ?>" data-target="tab-settings">Theme Settings</button>
-            <button class="admin-tab-trigger <?php echo $activeTab === 'subscribers' ? 'active' : ''; ?>" data-target="tab-subscribers">Newsletter</button>
-            <button class="admin-tab-trigger <?php echo $activeTab === 'submissions' ? 'active' : ''; ?>" data-target="tab-submissions">Submissions</button>
+            <button class="admin-tab-trigger <?php echo $activeTab === 'categories' ? 'active' : ''; ?>" data-target="tab-categories"><?php echo __('admin_manage_content'); ?></button>
+            <button class="admin-tab-trigger <?php echo $activeTab === 'settings' ? 'active' : ''; ?>" data-target="tab-settings"><?php echo __('admin_settings'); ?></button>
+            <button class="admin-tab-trigger <?php echo $activeTab === 'subscribers' ? 'active' : ''; ?>" data-target="tab-subscribers"><?php echo __('news_label'); ?></button>
+            <button class="admin-tab-trigger <?php echo $activeTab === 'submissions' ? 'active' : ''; ?>" data-target="tab-submissions"><?php echo __('contact_label'); ?></button>
         </div>
 
         <!-- ==========================================
@@ -130,61 +130,61 @@ require_once PATH_ROOT . '/includes/header.php';
             <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
                 <!-- Add Category Form -->
                 <div class="admin-card-box" style="margin: 0; padding: 2rem;">
-                    <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Create New Category</h3>
-                    <form action="<?php echo BASE_URL; ?>/admin/manage-content?tab=categories" method="POST" class="newsletter-form">
+                    <h3 style="font-size:1.1rem; margin-bottom:1.5rem;"><?php echo __('manage_add_category'); ?></h3>
+                    <form action="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/manage-content?tab=categories" method="POST" class="newsletter-form">
                         <?php echo Auth::csrfInput(); ?>
                         <input type="hidden" name="action" value="create_category" />
                         
                         <div class="admin-form-group">
-                            <label for="cat-name">Category Name</label>
+                            <label for="cat-name"><?php echo __('manage_category_name'); ?></label>
                             <input type="text" id="cat-name" name="name" class="admin-form-input" placeholder="e.g. Wellness" required />
                         </div>
                         <div class="admin-form-group" style="margin-top: 1rem;">
-                            <label for="cat-slug">URL Slug</label>
+                            <label for="cat-slug"><?php echo __('manage_category_slug'); ?></label>
                             <input type="text" id="cat-slug" name="slug" class="admin-form-input" placeholder="e.g. wellness" />
                         </div>
                         <div class="admin-form-group" style="margin-top: 1rem;">
-                            <label for="cat-desc">Description</label>
-                            <textarea id="cat-desc" name="description" rows="3" class="admin-form-textarea" placeholder="Teaser category description..."></textarea>
+                            <label for="cat-desc"><?php echo __('admin_description'); ?></label>
+                            <textarea id="cat-desc" name="description" rows="3" class="admin-form-textarea" placeholder="..."></textarea>
                         </div>
                         <div class="admin-form-group" style="margin-top: 1rem;">
-                            <label for="cat-image">Cover Image URL</label>
+                            <label for="cat-image"><?php echo __('admin_cover_image_url'); ?></label>
                             <input type="text" id="cat-image" name="image" class="admin-form-input" placeholder="/images/..." />
                         </div>
-                        <button type="submit" class="btn-primary" style="margin-top: 1.5rem; border-radius: 8px;">Create Category</button>
+                        <button type="submit" class="btn-primary" style="margin-top: 1.5rem; border-radius: 8px;"><?php echo __('manage_add_category'); ?></button>
                     </form>
                 </div>
 
                 <!-- Categories Grid Table -->
                 <div class="admin-card-box" style="margin: 0;">
-                    <h3 class="admin-card-title" style="padding:2rem 2rem 0 2rem;">All Categories</h3>
+                    <h3 class="admin-card-title" style="padding:2rem 2rem 0 2rem;"><?php echo __('admin_all_categories'); ?></h3>
                     <div class="admin-table-wrapper" style="padding: 1rem 2rem 2rem 2rem;">
                         <table class="admin-table">
                             <thead>
                                 <tr>
-                                    <th>Cover</th>
-                                    <th>Name</th>
-                                    <th>Slug</th>
-                                    <th>Description</th>
-                                    <th>Actions</th>
+                                    <th><?php echo __('dash_cover'); ?></th>
+                                    <th><?php echo __('manage_category_name'); ?></th>
+                                    <th><?php echo __('admin_slug'); ?></th>
+                                    <th><?php echo __('admin_description'); ?></th>
+                                    <th><?php echo __('admin_actions'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($categories as $cat): 
                                     $cover = !empty($cat['image']) ? $cat['image'] : '/images/hero-bg.png';
-                                    $deleteUrl = BASE_URL . '/admin/manage-content?tab=categories&action=delete_category&id=' . $cat['id'] . '&csrf_token=' . csrfToken();
+                                    $deleteUrl = BASE_URL . $lang_prefix_url . '/admin/manage-content?tab=categories&action=delete_category&id=' . $cat['id'] . '&csrf_token=' . csrfToken();
                                     ?>
                                     <tr>
                                         <td style="width:70px;">
                                             <img src="<?php echo e(BASE_URL . $cover); ?>" alt="" style="width: 50px; height: 35px; object-fit: cover; border-radius: 4px;" />
                                         </td>
-                                        <td><strong><?php echo e($cat['name']); ?></strong></td>
-                                        <td><code><?php echo e($cat['slug']); ?></code></td>
+                                        <td><strong><?php echo e(t($cat, 'name')); ?></strong></td>
+                                        <td><code><?php echo e(t($cat, 'slug')); ?></code></td>
                                         <td style="max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                            <?php echo e($cat['description']); ?>
+                                            <?php echo e(t($cat, 'description')); ?>
                                         </td>
                                         <td>
-                                            <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('Delete this category? This will fail if posts are linked.');" class="btn-sm-action delete">Delete</a>
+                                            <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('<?php echo addslashes(__('admin_cat_del_confirm')); ?>');" class="btn-sm-action delete"><?php echo __('admin_delete'); ?></a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -199,7 +199,7 @@ require_once PATH_ROOT . '/includes/header.php';
              TAB 2: Site & Theme Settings Customizer
              ========================================== -->
         <div id="tab-settings" class="admin-tab-content <?php echo $activeTab === 'settings' ? 'active' : ''; ?>">
-            <form action="<?php echo BASE_URL; ?>/admin/manage-content?tab=settings" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+            <form action="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/manage-content?tab=settings" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
                 <?php echo Auth::csrfInput(); ?>
                 <input type="hidden" name="action" value="save_settings" />
 
@@ -208,25 +208,25 @@ require_once PATH_ROOT . '/includes/header.php';
                     <div style="display:flex; flex-direction:column; gap:2rem;">
                         <!-- Branding Box -->
                         <div class="admin-card-box" style="margin:0; padding:2rem;">
-                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Branding Configurations</h3>
+                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;"><?php echo __('settings_brand_title'); ?></h3>
                             
                             <div class="admin-form-group">
-                                <label for="set-name">Website Brand Title</label>
+                                <label for="set-name"><?php echo __('settings_field_sitename_en'); ?></label>
                                 <input type="text" id="set-name" name="siteName" value="<?php echo e($settings['siteName']); ?>" class="admin-form-input" required />
                             </div>
                             <div class="admin-form-group" style="margin-top:1.25rem;">
-                                <label for="set-logo">Brand Logo URL</label>
+                                <label for="set-logo"><?php echo __('admin_brand_logo_url'); ?></label>
                                 <input type="text" id="set-logo" name="logoUrl" value="<?php echo e($settings['logoUrl'] ?? ''); ?>" class="admin-form-input" />
                             </div>
                             <div class="admin-form-group" style="margin-top:1.25rem;">
-                                <label for="set-hero">Homepage Hero Background URL</label>
+                                <label for="set-hero"><?php echo __('admin_hero_bg_url'); ?></label>
                                 <input type="text" id="set-hero" name="heroBackgroundUrl" value="<?php echo e($settings['heroBackgroundUrl'] ?? ''); ?>" class="admin-form-input" />
                             </div>
                         </div>
 
                         <!-- SEO Metadata Box -->
                         <div class="admin-card-box" style="margin:0; padding:2rem;">
-                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">SEO & Social Metadata</h3>
+                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;"><?php echo __('settings_brand_title'); ?></h3>
                             
                             <div class="admin-form-group">
                                 <label for="set-seo-title">SEO Meta Title Override</label>
@@ -237,11 +237,11 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <textarea id="set-seo-desc" name="metaDescription" rows="4" class="admin-form-textarea"><?php echo e($settings['metaDescription'] ?? ''); ?></textarea>
                             </div>
                             <div class="admin-form-group" style="margin-top:1.25rem;">
-                                <label for="set-og">Social Share (OG Image) URL</label>
+                                <label for="set-og"><?php echo __('admin_seo_og_url'); ?></label>
                                 <input type="text" id="set-og" name="ogImage" value="<?php echo e($settings['ogImage'] ?? ''); ?>" class="admin-form-input" />
                             </div>
                             <div class="admin-form-group" style="margin-top:1.25rem;">
-                                <label for="set-fav">Favicon Icon URL</label>
+                                <label for="set-fav"><?php echo __('admin_favicon_url'); ?></label>
                                 <input type="text" id="set-fav" name="faviconUrl" value="<?php echo e($settings['faviconUrl'] ?? ''); ?>" class="admin-form-input" />
                             </div>
                         </div>
@@ -251,26 +251,26 @@ require_once PATH_ROOT . '/includes/header.php';
                     <div style="display:flex; flex-direction:column; gap:2rem;">
                         <!-- Color configurations -->
                         <div class="admin-card-box" style="margin:0; padding:2rem;">
-                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">UI Theme Color Presets</h3>
+                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;"><?php echo __('settings_section_colors'); ?></h3>
                             
                             <div class="color-inputs-grid">
                                 <div class="admin-form-group">
-                                    <label>Primary Color</label>
+                                    <label><?php echo __('settings_color_primary'); ?></label>
                                     <input type="color" name="primaryColor" value="<?php echo e($settings['primaryColor']); ?>" class="admin-form-input" style="height:50px; padding:0; cursor:pointer;" />
                                     <input type="text" name="primaryColor" value="<?php echo e($settings['primaryColor']); ?>" class="admin-form-input" style="font-family:monospace; margin-top:0.25rem; font-size:0.8rem;" />
                                 </div>
                                 <div class="admin-form-group">
-                                    <label>Secondary Color</label>
+                                    <label><?php echo __('settings_color_secondary'); ?></label>
                                     <input type="color" name="secondaryColor" value="<?php echo e($settings['secondaryColor']); ?>" class="admin-form-input" style="height:50px; padding:0; cursor:pointer;" />
                                     <input type="text" name="secondaryColor" value="<?php echo e($settings['secondaryColor']); ?>" class="admin-form-input" style="font-family:monospace; margin-top:0.25rem; font-size:0.8rem;" />
                                 </div>
                                 <div class="admin-form-group">
-                                    <label>Accent Grid color</label>
+                                    <label><?php echo __('settings_color_accent'); ?></label>
                                     <input type="color" name="accentColor" value="<?php echo e($settings['accentColor']); ?>" class="admin-form-input" style="height:50px; padding:0; cursor:pointer;" />
                                     <input type="text" name="accentColor" value="<?php echo e($settings['accentColor']); ?>" class="admin-form-input" style="font-family:monospace; margin-top:0.25rem; font-size:0.8rem;" />
                                 </div>
                                 <div class="admin-form-group">
-                                    <label>Global Text color</label>
+                                    <label><?php echo __('settings_color_text'); ?></label>
                                     <input type="color" name="textColor" value="<?php echo e($settings['textColor']); ?>" class="admin-form-input" style="height:50px; padding:0; cursor:pointer;" />
                                     <input type="text" name="textColor" value="<?php echo e($settings['textColor']); ?>" class="admin-form-input" style="font-family:monospace; margin-top:0.25rem; font-size:0.8rem;" />
                                 </div>
@@ -278,13 +278,13 @@ require_once PATH_ROOT . '/includes/header.php';
                         </div>
 
                         <div class="admin-card-box" style="margin:0; padding:2rem;">
-                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Visual Simulator</h3>
+                            <h3 style="font-size:1.1rem; margin-bottom:1.5rem;"><?php echo __('admin_sim_badge'); ?></h3>
                             <div style="background-color:#111; padding:2rem; border-radius:12px; display:flex; flex-direction:column; gap:1.5rem; color:#fff; text-align:center;">
                                 <div style="padding:1rem; background:#fff; color:#000; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
                                     <span style="font-weight:bold; font-family:var(--font-serif); color:<?php echo $settings['primaryColor']; ?>"><?php echo e(explode(' ', $settings['siteName'])[0]); ?></span>
                                     <div style="width:20px; height:20px; border-radius:50%; background:<?php echo $settings['secondaryColor']; ?>;"></div>
                                 </div>
-                                <button type="button" class="btn-primary" style="background:<?php echo $settings['primaryColor']; ?>; border-radius:50px; padding:0.75rem;">Simulate Action Button</button>
+                                <button type="button" class="btn-primary" style="background:<?php echo $settings['primaryColor']; ?>; border-radius:50px; padding:0.75rem;"><?php echo __('settings_preview_button'); ?></button>
                                 <span style="font-size:0.6rem; color:#666;">Colors refresh on Save</span>
                             </div>
                         </div>
@@ -293,7 +293,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                 <!-- Submit Box -->
                 <div style="border-top:1px solid #e5e7eb; padding-top:2rem; display:flex; justify-content:flex-end;">
-                    <button type="submit" class="btn-primary" style="padding:1rem 3rem; border-radius:8px;">Save Configurations</button>
+                    <button type="submit" class="btn-primary" style="padding:1rem 3rem; border-radius:8px;"><?php echo __('admin_save_config'); ?></button>
                 </div>
             </form>
         </div>
@@ -304,16 +304,16 @@ require_once PATH_ROOT . '/includes/header.php';
         <div id="tab-subscribers" class="admin-tab-content <?php echo $activeTab === 'subscribers' ? 'active' : ''; ?>">
             <div class="admin-card-box" style="margin:0;">
                 <div class="admin-card-title" style="padding:2rem 2rem 0 2rem;">
-                    <span>Email List (<?php echo count($subscribers); ?>)</span>
+                    <span><?php echo __('admin_email_list'); ?> (<?php echo count($subscribers); ?>)</span>
                     <!-- Simple Copy list buttons -->
-                    <button class="btn-sm-action" onclick="copySubscribersList();">Copy Email List</button>
+                    <button class="btn-sm-action" onclick="copySubscribersList();"><?php echo __('admin_copy_email_list'); ?></button>
                 </div>
                 <div class="admin-table-wrapper" style="padding: 1rem 2rem 2rem 2rem;">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Subscriber Email</th>
-                                <th>Subscription Date</th>
+                                <th><?php echo __('admin_subscriber_email'); ?></th>
+                                <th><?php echo __('admin_subscription_date'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -326,7 +326,7 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="2" style="text-align: center; padding: 2rem; color:#999; font-style:italic;">No emails subscribed yet.</td>
+                                    <td colspan="2" style="text-align: center; padding: 2rem; color:#999; font-style:italic;"><?php echo __('admin_no_subscribers'); ?></td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -340,16 +340,16 @@ require_once PATH_ROOT . '/includes/header.php';
              ========================================== -->
         <div id="tab-submissions" class="admin-tab-content <?php echo $activeTab === 'submissions' ? 'active' : ''; ?>">
             <div class="admin-card-box" style="margin:0;">
-                <h3 class="admin-card-title" style="padding:2rem 2rem 0 2rem;">Messages Received</h3>
+                <h3 class="admin-card-title" style="padding:2rem 2rem 0 2rem;"><?php echo __('admin_messages_received'); ?></h3>
                 <div class="admin-table-wrapper" style="padding: 1rem 2rem 2rem 2rem;">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone / WhatsApp</th>
-                                <th style="max-width: 350px;">Message</th>
-                                <th>Submitted At</th>
+                                <th><?php echo __('contact_name'); ?></th>
+                                <th><?php echo __('contact_email'); ?></th>
+                                <th><?php echo __('admin_phone_whatsapp'); ?></th>
+                                <th style="max-width: 350px;"><?php echo __('contact_message'); ?></th>
+                                <th><?php echo __('admin_submitted_at'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -371,7 +371,7 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="5" style="text-align: center; padding: 2rem; color:#999; font-style:italic;">No messages received yet.</td>
+                                    <td colspan="5" style="text-align: center; padding: 2rem; color:#999; font-style:italic;"><?php echo __('admin_no_messages'); ?></td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -379,8 +379,6 @@ require_once PATH_ROOT . '/includes/header.php';
                 </div>
             </div>
         </div>
-    </main>
-</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {

@@ -41,24 +41,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'reorder') {
     try {
         Auth::requireCsrf();
         
-        $title = trim($_POST['title'] ?? '');
-        $subtitle = trim($_POST['subtitle'] ?? '');
-        $buttonText = trim($_POST['button_text'] ?? '');
+        $title_en = trim($_POST['title_en'] ?? '');
+        $title_ar = trim($_POST['title_ar'] ?? '');
+        $subtitle_en = trim($_POST['subtitle_en'] ?? '');
+        $subtitle_ar = trim($_POST['subtitle_ar'] ?? '');
+        $buttonTextEn = trim($_POST['button_text_en'] ?? '');
+        $buttonTextAr = trim($_POST['button_text_ar'] ?? '');
         $buttonLink = trim($_POST['button_link'] ?? '');
-        $image = trim($_POST['image'] ?? '');
+        $imageEn = trim($_POST['image_en'] ?? '');
+        $imageAr = trim($_POST['image_ar'] ?? '');
+        $altTextEn = trim($_POST['alt_text_en'] ?? '');
+        $altTextAr = trim($_POST['alt_text_ar'] ?? '');
         $overlayOpacity = isset($_POST['overlay_opacity']) ? floatval($_POST['overlay_opacity']) : 0.50;
         $sortOrder = isset($_POST['sort_order']) ? (int)$_POST['sort_order'] : 0;
         $isActive = isset($_POST['is_active']) ? 1 : 0;
 
-        if (empty($title) || empty($image)) {
-            $error = "Title and Slide Background Image are required fields.";
+        if (empty($title_en) || empty($imageEn)) {
+            $error = "Title (EN) and English Background Image are required fields.";
         } else {
             $data = [
-                'title' => $title,
-                'subtitle' => $subtitle,
-                'button_text' => $buttonText,
+                'title_en' => $title_en,
+                'title_ar' => !empty($title_ar) ? $title_ar : null,
+                'subtitle_en' => !empty($subtitle_en) ? $subtitle_en : null,
+                'subtitle_ar' => !empty($subtitle_ar) ? $subtitle_ar : null,
+                'button_text_en' => !empty($buttonTextEn) ? $buttonTextEn : null,
+                'button_text_ar' => !empty($buttonTextAr) ? $buttonTextAr : null,
                 'button_link' => $buttonLink,
-                'image' => $image,
+                'image_en' => $imageEn,
+                'image_ar' => !empty($imageAr) ? $imageAr : $imageEn, // Fallback to EN image if empty
+                'alt_text_en' => !empty($altTextEn) ? $altTextEn : null,
+                'alt_text_ar' => !empty($altTextAr) ? $altTextAr : null,
                 'overlay_opacity' => $overlayOpacity,
                 'sort_order' => $sortOrder,
                 'is_active' => $isActive
@@ -66,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'reorder') {
 
             if ($action === 'add') {
                 if ($sliderMgr->createSlide($data)) {
-                    $_SESSION['admin_flash_success'] = "Hero slide added successfully!";
+                    $_SESSION['admin_flash_success'] = __("slider_added_success");
                     header("Location: " . BASE_URL . "/admin/hero-slider");
                     exit();
                 } else {
@@ -74,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'reorder') {
                 }
             } elseif ($action === 'edit' && !empty($editId)) {
                 if ($sliderMgr->updateSlide($editId, $data)) {
-                    $_SESSION['admin_flash_success'] = "Hero slide updated successfully!";
+                    $_SESSION['admin_flash_success'] = __("slider_updated_success");
                     header("Location: " . BASE_URL . "/admin/hero-slider");
                     exit();
                 } else {
@@ -92,7 +104,7 @@ if ($action === 'delete' && !empty($editId)) {
     $token = $_GET['csrf_token'] ?? '';
     if (verifyCsrf($token)) {
         if ($sliderMgr->deleteSlide($editId)) {
-            $_SESSION['admin_flash_success'] = "Hero slide deleted.";
+            $_SESSION['admin_flash_success'] = __("slider_deleted_success");
         } else {
             $_SESSION['admin_flash_error'] = "Failed to delete hero slide.";
         }
@@ -132,11 +144,11 @@ require_once PATH_ROOT . '/includes/header.php';
             <!-- LIST VIEW -->
             <div class="admin-header-row">
                 <div>
-                    <h1 class="admin-title">Hero Slider</h1>
-                    <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;">Arrange, edit, and publish dynamic background slides for the homepage hero carousel.</p>
+                    <h1 class="admin-title"><?php echo __("admin_hero_slider"); ?></h1>
+                    <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;"><?php echo __("slider_manage_desc"); ?></p>
                 </div>
-                <a href="<?php echo BASE_URL; ?>/admin/hero-slider?action=add" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none;">
-                    Add Slide
+                <a href="<?php echo BASE_URL; ?>/admin/hero-slider?action=add" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                    <?php echo __("slider_add_title"); ?>
                 </a>
             </div>
 
@@ -156,23 +168,23 @@ require_once PATH_ROOT . '/includes/header.php';
 
             <!-- Drag Reorder Hint Info -->
             <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 1rem 1.5rem; border-radius: 8px; font-size: 0.8rem; margin-bottom: 2rem; display: flex; gap: 0.5rem; align-items: center;">
-                💡 <strong>Tip:</strong> Drag and drop slides vertically to rearrange their presentation order on the homepage slider.
+                💡 <strong><?php echo CURRENT_LANG === 'ar' ? 'تلميح:' : 'Tip:'; ?></strong> <?php echo CURRENT_LANG === 'ar' ? 'اسحب وأفلت الشرائح رأسيًا لإعادة ترتيب ترتيب عرضها على شريط الصفحة الرئيسية.' : 'Drag and drop slides vertically to rearrange their presentation order on the homepage slider.'; ?>
             </div>
 
             <section class="admin-card-box">
-                <h2 class="admin-card-title">Active slides</h2>
+                <h2 class="admin-card-title"><?php echo CURRENT_LANG === 'ar' ? 'الشرائح النشطة' : 'Active Slides'; ?></h2>
                 <div class="admin-table-wrapper">
                     <table class="admin-table reorderable-table">
                         <thead>
                             <tr>
                                 <th style="width: 40px;"></th>
-                                <th style="width: 120px;">Image</th>
-                                <th>Title</th>
-                                <th>Subtitle</th>
-                                <th>Button Text</th>
-                                <th>Overlay</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th style="width: 120px;"><?php echo __("dash_cover"); ?></th>
+                                <th><?php echo __("dash_title"); ?></th>
+                                <th><?php echo CURRENT_LANG === 'ar' ? 'العنوان الفرعي' : 'Subtitle'; ?></th>
+                                <th><?php echo CURRENT_LANG === 'ar' ? 'نص الزر' : 'Button Text'; ?></th>
+                                <th><?php echo CURRENT_LANG === 'ar' ? 'الشفافية' : 'Overlay'; ?></th>
+                                <th><?php echo __("admin_status"); ?></th>
+                                <th><?php echo __("admin_actions"); ?></th>
                             </tr>
                         </thead>
                         <tbody id="sortableSlidesList">
@@ -180,7 +192,7 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <?php foreach ($slides as $slide): 
                                     $editUrl = BASE_URL . '/admin/hero-slider?action=edit&id=' . $slide['id'];
                                     $deleteUrl = BASE_URL . '/admin/hero-slider?action=delete&id=' . $slide['id'] . '&csrf_token=' . csrfToken();
-                                    $image = !empty($slide['image']) ? $slide['image'] : '/images/hero-bg.png';
+                                    $image = !empty($slide['image_en']) ? $slide['image_en'] : (!empty($slide['image_ar']) ? $slide['image_ar'] : '/images/hero-bg.png');
                                     ?>
                                     <tr draggable="true" data-id="<?php echo $slide['id']; ?>" class="sortable-row">
                                         <td class="drag-handle" style="cursor: grab; color: #ccc; font-size: 1.2rem; text-align: center;">☰</td>
@@ -188,20 +200,30 @@ require_once PATH_ROOT . '/includes/header.php';
                                             <img src="<?php echo e($image); ?>" alt="" style="width: 100px; height: 56px; object-fit: cover; border-radius: 4px;" />
                                         </td>
                                         <td>
-                                            <strong style="font-weight: 600;"><?php echo e($slide['title']); ?></strong>
+                                            <strong style="font-weight: 600;">
+                                                <?php echo e(CURRENT_LANG === 'ar' && !empty($slide['title_ar']) ? $slide['title_ar'] : $slide['title_en']); ?>
+                                            </strong>
                                         </td>
-                                        <td><span style="font-size: 0.8rem; color: #666;"><?php echo e($slide['subtitle'] ?: '-'); ?></span></td>
-                                        <td><code><?php echo $slide['button_text'] ? e($slide['button_text']) : '-'; ?></code></td>
+                                        <td>
+                                            <span style="font-size: 0.8rem; color: #666;">
+                                                <?php echo e(CURRENT_LANG === 'ar' && !empty($slide['subtitle_ar']) ? $slide['subtitle_ar'] : ($slide['subtitle_en'] ?: '-')); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <code>
+                                                <?php echo CURRENT_LANG === 'ar' && !empty($slide['button_text_ar']) ? e($slide['button_text_ar']) : ($slide['button_text_en'] ? e($slide['button_text_en']) : '-'); ?>
+                                            </code>
+                                        </td>
                                         <td><?php echo (int)($slide['overlay_opacity'] * 100); ?>%</td>
                                         <td>
                                             <span class="status-badge <?php echo $slide['is_active'] ? 'published' : 'draft'; ?>">
-                                                <?php echo $slide['is_active'] ? 'ACTIVE' : 'INACTIVE'; ?>
+                                                <?php echo $slide['is_active'] ? (CURRENT_LANG === 'ar' ? 'نشط' : 'ACTIVE') : (CURRENT_LANG === 'ar' ? 'غير نشط' : 'INACTIVE'); ?>
                                             </span>
                                         </td>
                                         <td>
                                             <div class="btn-actions">
-                                                <a href="<?php echo $editUrl; ?>" class="btn-sm-action">Edit</a>
-                                                <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('Are you sure you want to delete this slide?');" class="btn-sm-action delete">Delete</a>
+                                                <a href="<?php echo $editUrl; ?>" class="btn-sm-action"><?php echo __("admin_edit"); ?></a>
+                                                <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('<?php echo __("slider_confirm_delete"); ?>');" class="btn-sm-action delete"><?php echo __("admin_delete"); ?></a>
                                             </div>
                                         </td>
                                     </tr>
@@ -209,7 +231,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             <?php else: ?>
                                 <tr>
                                     <td colspan="8" style="text-align: center; color: #999; padding: 3rem 0; font-style: italic;">
-                                        No slides created. Create your first slide above!
+                                        <?php echo CURRENT_LANG === 'ar' ? 'لم يتم العثور على شرائح. أضف شريحة جديدة أعلاه!' : 'No slides created. Create your first slide above!'; ?>
                                     </td>
                                 </tr>
                             <?php endif; ?>
@@ -294,8 +316,10 @@ require_once PATH_ROOT . '/includes/header.php';
             <!-- ADD / EDIT FORM VIEW -->
             <div class="admin-header-row" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem; margin-bottom: 2rem;">
                 <div>
-                    <a href="<?php echo BASE_URL; ?>/admin/hero-slider" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999;">&larr; Back to Hero Slides</a>
-                    <h1 class="admin-title" style="margin-top:0.5rem;"><?php echo $action === 'add' ? 'Add Slide' : 'Edit Slide'; ?></h1>
+                    <a href="<?php echo BASE_URL; ?>/admin/hero-slider" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999; display: flex; align-items: center; gap: 0.5rem;">
+                        <?php echo CURRENT_LANG === 'ar' ? '&rarr;' : '&larr;'; ?> <?php echo __("admin_back"); ?>
+                    </a>
+                    <h1 class="admin-title" style="margin-top:0.5rem;"><?php echo $action === 'add' ? __("slider_add_title") : __("slider_edit_title"); ?></h1>
                 </div>
             </div>
 
@@ -309,33 +333,53 @@ require_once PATH_ROOT . '/includes/header.php';
             <form id="slideForm" action="<?php echo BASE_URL; ?>/admin/hero-slider?action=<?php echo $action; ?><?php echo !empty($editId) ? '&id='.$editId : ''; ?>" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
                 <?php echo Auth::csrfInput(); ?>
 
-                <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; align-items: start;">
+                <div class="admin-grid-layout" style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; align-items: start;">
                     
                     <!-- Left Column: Details -->
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
                         <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
-                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Slide Content</h3>
+                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'محتوى الشريحة' : 'Slide Content'; ?></h3>
                             
-                            <!-- Title -->
-                            <div class="admin-form-group">
-                                <label for="slide-title">Hero Title</label>
-                                <input type="text" id="slide-title" name="title" value="<?php echo e($editItem ? $editItem['title'] : ''); ?>" class="admin-form-input" placeholder="e.g. Travel Without Limits" required style="font-size: 1.35rem; font-family: var(--font-serif);" />
+                            <!-- Titles Row -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <!-- Title EN -->
+                                <div class="admin-form-group">
+                                    <label for="slide-title-en"><?php echo __("dash_title"); ?> (EN)</label>
+                                    <input type="text" id="slide-title-en" name="title_en" value="<?php echo e($editItem ? $editItem['title_en'] : ''); ?>" class="admin-form-input" placeholder="e.g. Travel Without Limits" required style="font-size: 1.2rem; font-family: var(--font-serif);" />
+                                </div>
+                                <!-- Title AR -->
+                                <div class="admin-form-group">
+                                    <label for="slide-title-ar"><?php echo __("dash_title"); ?> (AR)</label>
+                                    <input type="text" id="slide-title-ar" name="title_ar" value="<?php echo e($editItem ? $editItem['title_ar'] : ''); ?>" class="admin-form-input" placeholder="مثال: سفر بلا حدود" style="font-size: 1.2rem; font-family: var(--font-serif); direction: rtl;" />
+                                </div>
                             </div>
 
-                            <!-- Subtitle -->
-                            <div class="admin-form-group">
-                                <label for="slide-subtitle">Subtitle Teaser</label>
-                                <input type="text" id="slide-subtitle" name="subtitle" value="<?php echo e($editItem ? $editItem['subtitle'] : ''); ?>" class="admin-form-input" placeholder="e.g. Accessible travel guides, stories, and reviews" />
+                            <!-- Subtitles Row -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <!-- Subtitle EN -->
+                                <div class="admin-form-group">
+                                    <label for="slide-subtitle-en"><?php echo __("slider_field_subtitle_en"); ?></label>
+                                    <input type="text" id="slide-subtitle-en" name="subtitle_en" value="<?php echo e($editItem ? $editItem['subtitle_en'] : ''); ?>" class="admin-form-input" placeholder="e.g. Accessible travel guides..." />
+                                </div>
+                                <!-- Subtitle AR -->
+                                <div class="admin-form-group">
+                                    <label for="slide-subtitle-ar"><?php echo __("slider_field_subtitle_ar"); ?></label>
+                                    <input type="text" id="slide-subtitle-ar" name="subtitle_ar" value="<?php echo e($editItem ? $editItem['subtitle_ar'] : ''); ?>" class="admin-form-input" placeholder="مثال: أدلة سفر ميسرة..." style="direction: rtl;" />
+                                </div>
                             </div>
 
                             <!-- Call to Action Link -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
                                 <div class="admin-form-group">
-                                    <label for="slide-btntext">Button Callout Text</label>
-                                    <input type="text" id="slide-btntext" name="button_text" value="<?php echo e($editItem ? $editItem['button_text'] : ''); ?>" class="admin-form-input" placeholder="e.g. Discover More" />
+                                    <label for="slide-btntext-en"><?php echo __("slider_field_btn_text_en"); ?></label>
+                                    <input type="text" id="slide-btntext-en" name="button_text_en" value="<?php echo e($editItem ? $editItem['button_text_en'] : ''); ?>" class="admin-form-input" placeholder="e.g. Discover More" />
                                 </div>
                                 <div class="admin-form-group">
-                                    <label for="slide-btnlink">Button Target URL</label>
+                                    <label for="slide-btntext-ar"><?php echo __("slider_field_btn_text_ar"); ?></label>
+                                    <input type="text" id="slide-btntext-ar" name="button_text_ar" value="<?php echo e($editItem ? $editItem['button_text_ar'] : ''); ?>" class="admin-form-input" placeholder="مثال: اكتشف المزيد" style="direction: rtl;" />
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="slide-btnlink"><?php echo __("slider_field_btn_link"); ?></label>
                                     <input type="text" id="slide-btnlink" name="button_link" value="<?php echo e($editItem ? $editItem['button_link'] : ''); ?>" class="admin-form-input" placeholder="e.g. /destinations" />
                                 </div>
                             </div>
@@ -343,48 +387,65 @@ require_once PATH_ROOT . '/includes/header.php';
                     </div>
 
                     <!-- Right Column: Settings & Background image -->
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
                         
                         <!-- Settings Panel -->
                         <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
-                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Slide Config</h3>
+                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'إعدادات الشريحة' : 'Slide Config'; ?></h3>
                             
                             <!-- Overlay Opacity -->
                             <div class="admin-form-group">
-                                <label for="slide-opacity">Dark Overlay Opacity (0.00 to 1.00)</label>
+                                <label for="slide-opacity"><?php echo __("slider_field_opacity"); ?></label>
                                 <input type="number" id="slide-opacity" name="overlay_opacity" step="0.05" min="0" max="1" value="<?php echo e($editItem ? $editItem['overlay_opacity'] : '0.50'); ?>" class="admin-form-input" />
                             </div>
 
                             <!-- Sort Order -->
                             <div class="admin-form-group">
-                                <label for="slide-sort">Sort Order Index</label>
+                                <label for="slide-sort"><?php echo __("admin_order"); ?></label>
                                 <input type="number" id="slide-sort" name="sort_order" min="0" value="<?php echo e($editItem ? $editItem['sort_order'] : '0'); ?>" class="admin-form-input" />
                             </div>
 
                             <!-- Active Toggle -->
-                            <div class="admin-form-group" style="flex-direction: row; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                            <div class="admin-form-group" style="flex-direction: row; justify-content: space-between; align-items: center; margin-top: 0.5rem; display: flex; gap: 0.5rem;">
                                 <div>
-                                    <label style="display:block; margin:0;">Active Slide</label>
-                                    <span style="font-size: 0.6rem; color:#aaa;">Check to enable in rotating carousel</span>
+                                    <label style="display:block; margin:0;"><?php echo CURRENT_LANG === 'ar' ? 'تفعيل الشريحة' : 'Active Slide'; ?></label>
+                                    <span style="font-size: 0.6rem; color:#aaa;"><?php echo CURRENT_LANG === 'ar' ? 'تفعيل الشريحة في شريط العرض الدوار' : 'Check to enable in rotating carousel'; ?></span>
                                 </div>
-                                <input type="checkbox" name="is_active" value="1" <?php echo ($action === 'add' || ($editItem && $editItem['is_active'])) ? 'checked' : ''; ?> style="width: 20px; height: 20px;" />
+                                <input type="checkbox" name="is_active" value="1" <?php echo ($action === 'add' || (isset($editItem['is_active']) && $editItem['is_active'])) ? 'checked' : ''; ?> style="width: 20px; height: 20px;" />
                             </div>
                         </div>
 
                         <!-- Slide Background Image Dropzone -->
                         <div class="admin-card-box" style="margin: 0; padding: 2rem;">
-                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;">Background image</h3>
+                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'صورة الشريحة الخلفية' : 'Background Image'; ?></h3>
+                            
+                            <!-- Image URL EN & AR -->
                             <div class="admin-form-group">
-                                <label for="slide-img">Background Image URL</label>
-                                <input type="text" id="slide-img" name="image" value="<?php echo e($editItem ? $editItem['image'] : ''); ?>" class="admin-form-input" placeholder="/uploads/..." required />
+                                <label for="slide-img-en"><?php echo CURRENT_LANG === 'ar' ? 'رابط الصورة (EN)' : 'Image URL (EN)'; ?></label>
+                                <input type="text" id="slide-img-en" name="image_en" value="<?php echo e($editItem ? $editItem['image_en'] : ''); ?>" class="admin-form-input" placeholder="/uploads/..." required />
                             </div>
                             
-                            <div id="coverDropzone" class="image-upload-preview-box" style="margin-top: 1rem; border: 1px dashed var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; cursor: pointer;">
-                                <p style="font-size: 0.75rem; color: #777;">Click or drop background here</p>
+                            <div class="admin-form-group" style="margin-top: 1rem;">
+                                <label for="slide-img-ar"><?php echo CURRENT_LANG === 'ar' ? 'رابط الصورة (AR)' : 'Image URL (AR)'; ?></label>
+                                <input type="text" id="slide-img-ar" name="image_ar" value="<?php echo e($editItem ? $editItem['image_ar'] : ''); ?>" class="admin-form-input" placeholder="/uploads/..." />
+                            </div>
+
+                            <!-- Alt text EN & AR -->
+                            <div class="admin-form-group" style="margin-top: 1rem;">
+                                <label for="slide-alt-en"><?php echo __("post_field_alt_en"); ?></label>
+                                <input type="text" id="slide-alt-en" name="alt_text_en" value="<?php echo e($editItem ? $editItem['alt_text_en'] : ''); ?>" class="admin-form-input" placeholder="Alt text in English" />
+                            </div>
+                            <div class="admin-form-group" style="margin-top: 1rem;">
+                                <label for="slide-alt-ar"><?php echo __("post_field_alt_ar"); ?></label>
+                                <input type="text" id="slide-alt-ar" name="alt_text_ar" value="<?php echo e($editItem ? $editItem['alt_text_ar'] : ''); ?>" class="admin-form-input" placeholder="النص البديل بالعربية" style="direction: rtl;" />
+                            </div>
+                            
+                            <div id="coverDropzone" class="image-upload-preview-box" style="margin-top: 1.5rem; border: 1px dashed var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; cursor: pointer;">
+                                <p style="font-size: 0.75rem; color: #777;"><?php echo __("settings_click_drop"); ?></p>
                                 <span style="font-size: 0.6rem; color:#999; display:block; margin-top:0.25rem;">PNG, JPG, WebP (Max 2MB)</span>
                                 <input type="file" id="coverFileSelector" accept="image/*" style="display:none;" />
                                 <div id="coverStatusText" style="font-size:0.7rem; color: var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
-                                <img id="coverPreview" src="<?php echo $editItem && $editItem['image'] ? BASE_URL . $editItem['image'] : ''; ?>" style="display: <?php echo $editItem && $editItem['image'] ? 'inline-block' : 'none'; ?>; max-width: 100px; height: 60px; object-fit: cover; margin-top: 1rem; border-radius: 4px;" />
+                                <img id="coverPreview" src="<?php echo $editItem && $editItem['image_en'] ? BASE_URL . $editItem['image_en'] : ''; ?>" style="display: <?php echo $editItem && $editItem['image_en'] ? 'inline-block' : 'none'; ?>; max-width: 100px; height: 60px; object-fit: cover; margin-top: 1rem; border-radius: 4px;" />
                             </div>
                         </div>
 
@@ -394,8 +455,8 @@ require_once PATH_ROOT . '/includes/header.php';
 
                 <!-- Submission Actions -->
                 <div style="border-top: 1px solid #e5e7eb; padding-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
-                    <a href="<?php echo BASE_URL; ?>/admin/hero-slider" class="btn-reset" style="padding: 1rem 2rem; border-radius: 8px; width:auto; text-decoration:none;">Cancel</a>
-                    <button type="submit" class="btn-primary" style="padding: 1rem 3rem; border-radius: 8px;">Save Hero Slide</button>
+                    <a href="<?php echo BASE_URL; ?>/admin/hero-slider" class="btn-reset" style="padding: 1rem 2rem; border-radius: 8px; width:auto; text-decoration:none; display: inline-flex; align-items: center; justify-content: center;"><?php echo __("admin_cancel"); ?></a>
+                    <button type="submit" class="btn-primary" style="padding: 1rem 3rem; border-radius: 8px;"><?php echo __("post_btn_save"); ?></button>
                 </div>
             </form>
 
@@ -403,7 +464,8 @@ require_once PATH_ROOT . '/includes/header.php';
             document.addEventListener("DOMContentLoaded", function() {
                 const coverDropzone = document.getElementById('coverDropzone');
                 const coverSelector = document.getElementById('coverFileSelector');
-                const coverInput = document.getElementById('slide-img');
+                const coverInputEn = document.getElementById('slide-img-en');
+                const coverInputAr = document.getElementById('slide-img-ar');
                 const coverPreview = document.getElementById('coverPreview');
                 const coverStatus = document.getElementById('coverStatusText');
 
@@ -438,7 +500,14 @@ require_once PATH_ROOT . '/includes/header.php';
                     .then(result => {
                         if (result.success) {
                             coverStatus.textContent = 'Upload complete!';
-                            coverInput.value = result.relativeUrl;
+                            // Put in both image fields if they are empty, otherwise first
+                            if (coverInputEn.value === '') {
+                                coverInputEn.value = result.relativeUrl;
+                            } else if (coverInputAr.value === '') {
+                                coverInputAr.value = result.relativeUrl;
+                            } else {
+                                coverInputEn.value = result.relativeUrl;
+                            }
                             coverPreview.src = result.url;
                             coverPreview.style.display = 'inline-block';
                         } else {

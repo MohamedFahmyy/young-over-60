@@ -151,6 +151,21 @@ if ($pm instanceof PostManager) {
     }
 }
 
+// Fetch Featured News Posts (Fallback to latest posts if count < 2)
+$featuredNews = [];
+if ($pm instanceof PostManager) {
+    try {
+        $newsResult = $pm->getPosts(['isFeatured' => true, 'status' => 'PUBLISHED', 'limit' => 6]);
+        $featuredNews = $newsResult['data'] ?? [];
+        if (count($featuredNews) < 2) {
+            $newsResult = $pm->getPosts(['status' => 'PUBLISHED', 'limit' => 6]);
+            $featuredNews = $newsResult['data'] ?? [];
+        }
+    } catch (Exception $e) {
+        error_log("Failed to fetch featured news posts: " . $e->getMessage());
+    }
+}
+
 // Include Header & Navbar
 require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
@@ -232,49 +247,81 @@ require_once PATH_ROOT . '/includes/navbar.php';
     </section>
 <?php endif; ?>
 
-<!-- 2. Brand Introduction -->
-<section class="intro-section container" data-scroll-reveal>
-    <div class="intro-grid">
-        <!-- Content Side -->
-        <div class="intro-content">
-            <span class="section-label"><?php echo __('footer_about_title'); ?></span>
-            <h2 class="serif-title">Travel Without <br><span class="italic">Limits</span></h2>
-            <div class="intro-divider"></div>
-            <div class="intro-text">
-                <p>
-                    We believe that everyone deserves to experience the wonder of travel. Our mission is to break down barriers and provide the ultimate resource for accessible exploration.
-                </p>
-                <p>
-                    From hidden local gems to iconic global destinations, we share the stories, tips, and insights needed to navigate the world with confidence and joy. No matter your needs, the world is waiting for you.
-                </p>
-            </div>
-            <a href="<?php echo url('accessibility'); ?>" class="btn-underline">
-                Discover Our Mission
-            </a>
+<!-- 2. Featured News Slider -->
+<?php if (!empty($featuredNews)): ?>
+<section class="featured-news-section container" data-scroll-reveal>
+    <div class="news-slider-header-row">
+        <div class="news-slider-title-wrap">
+            <span class="section-label"><?php echo __('featured_news_label'); ?></span>
+            <h2 class="serif-title"><?php echo __('featured_news_title'); ?> <span class="italic"><?php echo __('featured_news_title_italic'); ?></span></h2>
         </div>
-        
-        <!-- Polaroid Collage Side -->
-        <div class="polaroid-collage">
-            <!-- Polaroid 1 -->
-            <div class="polaroid-card polaroid-1">
-                <div class="polaroid-media">
-                    <img src="<?php echo BASE_URL; ?>/images/europe.png" alt="Venice, Italy" loading="lazy" />
+        <!-- Arrow Navigation -->
+        <?php if (count($featuredNews) > 1): ?>
+        <div class="news-slider-arrows">
+            <button class="news-arrow prev-news" aria-label="<?php echo CURRENT_LANG === 'ar' ? 'السابق' : 'Previous'; ?>">
+                <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </button>
+            <button class="news-arrow next-news" aria-label="<?php echo CURRENT_LANG === 'ar' ? 'التالي' : 'Next'; ?>">
+                <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- News Slider Outer -->
+    <div class="news-slider-outer">
+        <div class="news-slider-wrapper">
+            <?php foreach ($featuredNews as $index => $post): 
+                $postUrl = url('posts/' . e(t($post, 'slug')));
+                $postCover = !empty($post['coverImage']) ? $post['coverImage'] : '/images/hero-bg.png';
+                $postTitle = t($post, 'title');
+                $postExcerpt = t($post, 'excerpt');
+                $isActive = ($index === 0) ? 'active' : '';
+                ?>
+                <div class="news-slide <?php echo $isActive; ?>" data-index="<?php echo $index; ?>">
+                    <div class="news-slide-grid">
+                        <!-- Image Column -->
+                        <div class="news-slide-media">
+                            <a href="<?php echo $postUrl; ?>" class="news-media-link" aria-label="<?php echo e($postTitle); ?>">
+                                <img src="<?php echo e(BASE_URL . $postCover); ?>" alt="<?php echo e(t($post, 'alt_text') ?: $postTitle); ?>" class="news-slide-img" loading="lazy" />
+                                <div class="news-media-overlay"></div>
+                            </a>
+                            <div class="news-slide-badge">
+                                <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e(t($post, 'categoryName')); ?></span>
+                            </div>
+                        </div>
+
+                        <!-- Content Column -->
+                        <div class="news-slide-content">
+                            <div class="news-meta">
+                                <span>By <?php echo e(e($post['authorName'] ?? 'Editor')); ?></span>
+                                <span class="meta-dot"></span>
+                                <span><?php echo formatDate($post['publishedAt'] ?: $post['created_at']); ?></span>
+                            </div>
+                            <h3 class="news-title">
+                                <a href="<?php echo $postUrl; ?>"><?php echo e($postTitle); ?></a>
+                            </h3>
+                            <p class="news-excerpt"><?php echo e($postExcerpt); ?></p>
+                            <a href="<?php echo $postUrl; ?>" class="btn-underline">
+                                <?php echo __('btn_read_full_story'); ?>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <p class="polaroid-caption">Venice, Italy</p>
-            </div>
-            
-            <!-- Polaroid 2 -->
-            <div class="polaroid-card polaroid-2">
-                <div class="polaroid-media">
-                    <img src="<?php echo BASE_URL; ?>/images/australia.png" alt="Queensland Shore" loading="lazy" />
-                </div>
-                <p class="polaroid-caption">Queensland Shore</p>
-            </div>
-            
-            <div class="collage-blob"></div>
+            <?php endforeach; ?>
         </div>
     </div>
+
+    <!-- Dots Navigation -->
+    <?php if (count($featuredNews) > 1): ?>
+    <div class="news-slider-dots">
+        <?php foreach ($featuredNews as $index => $post): ?>
+            <button class="news-dot <?php echo ($index === 0) ? 'active' : ''; ?>" data-slide-to="<?php echo $index; ?>" aria-label="Go to slide <?php echo $index + 1; ?>"></button>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
 </section>
+<?php endif; ?>
 
 <!-- 3. Specific Needs Quick Access Grid -->
 <?php if (!empty($needsCategoriesList)): ?>

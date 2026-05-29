@@ -28,7 +28,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
             $deleteStmt = $db->prepare("DELETE FROM media WHERE id = :id");
             $deleteStmt->execute(['id' => $mediaId]);
             
-            $_SESSION['admin_flash_success'] = "Media asset successfully deleted.";
+            $_SESSION['admin_flash_success'] = __("media_success_delete");
         } else {
             $_SESSION['admin_flash_error'] = "Media asset not found in library.";
         }
@@ -66,8 +66,8 @@ require_once PATH_ROOT . '/includes/header.php';
     <main class="admin-main">
         <div class="admin-header-row">
             <div>
-                <h1 class="admin-title">Media Library</h1>
-                <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;">Browse, inspect, and delete image or audio attachments uploaded to this cPanel directory.</p>
+                <h1 class="admin-title"><?php echo __("media_manage_title"); ?></h1>
+                <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;"><?php echo __("media_manage_desc"); ?></p>
             </div>
         </div>
 
@@ -87,7 +87,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
         <!-- Media Gallery Grid Layout -->
         <section class="admin-card-box">
-            <h2 class="admin-card-title">All Uploads (<?php echo count($mediaFiles); ?>)</h2>
+            <h2 class="admin-card-title"><?php echo CURRENT_LANG === 'ar' ? 'كل الملفات المرفوعة' : 'All Uploads'; ?> (<?php echo count($mediaFiles); ?>)</h2>
             
             <?php if (!empty($mediaFiles)): ?>
                 <div class="media-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
@@ -101,10 +101,10 @@ require_once PATH_ROOT . '/includes/header.php';
                             <div class="media-asset-preview" style="aspect-ratio: 16/10; width: 100%; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; border-bottom: 1px solid var(--accent-color);">
                                 <?php if ($isAudio): ?>
                                     <div style="font-size: 3rem;">🎙️</div>
-                                    <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;">Audio</span>
+                                    <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;"><?php echo CURRENT_LANG === 'ar' ? 'ملف صوتي' : 'Audio'; ?></span>
                                 <?php else: ?>
                                     <img src="<?php echo e(BASE_URL . $asset['url']); ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;" />
-                                    <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;">Image</span>
+                                    <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;"><?php echo CURRENT_LANG === 'ar' ? 'صورة' : 'Image'; ?></span>
                                 <?php endif; ?>
                             </div>
 
@@ -113,23 +113,23 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <div>
                                     <h4 style="font-size: 0.75rem; font-weight: 600; word-break: break-all; margin: 0; line-height: 1.3;" title="<?php echo e($asset['filename']); ?>"><?php echo e($asset['filename']); ?></h4>
                                     <div style="font-size: 0.65rem; color: #888; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.15rem;">
-                                        <span>Size: <?php echo formatBytes($asset['fileSize']); ?></span>
+                                        <span><?php echo CURRENT_LANG === 'ar' ? 'الحجم:' : 'Size:'; ?> <?php echo formatBytes($asset['fileSize']); ?></span>
                                         <?php if (!$isAudio && !empty($asset['width'])): ?>
-                                            <span>Dimensions: <?php echo $asset['width']; ?> &times; <?php echo $asset['height']; ?> px</span>
+                                            <span><?php echo CURRENT_LANG === 'ar' ? 'الأبعاد:' : 'Dimensions:'; ?> <?php echo $asset['width']; ?> &times; <?php echo $asset['height']; ?> px</span>
                                         <?php endif; ?>
-                                        <span>Uploaded: <?php echo date('Y-m-d H:i', strtotime($asset['created_at'])); ?></span>
+                                        <span><?php echo CURRENT_LANG === 'ar' ? 'تم الرفع:' : 'Uploaded:'; ?> <?php echo date('Y-m-d H:i', strtotime($asset['created_at'])); ?></span>
                                     </div>
                                 </div>
                                 
                                 <div style="display: flex; gap: 0.5rem; margin-top: 1rem; border-top: 1px solid #f0f0f0; padding-top: 0.5rem; justify-content: space-between; align-items: center;">
                                     <!-- Copy link -->
-                                    <button onclick="navigator.clipboard.writeText('<?php echo e($asset['url']); ?>'); alert('File URL copied to clipboard: <?php echo e($asset['url']); ?>');" class="btn-sm-action" style="font-size: 0.65rem; cursor: pointer; border: none; background: transparent; padding: 0.25rem 0.5rem; height: auto; min-width: auto; min-height: auto;">
-                                        Copy Link
+                                    <button onclick="navigator.clipboard.writeText('<?php echo e($asset['url']); ?>'); alert('<?php echo CURRENT_LANG === 'ar' ? 'تم نسخ الرابط إلى الحافظة:' : 'File URL copied to clipboard:'; ?> <?php echo e($asset['url']); ?>');" class="btn-sm-action" style="font-size: 0.65rem; cursor: pointer; border: none; background: transparent; padding: 0.25rem 0.5rem; height: auto; min-width: auto; min-height: auto;">
+                                        <?php echo CURRENT_LANG === 'ar' ? 'نسخ الرابط' : 'Copy Link'; ?>
                                     </button>
                                     
                                     <!-- Delete -->
-                                    <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('Are you sure you want to physically delete this file from the server? This cannot be undone.');" class="btn-sm-action delete" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; height: auto; min-width: auto; min-height: auto;">
-                                        Delete
+                                    <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('<?php echo __("media_confirm_delete"); ?>');" class="btn-sm-action delete" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; height: auto; min-width: auto; min-height: auto;">
+                                        <?php echo __("admin_delete"); ?>
                                     </a>
                                 </div>
                             </div>
@@ -140,8 +140,8 @@ require_once PATH_ROOT . '/includes/header.php';
             <?php else: ?>
                 <div style="text-align: center; color: #999; padding: 6rem 0; font-style: italic;">
                     <div style="font-size: 3rem; margin-bottom: 1.5rem;">📁</div>
-                    <h3 class="serif-title" style="font-size: 1.3rem; margin-bottom: 0.5rem;">No Media Found</h3>
-                    <p style="font-weight: 300; font-size: 0.9rem;">You haven't uploaded any media attachments yet.</p>
+                    <h3 class="serif-title" style="font-size: 1.3rem; margin-bottom: 0.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'لم يتم العثور على وسائط' : 'No Media Found'; ?></h3>
+                    <p style="font-weight: 300; font-size: 0.9rem;"><?php echo CURRENT_LANG === 'ar' ? 'لم تقم برفع أي ملفات وسائط بعد.' : 'You haven\'t uploaded any media attachments yet.'; ?></p>
                 </div>
             <?php endif; ?>
         </section>

@@ -39,10 +39,10 @@ function injectHeadingIds($content) {
     }, $content);
 }
 
-$processedContent = injectHeadingIds($post['content']);
+$processedContent = injectHeadingIds(t($post, 'content'));
 
 // Extract headings for Table of Contents sidebar
-preg_match_all('/<(h[23])>(.*?)<\/\1>/i', $post['content'], $headingsMatches, PREG_SET_ORDER);
+preg_match_all('/<(h[23])>(.*?)<\/\1>/i', t($post, 'content'), $headingsMatches, PREG_SET_ORDER);
 
 require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
@@ -55,7 +55,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
 <!-- Article Hero -->
 <section class="post-hero">
-    <img src="<?php echo e(!empty($post['coverImage']) ? $post['coverImage'] : '/images/hero-bg.png'); ?>" alt="<?php echo e($post['title']); ?>" />
+    <img src="<?php echo e(!empty($post['coverImage']) ? $post['coverImage'] : '/images/hero-bg.png'); ?>" alt="<?php echo e(t($post, 'title')); ?>" />
     <div class="post-hero-overlay"></div>
     
     <div class="container post-hero-content" data-scroll-reveal>
@@ -64,11 +64,11 @@ require_once PATH_ROOT . '/includes/navbar.php';
             <ol class="breadcrumbs-list" style="color: rgba(255,255,255,0.7);">
                 <li><a href="<?php echo BASE_URL; ?>/">Home</a></li>
                 <li class="breadcrumb-separator">/</li>
-                <li><a href="<?php echo BASE_URL; ?>/category/<?php echo e($post['categorySlug']); ?>"><?php echo e($post['categoryName']); ?></a></li>
+                <li><a href="<?php echo BASE_URL; ?>/category/<?php echo e(t($post, 'categorySlug')); ?>"><?php echo e(t($post, 'categoryName')); ?></a></li>
             </ol>
         </nav>
         
-        <h1 class="post-hero-title"><?php echo e($post['title']); ?></h1>
+        <h1 class="post-hero-title"><?php echo e(t($post, 'title')); ?></h1>
         
         <div class="post-meta-strip">
             <div class="post-meta-item">
@@ -81,7 +81,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
             </div>
             <div class="post-meta-item">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span><?php echo calculateReadTime($post['content']); ?></span>
+                <span><?php echo calculateReadTime(t($post, 'content')); ?></span>
             </div>
         </div>
     </div>
@@ -128,7 +128,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                 <div class="share-links">
                     <?php 
                     $pageUrl = urlencode(BASE_URL . $_SERVER['REQUEST_URI']); 
-                    $pageTitle = urlencode($post['title']);
+                    $pageTitle = urlencode(t($post, 'title'));
                     ?>
                     <a href="https://twitter.com/intent/tweet?url=<?php echo $pageUrl; ?>&text=<?php echo $pageTitle; ?>" target="_blank" rel="noopener" class="share-btn">Twitter</a>
                     <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $pageUrl; ?>" target="_blank" rel="noopener" class="share-btn">Facebook</a>
@@ -166,8 +166,8 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <section class="related-posts-section">
             <div class="related-posts-header-row" data-scroll-reveal>
                 <h3 class="serif-title" style="margin: 0;">Recommended Reading</h3>
-                <a href="<?php echo BASE_URL; ?>/category/<?php echo e($post['categorySlug']); ?>" class="btn-underline">
-                    Explore more in <?php echo e($post['categoryName']); ?>
+                <a href="<?php echo BASE_URL; ?>/category/<?php echo e(t($post, 'categorySlug')); ?>" class="btn-underline">
+                    Explore more in <?php echo e(t($post, 'categoryName')); ?>
                 </a>
             </div>
             

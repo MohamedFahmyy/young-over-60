@@ -15,33 +15,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         Auth::requireCsrf();
         
-        $title = trim($_POST['title'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $category = trim($_POST['category'] ?? '');
+        $title_en = trim($_POST['title_en'] ?? '');
+        $title_ar = trim($_POST['title_ar'] ?? '');
+        $slug_en = trim($_POST['slug_en'] ?? '');
+        $slug_ar = trim($_POST['slug_ar'] ?? '');
+        $description_en = trim($_POST['description_en'] ?? '');
+        $description_ar = trim($_POST['description_ar'] ?? '');
+        $category_en = trim($_POST['category_en'] ?? '');
+        $category_ar = trim($_POST['category_ar'] ?? '');
         $duration = trim($_POST['duration'] ?? '');
         $audioFile = trim($_POST['audio_file'] ?? '');
         $coverImage = trim($_POST['cover_image'] ?? '');
+        $alt_text_en = trim($_POST['alt_text_en'] ?? '');
+        $alt_text_ar = trim($_POST['alt_text_ar'] ?? '');
         $isFeatured = isset($_POST['is_featured']) ? 1 : 0;
 
-        if (empty($title) || empty($audioFile)) {
-            $error = "Title and Audio File are required fields.";
+        if (empty($title_en) || empty($audioFile)) {
+            $error = "Title (EN) and Audio File are required fields.";
         } else {
-            $slug = slugify($title);
+            $slug_en = slugify(empty($slug_en) ? $title_en : $slug_en);
+            
+            if (!empty($title_ar)) {
+                $slug_ar = slugify(empty($slug_ar) ? $title_ar : $slug_ar);
+            } else {
+                $slug_ar = null;
+            }
             
             $data = [
-                'title' => $title,
-                'slug' => $slug,
-                'description' => $description,
-                'category' => $category ?: 'General',
+                'title_en' => $title_en,
+                'title_ar' => !empty($title_ar) ? $title_ar : null,
+                'slug_en' => $slug_en,
+                'slug_ar' => $slug_ar,
+                'description_en' => !empty($description_en) ? $description_en : null,
+                'description_ar' => !empty($description_ar) ? $description_ar : null,
+                'category_en' => $category_en ?: 'General',
+                'category_ar' => $category_ar ?: 'عام',
                 'duration' => $duration ?: '0:00',
                 'audio_file' => $audioFile,
                 'cover_image' => $coverImage ?: '/images/hero-bg.png',
+                'alt_text_en' => !empty($alt_text_en) ? $alt_text_en : null,
+                'alt_text_ar' => !empty($alt_text_ar) ? $alt_text_ar : null,
                 'is_featured' => $isFeatured
             ];
 
             if ($action === 'add') {
                 if ($podcastMgr->createPodcast($data)) {
-                    $_SESSION['admin_flash_success'] = "Podcast episode successfully added!";
+                    $_SESSION['admin_flash_success'] = __("pod_added_success");
                     header("Location: " . BASE_URL . "/admin/podcasts");
                     exit();
                 } else {
@@ -49,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             } elseif ($action === 'edit' && !empty($editId)) {
                 if ($podcastMgr->updatePodcast($editId, $data)) {
-                    $_SESSION['admin_flash_success'] = "Podcast episode successfully updated!";
+                    $_SESSION['admin_flash_success'] = __("pod_updated_success");
                     header("Location: " . BASE_URL . "/admin/podcasts");
                     exit();
                 } else {
@@ -67,7 +86,7 @@ if ($action === 'delete' && !empty($editId)) {
     $token = $_GET['csrf_token'] ?? '';
     if (verifyCsrf($token)) {
         if ($podcastMgr->deletePodcast($editId)) {
-            $_SESSION['admin_flash_success'] = "Podcast episode successfully deleted.";
+            $_SESSION['admin_flash_success'] = __("pod_deleted_success");
         } else {
             $_SESSION['admin_flash_error'] = "Failed to delete the episode.";
         }
@@ -108,11 +127,11 @@ require_once PATH_ROOT . '/includes/header.php';
             <!-- LIST VIEW -->
             <div class="admin-header-row">
                 <div>
-                    <h1 class="admin-title">Podcasts</h1>
-                    <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;">Manage your audio journeys, edit episodes, and mark features.</p>
+                    <h1 class="admin-title"><?php echo __("admin_podcasts"); ?></h1>
+                    <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;"><?php echo __("pod_manage_desc"); ?></p>
                 </div>
-                <a href="<?php echo BASE_URL; ?>/admin/podcasts?action=add" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none;">
-                    Add Episode
+                <a href="<?php echo BASE_URL; ?>/admin/podcasts?action=add" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                    <?php echo __("pod_add_title"); ?>
                 </a>
             </div>
 
@@ -131,18 +150,18 @@ require_once PATH_ROOT . '/includes/header.php';
             <?php endif; ?>
 
             <section class="admin-card-box">
-                <h2 class="admin-card-title">Podcast Episodes</h2>
+                <h2 class="admin-card-title"><?php echo __("admin_podcasts"); ?></h2>
                 <div class="admin-table-wrapper">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Cover</th>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Duration</th>
-                                <th>Featured</th>
-                                <th>Published</th>
-                                <th>Actions</th>
+                                <th><?php echo __("dash_cover"); ?></th>
+                                <th><?php echo __("dash_title"); ?></th>
+                                <th><?php echo __("dash_category"); ?></th>
+                                <th><?php echo __("admin_duration"); ?></th>
+                                <th><?php echo __("admin_featured"); ?></th>
+                                <th><?php echo __("admin_published"); ?></th>
+                                <th><?php echo __("admin_actions"); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -157,21 +176,27 @@ require_once PATH_ROOT . '/includes/header.php';
                                             <img src="<?php echo e($cover); ?>" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />
                                         </td>
                                         <td>
-                                            <strong style="font-weight: 600;"><?php echo e($pod['title']); ?></strong>
-                                            <div style="font-size: 0.7rem; color: #888; margin-top: 0.15rem; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?php echo e($pod['description']); ?></div>
+                                            <strong style="font-weight: 600;">
+                                                <?php echo e(CURRENT_LANG === 'ar' && !empty($pod['title_ar']) ? $pod['title_ar'] : $pod['title_en']); ?>
+                                            </strong>
+                                            <div style="font-size: 0.7rem; color: #888; margin-top: 0.15rem; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                <?php echo e(CURRENT_LANG === 'ar' && !empty($pod['description_ar']) ? $pod['description_ar'] : $pod['description_en']); ?>
+                                            </div>
                                         </td>
-                                        <td><?php echo e($pod['category']); ?></td>
+                                        <td>
+                                            <?php echo e(CURRENT_LANG === 'ar' && !empty($pod['category_ar']) ? $pod['category_ar'] : $pod['category_en']); ?>
+                                        </td>
                                         <td><?php echo e($pod['duration']); ?></td>
                                         <td>
                                             <span class="status-badge <?php echo $pod['is_featured'] ? 'published' : 'draft'; ?>">
-                                                <?php echo $pod['is_featured'] ? 'Yes' : 'No'; ?>
+                                                <?php echo $pod['is_featured'] ? (CURRENT_LANG === 'ar' ? 'نعم' : 'Yes') : (CURRENT_LANG === 'ar' ? 'لا' : 'No'); ?>
                                             </span>
                                         </td>
                                         <td><?php echo formatDate($pod['created_at']); ?></td>
                                         <td>
                                             <div class="btn-actions">
-                                                <a href="<?php echo $editUrl; ?>" class="btn-sm-action">Edit</a>
-                                                <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('Are you sure you want to delete this podcast episode?');" class="btn-sm-action delete">Delete</a>
+                                                <a href="<?php echo $editUrl; ?>" class="btn-sm-action"><?php echo __("admin_edit"); ?></a>
+                                                <a href="<?php echo $deleteUrl; ?>" onclick="return confirm('<?php echo __("pod_confirm_delete"); ?>');" class="btn-sm-action delete"><?php echo __("admin_delete"); ?></a>
                                             </div>
                                         </td>
                                     </tr>
@@ -179,7 +204,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             <?php else: ?>
                                 <tr>
                                     <td colspan="7" style="text-align: center; color: #999; padding: 3rem 0; font-style: italic;">
-                                        No podcast episodes found. Add one above!
+                                        <?php echo CURRENT_LANG === 'ar' ? 'لم يتم العثور على حلقات بودكاست. أضف حلقة جديدة أعلاه!' : 'No podcast episodes found. Add one above!'; ?>
                                     </td>
                                 </tr>
                             <?php endif; ?>
@@ -192,8 +217,10 @@ require_once PATH_ROOT . '/includes/header.php';
             <!-- ADD / EDIT FORM VIEW -->
             <div class="admin-header-row" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem; margin-bottom: 2rem;">
                 <div>
-                    <a href="<?php echo BASE_URL; ?>/admin/podcasts" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999;">&larr; Back to Podcasts</a>
-                    <h1 class="admin-title" style="margin-top:0.5rem;"><?php echo $action === 'add' ? 'Add Episode' : 'Edit Episode'; ?></h1>
+                    <a href="<?php echo BASE_URL; ?>/admin/podcasts" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999; display: flex; align-items: center; gap: 0.5rem;">
+                        <?php echo CURRENT_LANG === 'ar' ? '&rarr;' : '&larr;'; ?> <?php echo __("admin_back"); ?>
+                    </a>
+                    <h1 class="admin-title" style="margin-top:0.5rem;"><?php echo $action === 'add' ? __("pod_add_title") : __("pod_edit_title"); ?></h1>
                 </div>
             </div>
 
@@ -207,42 +234,76 @@ require_once PATH_ROOT . '/includes/header.php';
             <form id="podcastForm" action="<?php echo BASE_URL; ?>/admin/podcasts?action=<?php echo $action; ?><?php echo !empty($editId) ? '&id='.$editId : ''; ?>" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
                 <?php echo Auth::csrfInput(); ?>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
+                <div class="admin-grid-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
                     
                     <!-- Left Column: Details -->
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
                         <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
-                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Episode Information</h3>
+                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'معلومات الحلقة' : 'Episode Information'; ?></h3>
                             
-                            <!-- Title -->
-                            <div class="admin-form-group">
-                                <label for="pod-title">Episode Title</label>
-                                <input type="text" id="pod-title" name="title" value="<?php echo e($editItem ? $editItem['title'] : ''); ?>" class="admin-form-input" placeholder="e.g. Accessible Travel in Alexandria" required />
+                            <!-- Titles Row -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <!-- Title EN -->
+                                <div class="admin-form-group">
+                                    <label for="pod-title-en"><?php echo __("dash_title"); ?> (EN)</label>
+                                    <input type="text" id="pod-title-en" name="title_en" value="<?php echo e($editItem ? $editItem['title_en'] : ''); ?>" class="admin-form-input" placeholder="e.g. Accessible Travel in Alexandria" required />
+                                </div>
+                                <!-- Title AR -->
+                                <div class="admin-form-group">
+                                    <label for="pod-title-ar"><?php echo __("dash_title"); ?> (AR)</label>
+                                    <input type="text" id="pod-title-ar" name="title_ar" value="<?php echo e($editItem ? $editItem['title_ar'] : ''); ?>" class="admin-form-input" placeholder="مثال: السياحة الميسرة في الإسكندرية" style="direction: rtl;" />
+                                </div>
                             </div>
 
-                            <!-- Description -->
-                            <div class="admin-form-group">
-                                <label for="pod-desc">Teaser Description</label>
-                                <textarea id="pod-desc" name="description" rows="4" class="admin-form-textarea" placeholder="Brief summary of the conversation..."><?php echo e($editItem ? $editItem['description'] : ''); ?></textarea>
+                            <!-- Slugs Row -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <!-- Slug EN -->
+                                <div class="admin-form-group">
+                                    <label for="pod-slug-en"><?php echo __("admin_slug"); ?> (EN)</label>
+                                    <input type="text" id="pod-slug-en" name="slug_en" value="<?php echo e($editItem ? $editItem['slug_en'] : ''); ?>" class="admin-form-input" placeholder="slug-en" />
+                                </div>
+                                <!-- Slug AR -->
+                                <div class="admin-form-group">
+                                    <label for="pod-slug-ar"><?php echo __("admin_slug"); ?> (AR)</label>
+                                    <input type="text" id="pod-slug-ar" name="slug_ar" value="<?php echo e($editItem ? $editItem['slug_ar'] : ''); ?>" class="admin-form-input" placeholder="slug-ar" style="direction: rtl;" />
+                                </div>
+                            </div>
+
+                            <!-- Descriptions Row -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <!-- Description EN -->
+                                <div class="admin-form-group">
+                                    <label for="pod-desc-en"><?php echo __("admin_description"); ?> (EN)</label>
+                                    <textarea id="pod-desc-en" name="description_en" rows="4" class="admin-form-textarea" placeholder="Brief summary of the conversation in English..."><?php echo e($editItem ? $editItem['description_en'] : ''); ?></textarea>
+                                </div>
+                                <!-- Description AR -->
+                                <div class="admin-form-group">
+                                    <label for="pod-desc-ar"><?php echo __("admin_description"); ?> (AR)</label>
+                                    <textarea id="pod-desc-ar" name="description_ar" rows="4" class="admin-form-textarea" placeholder="ملخص قصير للحلقة باللغة العربية..." style="direction: rtl;"><?php echo e($editItem ? $editItem['description_ar'] : ''); ?></textarea>
+                                </div>
                             </div>
 
                             <!-- Category & Duration -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
                                 <div class="admin-form-group">
-                                    <label for="pod-category">Category</label>
-                                    <input type="text" id="pod-category" name="category" value="<?php echo e($editItem ? $editItem['category'] : ''); ?>" class="admin-form-input" placeholder="e.g. Solo Travel" />
+                                    <label for="pod-category-en"><?php echo __("pod_field_cat_en"); ?></label>
+                                    <input type="text" id="pod-category-en" name="category_en" value="<?php echo e($editItem ? $editItem['category_en'] : ''); ?>" class="admin-form-input" placeholder="e.g. Solo Travel" />
                                 </div>
                                 <div class="admin-form-group">
-                                    <label for="pod-duration">Duration (e.g. 24:15)</label>
+                                    <label for="pod-category-ar"><?php echo __("pod_field_cat_ar"); ?></label>
+                                    <input type="text" id="pod-category-ar" name="category_ar" value="<?php echo e($editItem ? $editItem['category_ar'] : ''); ?>" class="admin-form-input" placeholder="مثال: السفر المنفرد" style="direction: rtl;" />
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="pod-duration"><?php echo __("pod_field_duration"); ?></label>
                                     <input type="text" id="pod-duration" name="duration" value="<?php echo e($editItem ? $editItem['duration'] : ''); ?>" class="admin-form-input" placeholder="MM:SS" />
                                 </div>
                             </div>
 
                             <!-- Featured -->
-                            <div class="admin-form-group" style="flex-direction: row; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                            <div class="admin-form-group" style="flex-direction: row; justify-content: space-between; align-items: center; margin-top: 0.5rem; display: flex; gap: 0.5rem;">
                                 <div>
-                                    <label style="display:block; margin:0;">Featured Podcast</label>
-                                    <span style="font-size: 0.6rem; color:#aaa;">Promote to the top showcase carousel</span>
+                                    <label style="display:block; margin:0;"><?php echo __("admin_featured"); ?></label>
+                                    <span style="font-size: 0.6rem; color:#aaa;"><?php echo CURRENT_LANG === 'ar' ? 'عرض على البانر الرئيسي للبودكاست' : 'Promote to the top showcase carousel'; ?></span>
                                 </div>
                                 <input type="checkbox" name="is_featured" value="1" <?php echo ($editItem && $editItem['is_featured']) ? 'checked' : ''; ?> style="width: 20px; height: 20px;" />
                             </div>
@@ -250,17 +311,26 @@ require_once PATH_ROOT . '/includes/header.php';
                     </div>
 
                     <!-- Right Column: Media Dropzones -->
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
                         <!-- Cover Image Dropzone -->
                         <div class="admin-card-box" style="margin: 0; padding: 2rem;">
-                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;">Episode Cover</h3>
+                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;"><?php echo __("dash_cover"); ?></h3>
                             <div class="admin-form-group">
-                                <label for="pod-cover">Cover Image URL</label>
+                                <label for="pod-cover"><?php echo __("post_field_cover"); ?></label>
                                 <input type="text" id="pod-cover" name="cover_image" value="<?php echo e($editItem ? $editItem['cover_image'] : ''); ?>" class="admin-form-input" placeholder="/uploads/..." />
                             </div>
+
+                            <div class="admin-form-group" style="margin-top: 1rem;">
+                                <label for="pod-alt-en"><?php echo __("post_field_alt_en"); ?></label>
+                                <input type="text" id="pod-alt-en" name="alt_text_en" value="<?php echo e($editItem ? $editItem['alt_text_en'] : ''); ?>" class="admin-form-input" placeholder="Alt text in English" />
+                            </div>
+                            <div class="admin-form-group" style="margin-top: 1rem;">
+                                <label for="pod-alt-ar"><?php echo __("post_field_alt_ar"); ?></label>
+                                <input type="text" id="pod-alt-ar" name="alt_text_ar" value="<?php echo e($editItem ? $editItem['alt_text_ar'] : ''); ?>" class="admin-form-input" placeholder="النص البديل بالعربية" style="direction: rtl;" />
+                            </div>
                             
-                            <div id="coverDropzone" class="image-upload-preview-box" style="margin-top: 1rem; border: 1px dashed var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; cursor: pointer;">
-                                <p style="font-size: 0.75rem; color: #777;">Click or drop image here</p>
+                            <div id="coverDropzone" class="image-upload-preview-box" style="margin-top: 1.5rem; border: 1px dashed var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; cursor: pointer;">
+                                <p style="font-size: 0.75rem; color: #777;"><?php echo __("settings_click_drop"); ?></p>
                                 <span style="font-size: 0.6rem; color:#999; display:block; margin-top:0.25rem;">PNG, JPG, WebP (Max 2MB)</span>
                                 <input type="file" id="coverFileSelector" accept="image/*" style="display:none;" />
                                 <div id="coverStatusText" style="font-size:0.7rem; color: var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
@@ -270,14 +340,14 @@ require_once PATH_ROOT . '/includes/header.php';
 
                         <!-- Audio File Dropzone -->
                         <div class="admin-card-box" style="margin: 0; padding: 2rem;">
-                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;">Audio Episode File</h3>
+                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;"><?php echo __("pod_field_audio"); ?></h3>
                             <div class="admin-form-group">
-                                <label for="pod-audio">Audio File URL</label>
+                                <label for="pod-audio"><?php echo __("pod_field_audio"); ?> URL</label>
                                 <input type="text" id="pod-audio" name="audio_file" value="<?php echo e($editItem ? $editItem['audio_file'] : ''); ?>" class="admin-form-input" placeholder="/uploads/..." required />
                             </div>
                             
                             <div id="audioDropzone" class="image-upload-preview-box" style="margin-top: 1rem; border: 1px dashed var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; cursor: pointer;">
-                                <p style="font-size: 0.75rem; color: #777;">🎙️ Click or drop MP3/WAV here</p>
+                                <p style="font-size: 0.75rem; color: #777;"><?php echo __("pod_drag_audio"); ?></p>
                                 <span style="font-size: 0.6rem; color:#999; display:block; margin-top:0.25rem;">MP3, WAV, AAC, OGG (Max 50MB)</span>
                                 <input type="file" id="audioFileSelector" accept="audio/*" style="display:none;" />
                                 <div id="audioStatusText" style="font-size:0.7rem; color: var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
@@ -289,8 +359,8 @@ require_once PATH_ROOT . '/includes/header.php';
 
                 <!-- Submission Actions -->
                 <div style="border-top: 1px solid #e5e7eb; padding-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
-                    <a href="<?php echo BASE_URL; ?>/admin/podcasts" class="btn-reset" style="padding: 1rem 2rem; border-radius: 8px; width:auto; text-decoration:none;">Cancel</a>
-                    <button type="submit" class="btn-primary" style="padding: 1rem 3rem; border-radius: 8px;">Save Episode</button>
+                    <a href="<?php echo BASE_URL; ?>/admin/podcasts" class="btn-reset" style="padding: 1rem 2rem; border-radius: 8px; width:auto; text-decoration:none; display: inline-flex; align-items: center; justify-content: center;"><?php echo __("admin_cancel"); ?></a>
+                    <button type="submit" class="btn-primary" style="padding: 1rem 3rem; border-radius: 8px;"><?php echo __("pod_btn_save"); ?></button>
                 </div>
             </form>
 

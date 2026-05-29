@@ -20,42 +20,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         Auth::requireCsrf();
         
-        $title = $_POST['title'] ?? '';
-        $slug = $_POST['slug'] ?? '';
-        $excerpt = $_POST['excerpt'] ?? '';
-        $content = $_POST['content'] ?? '';
+        $title_en = $_POST['title_en'] ?? '';
+        $title_ar = $_POST['title_ar'] ?? '';
+        $slug_en = $_POST['slug_en'] ?? '';
+        $slug_ar = $_POST['slug_ar'] ?? '';
+        $excerpt_en = $_POST['excerpt_en'] ?? '';
+        $excerpt_ar = $_POST['excerpt_ar'] ?? '';
+        $content_en = $_POST['content_en'] ?? '';
+        $content_ar = $_POST['content_ar'] ?? '';
         $coverImage = $_POST['coverImage'] ?? '';
+        $alt_text_en = $_POST['alt_text_en'] ?? '';
+        $alt_text_ar = $_POST['alt_text_ar'] ?? '';
         $categoryId = $_POST['categoryId'] ?? '';
         $isFeatured = isset($_POST['isFeatured']) ? 1 : 0;
         $status = $_POST['status'] ?? 'DRAFT';
 
         // Basic validation
-        if (empty($title) || empty($content) || empty($categoryId)) {
-            $error = "Title, Category, and Content are required fields.";
+        if (empty($title_en) || empty($content_en) || empty($categoryId)) {
+            $error = __("post_fields_required");
         } else {
-            $slug = slugify(empty($slug) ? $title : $slug);
+            $slug_en = slugify(empty($slug_en) ? $title_en : $slug_en);
 
-            // Ensure unique slug if changed
-            if ($slug !== $post['slug']) {
-                $existing = $pm->getPostBySlug($slug, true);
-                if ($existing) {
-                    $slug = $slug . '-' . time();
+            // Ensure unique English slug if changed
+            if ($slug_en !== $post['slug_en']) {
+                $existingEn = $pm->getPostBySlug($slug_en, true);
+                if ($existingEn) {
+                    $slug_en = $slug_en . '-' . time();
                 }
             }
 
+            // Ensure unique Arabic slug if provided and changed
+            if (!empty($title_ar)) {
+                $slug_ar = slugify(empty($slug_ar) ? $title_ar : $slug_ar);
+                if ($slug_ar !== $post['slug_ar']) {
+                    $existingAr = $pm->getPostBySlug($slug_ar, true);
+                    if ($existingAr) {
+                        $slug_ar = $slug_ar . '-' . time();
+                    }
+                }
+            } else {
+                $slug_ar = null;
+            }
+
             $postData = [
-                'title' => $title,
-                'slug' => $slug,
-                'excerpt' => $excerpt,
-                'content' => $content,
+                'title_en' => $title_en,
+                'title_ar' => !empty($title_ar) ? $title_ar : null,
+                'slug_en' => $slug_en,
+                'slug_ar' => $slug_ar,
+                'excerpt_en' => !empty($excerpt_en) ? $excerpt_en : null,
+                'excerpt_ar' => !empty($excerpt_ar) ? $excerpt_ar : null,
+                'content_en' => $content_en,
+                'content_ar' => !empty($content_ar) ? $content_ar : null,
                 'coverImage' => $coverImage,
+                'alt_text_en' => !empty($alt_text_en) ? $alt_text_en : null,
+                'alt_text_ar' => !empty($alt_text_ar) ? $alt_text_ar : null,
                 'isFeatured' => $isFeatured,
                 'status' => $status,
                 'categoryId' => $categoryId
             ];
 
             if ($pm->updatePost($postId, $postData)) {
-                $_SESSION['admin_flash_success'] = "Story successfully updated!";
+                $_SESSION['admin_flash_success'] = __("post_updated_success");
                 header("Location: " . BASE_URL . "/admin/dashboard");
                 exit();
             } else {
@@ -80,8 +105,10 @@ require_once PATH_ROOT . '/includes/header.php';
     <main class="admin-main">
         <div class="admin-header-row" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem; margin-bottom: 2rem;">
             <div>
-                <a href="<?php echo BASE_URL; ?>/admin/dashboard" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999;">&larr; Back to Dashboard</a>
-                <h1 class="admin-title" style="margin-top:0.5rem;">Edit Story</h1>
+                <a href="<?php echo BASE_URL; ?>/admin/dashboard" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999; display: flex; align-items: center; gap: 0.5rem;">
+                    <?php echo CURRENT_LANG === 'ar' ? '&rarr;' : '&larr;'; ?> <?php echo __("post_back_dash"); ?>
+                </a>
+                <h1 class="admin-title" style="margin-top:0.5rem;"><?php echo __("post_edit_title"); ?></h1>
             </div>
         </div>
 
@@ -95,35 +122,60 @@ require_once PATH_ROOT . '/includes/header.php';
         <!-- Form -->
         <form id="editPostForm" action="<?php echo BASE_URL; ?>/admin/edit-post/<?php echo $post['id']; ?>" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
             <?php echo Auth::csrfInput(); ?>
-            <input type="hidden" id="postContentInput" name="content" value="<?php echo e($post['content']); ?>" />
+            <input type="hidden" id="postContentInputEn" name="content_en" value="<?php echo e($post['content_en']); ?>" />
+            <input type="hidden" id="postContentInputAr" name="content_ar" value="<?php echo e($post['content_ar'] ?? ''); ?>" />
 
-            <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+            <div class="admin-grid-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
                 <!-- Left panel (main editor content) -->
-                <div style="display:flex; flex-direction:column; gap:1.5rem;">
-                    <!-- Title -->
-                    <div class="admin-form-group">
-                        <label for="post-title">Story Title</label>
-                        <input type="text" id="post-title" name="title" value="<?php echo e($post['title']); ?>" class="admin-form-input" placeholder="Enter story title..." required style="font-size: 1.5rem; font-family: var(--font-serif);" />
+                <div style="display:flex; flex-direction:column; gap:1.5rem; min-width: 0;">
+                    <!-- Titles Row -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <!-- Title EN -->
+                        <div class="admin-form-group">
+                            <label for="post-title-en"><?php echo __("post_field_title_en"); ?></label>
+                            <input type="text" id="post-title-en" name="title_en" value="<?php echo e($post['title_en']); ?>" class="admin-form-input" placeholder="<?php echo __("post_field_title_en"); ?>..." required style="font-size: 1.25rem; font-family: var(--font-serif);" />
+                        </div>
+                        <!-- Title AR -->
+                        <div class="admin-form-group">
+                            <label for="post-title-ar"><?php echo __("post_field_title_ar"); ?></label>
+                            <input type="text" id="post-title-ar" name="title_ar" value="<?php echo e($post['title_ar'] ?? ''); ?>" class="admin-form-input" placeholder="<?php echo __("post_field_title_ar"); ?>..." style="font-size: 1.25rem; font-family: var(--font-serif); direction: rtl;" />
+                        </div>
                     </div>
 
-                    <!-- Slug -->
-                    <div class="admin-form-group">
-                        <label for="post-slug">URL Slug</label>
-                        <input type="text" id="post-slug" name="slug" value="<?php echo e($post['slug']); ?>" class="admin-form-input" placeholder="url-slug-here" style="font-family: monospace;" />
+                    <!-- Slugs Row -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <!-- Slug EN -->
+                        <div class="admin-form-group">
+                            <label for="post-slug-en"><?php echo __("post_field_slug_en"); ?></label>
+                            <input type="text" id="post-slug-en" name="slug_en" value="<?php echo e($post['slug_en']); ?>" class="admin-form-input" placeholder="english-slug-here" style="font-family: monospace;" />
+                        </div>
+                        <!-- Slug AR -->
+                        <div class="admin-form-group">
+                            <label for="post-slug-ar"><?php echo __("post_field_slug_ar"); ?></label>
+                            <input type="text" id="post-slug-ar" name="slug_ar" value="<?php echo e($post['slug_ar'] ?? ''); ?>" class="admin-form-input" placeholder="arabic-slug-here" style="font-family: monospace; direction: rtl;" />
+                        </div>
                     </div>
 
-                    <!-- Excerpt -->
-                    <div class="admin-form-group">
-                        <label for="post-excerpt">Excerpt</label>
-                        <textarea id="post-excerpt" name="excerpt" rows="3" class="admin-form-textarea" placeholder="Provide a short teaser excerpt..."><?php echo e($post['excerpt'] ?? ''); ?></textarea>
+                    <!-- Excerpts Row -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <!-- Excerpt EN -->
+                        <div class="admin-form-group">
+                            <label for="post-excerpt-en"><?php echo __("admin_description"); ?> (EN)</label>
+                            <textarea id="post-excerpt-en" name="excerpt_en" rows="3" class="admin-form-textarea" placeholder="Provide a short magazine teaser excerpt in English..."><?php echo e($post['excerpt_en'] ?? ''); ?></textarea>
+                        </div>
+                        <!-- Excerpt AR -->
+                        <div class="admin-form-group">
+                            <label for="post-excerpt-ar"><?php echo __("admin_description"); ?> (AR)</label>
+                            <textarea id="post-excerpt-ar" name="excerpt_ar" rows="3" class="admin-form-textarea" placeholder="اكتب مقتطفًا قصيرًا للمقال باللغة العربية..." style="direction: rtl;"><?php echo e($post['excerpt_ar'] ?? ''); ?></textarea>
+                        </div>
                     </div>
 
-                    <!-- Content (Rich Text ContentEditable Editor) -->
+                    <!-- Content EN (Rich Text ContentEditable Editor) -->
                     <div class="admin-form-group">
-                        <label>Full Content Body</label>
+                        <label><?php echo __("post_field_content_en"); ?></label>
                         <div class="richtext-editor">
                             <!-- Toolbar -->
-                            <div class="richtext-toolbar">
+                            <div class="richtext-toolbar" data-editor="editorAreaEn">
                                 <button type="button" class="richtext-btn" data-cmd="bold">B</button>
                                 <button type="button" class="richtext-btn" data-cmd="italic" style="font-style: italic;">I</button>
                                 <button type="button" class="richtext-btn" data-cmd="underline" style="text-decoration: underline;">U</button>
@@ -133,41 +185,62 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <button type="button" class="richtext-btn" data-cmd="removeFormat">Clear</button>
                             </div>
                             <!-- Contenteditable Area -->
-                            <div id="editorArea" class="richtext-content" contenteditable="true" placeholder="Compose your accessible travel story..."><?php echo $post['content']; ?></div>
+                            <div id="editorAreaEn" class="richtext-content" contenteditable="true" placeholder="Compose your accessible travel story in English..."><?php echo $post['content_en']; ?></div>
+                        </div>
+                    </div>
+
+                    <!-- Content AR (Rich Text ContentEditable Editor) -->
+                    <div class="admin-form-group">
+                        <label><?php echo __("post_field_content_ar"); ?></label>
+                        <div class="richtext-editor">
+                            <!-- Toolbar -->
+                            <div class="richtext-toolbar" data-editor="editorAreaAr">
+                                <button type="button" class="richtext-btn" data-cmd="bold">B</button>
+                                <button type="button" class="richtext-btn" data-cmd="italic" style="font-style: italic;">I</button>
+                                <button type="button" class="richtext-btn" data-cmd="underline" style="text-decoration: underline;">U</button>
+                                <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h2">H2</button>
+                                <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h3">H3</button>
+                                <button type="button" class="richtext-btn" data-cmd="createLink">Link</button>
+                                <button type="button" class="richtext-btn" data-cmd="removeFormat">Clear</button>
+                            </div>
+                            <!-- Contenteditable Area -->
+                            <div id="editorAreaAr" class="richtext-content" contenteditable="true" placeholder="Compose your accessible travel story in Arabic..." style="direction: rtl;"><?php echo $post['content_ar'] ?? ''; ?></div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Right panel (Sidebar controls) -->
-                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                <div style="display:flex; flex-direction:column; gap:1.5rem; min-width: 0;">
                     <div class="admin-card-box" style="margin: 0; padding: 2rem;">
-                        <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;">Publishing Settings</h3>
+                        <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;"><?php echo __("manage_desc"); ?></h3>
                         
                         <!-- Category Selection -->
                         <div class="admin-form-group">
-                            <label for="post-category">Category</label>
+                            <label for="post-category"><?php echo __("post_field_category"); ?></label>
                             <select id="post-category" name="categoryId" class="admin-form-select" required>
-                                <option value="">Select Category</option>
+                                <option value=""><?php echo __("post_field_select_cat"); ?></option>
                                 <?php foreach ($categories as $cat): ?>
-                                    <option value="<?php echo e($cat['id']); ?>" <?php echo $cat['id'] === $post['categoryId'] ? 'selected' : ''; ?>><?php echo e($cat['name']); ?></option>
+                                    <option value="<?php echo e($cat['id']); ?>" <?php echo $cat['id'] === $post['categoryId'] ? 'selected' : ''; ?>>
+                                        <?php echo e(CURRENT_LANG === 'ar' && !empty($cat['name_ar']) ? $cat['name_ar'] : $cat['name_en']); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
 
                         <!-- Status Toggle -->
                         <div class="admin-form-group" style="margin-top: 1rem;">
-                            <label>Status</label>
+                            <label><?php echo __("post_field_status"); ?></label>
                             <select name="status" class="admin-form-select">
-                                <option value="DRAFT" <?php echo $post['status'] === 'DRAFT' ? 'selected' : ''; ?>>DRAFT</option>
-                                <option value="PUBLISHED" <?php echo $post['status'] === 'PUBLISHED' ? 'selected' : ''; ?>>PUBLISHED</option>
+                                <option value="DRAFT" <?php echo $post['status'] === 'DRAFT' ? 'selected' : ''; ?>><?php echo __("admin_draft"); ?></option>
+                                <option value="PUBLISHED" <?php echo $post['status'] === 'PUBLISHED' ? 'selected' : ''; ?>><?php echo __("admin_published"); ?></option>
                             </select>
                         </div>
 
                         <!-- Featured Toggle -->
-                        <div class="admin-form-group" style="margin-top: 1rem; flex-direction: row; justify-content: space-between; align-items: center;">
+                        <div class="admin-form-group" style="margin-top: 1rem; display: flex; flex-direction: row; justify-content: space-between; align-items: center; gap: 0.5rem;">
                             <div>
-                                <label style="display:block; margin:0;">Featured Article</label>
-                                <span style="font-size: 0.6rem; color:#aaa;">Promote to homepage banner</span>
+                                <label style="display:block; margin:0;"><?php echo __("post_field_featured"); ?></label>
+                                <span style="font-size: 0.6rem; color:#aaa;"><?php echo CURRENT_LANG === 'ar' ? 'عرض على البانر الرئيسي للموقع' : 'Promote to homepage banner'; ?></span>
                             </div>
                             <input type="checkbox" name="isFeatured" value="1" <?php echo !empty($post['isFeatured']) ? 'checked' : ''; ?> style="width: 20px; height: 20px;" />
                         </div>
@@ -175,16 +248,26 @@ require_once PATH_ROOT . '/includes/header.php';
 
                     <!-- Cover Image Upload Box -->
                     <div class="admin-card-box" style="margin: 0; padding: 2rem;">
-                        <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;">Teaser Imagery</h3>
+                        <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 1.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'صور الغلاف والترويج' : 'Cover & Teaser Imagery'; ?></h3>
                         
                         <div class="admin-form-group">
-                            <label for="post-coverImage">Cover Image URL</label>
+                            <label for="post-coverImage"><?php echo __("post_field_cover"); ?></label>
                             <input type="text" id="post-coverImage" name="coverImage" value="<?php echo e($post['coverImage'] ?? ''); ?>" class="admin-form-input" placeholder="/uploads/..." />
+                        </div>
+
+                        <!-- Image Alt Text EN & AR -->
+                        <div class="admin-form-group" style="margin-top: 1rem;">
+                            <label for="post-alt-en"><?php echo __("post_field_alt_en"); ?></label>
+                            <input type="text" id="post-alt-en" name="alt_text_en" value="<?php echo e($post['alt_text_en'] ?? ''); ?>" class="admin-form-input" placeholder="Alt text in English" />
+                        </div>
+                        <div class="admin-form-group" style="margin-top: 1rem;">
+                            <label for="post-alt-ar"><?php echo __("post_field_alt_ar"); ?></label>
+                            <input type="text" id="post-alt-ar" name="alt_text_ar" value="<?php echo e($post['alt_text_ar'] ?? ''); ?>" class="admin-form-input" placeholder="النص البديل بالعربية" style="direction: rtl;" />
                         </div>
                         
                         <!-- Drag-and-drop Image Uploader Box -->
-                        <div id="dropzone" class="image-upload-preview-box">
-                            <p style="font-size: 0.75rem; color: #777;">Drag & drop image here or click to upload</p>
+                        <div id="dropzone" class="image-upload-preview-box" style="margin-top: 1.5rem;">
+                            <p style="font-size: 0.75rem; color: #777;"><?php echo __("settings_click_drop"); ?></p>
                             <span style="font-size: 0.6rem; color:#999; display:block; margin-top:0.25rem;">PNG, JPG, WebP (Max 2MB)</span>
                             <input type="file" id="fileSelector" accept="image/*" style="display:none;" />
                             <div id="uploadStatusText" style="font-size:0.7rem; color: #2d5a88; margin-top:0.5rem; display:none;">Uploading...</div>
@@ -196,8 +279,8 @@ require_once PATH_ROOT . '/includes/header.php';
 
             <!-- Submission Actions -->
             <div style="border-top: 1px solid #e5e7eb; padding-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
-                <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="btn-reset" style="padding: 1rem 2rem; border-radius: 8px; width:auto; text-decoration:none;">Cancel</a>
-                <button type="submit" class="btn-primary" style="padding: 1rem 3rem; border-radius: 8px;">Update Story</button>
+                <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="btn-reset" style="padding: 1rem 2rem; border-radius: 8px; width:auto; text-decoration:none; display: inline-flex; align-items: center; justify-content: center;"><?php echo __("admin_cancel"); ?></a>
+                <button type="submit" class="btn-primary" style="padding: 1rem 3rem; border-radius: 8px;"><?php echo __("post_btn_save"); ?></button>
             </div>
         </form>
     </main>
@@ -207,28 +290,47 @@ require_once PATH_ROOT . '/includes/header.php';
     document.addEventListener("DOMContentLoaded", function() {
         
         // 1. Slug Generator Touch Listener
-        const slugInp = document.getElementById('post-slug');
-        if (slugInp) {
-            slugInp.addEventListener('change', function() {
+        const slugEnInp = document.getElementById('post-slug-en');
+        if (slugEnInp) {
+            slugEnInp.addEventListener('change', function() {
+                this.setAttribute('data-touched', 'true');
+            });
+        }
+        const slugArInp = document.getElementById('post-slug-ar');
+        if (slugArInp) {
+            slugArInp.addEventListener('change', function() {
                 this.setAttribute('data-touched', 'true');
             });
         }
 
-        // 2. Rich Text Toolbar Command Executor
-        const toolbarButtons = document.querySelectorAll('.richtext-btn');
-        toolbarButtons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const cmd = this.getAttribute('data-cmd');
-                const val = this.getAttribute('data-val') || null;
+        // 2. Rich Text Toolbar Command Executor (targets active editor block)
+        const toolbars = document.querySelectorAll('.richtext-toolbar');
+        toolbars.forEach(tb => {
+            const editorId = tb.getAttribute('data-editor');
+            const editor = document.getElementById(editorId);
+            
+            tb.querySelectorAll('.richtext-btn').forEach(btn => {
+                btn.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); // Keep focus inside contenteditable
+                });
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Focus the editor first
+                    editor.focus();
 
-                if (cmd === 'createLink') {
-                    const url = prompt("Enter hyperlink URL (e.g. https://example.com):");
-                    if (url) document.execCommand(cmd, false, url);
-                } else if (cmd === 'formatBlock') {
-                    document.execCommand(cmd, false, `<${val}>`);
-                } else {
-                    document.execCommand(cmd, false, val);
-                }
+                    const cmd = this.getAttribute('data-cmd');
+                    const val = this.getAttribute('data-val') || null;
+
+                    if (cmd === 'createLink') {
+                        const url = prompt("Enter hyperlink URL (e.g. https://example.com):");
+                        if (url) document.execCommand(cmd, false, url);
+                    } else if (cmd === 'formatBlock') {
+                        document.execCommand(cmd, false, `<${val}>`);
+                    } else {
+                        document.execCommand(cmd, false, val);
+                    }
+                });
             });
         });
 
@@ -236,10 +338,15 @@ require_once PATH_ROOT . '/includes/header.php';
         const editPostForm = document.getElementById('editPostForm');
         if (editPostForm) {
             editPostForm.addEventListener('submit', function() {
-                const contentArea = document.getElementById('editorArea');
-                const contentHidden = document.getElementById('postContentInput');
-                if (contentArea && contentHidden) {
-                    contentHidden.value = contentArea.innerHTML;
+                const contentAreaEn = document.getElementById('editorAreaEn');
+                const contentHiddenEn = document.getElementById('postContentInputEn');
+                if (contentAreaEn && contentHiddenEn) {
+                    contentHiddenEn.value = contentAreaEn.innerHTML;
+                }
+                const contentAreaAr = document.getElementById('editorAreaAr');
+                const contentHiddenAr = document.getElementById('postContentInputAr');
+                if (contentAreaAr && contentHiddenAr) {
+                    contentHiddenAr.value = contentAreaAr.innerHTML;
                 }
             });
         }

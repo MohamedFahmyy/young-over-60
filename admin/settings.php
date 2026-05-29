@@ -39,18 +39,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
 
         if (empty($data['siteName'])) {
-            $error = "Site Name is a required field.";
+            $error = __('settings_sitename_required');
         } else {
             if ($pm->updateSiteSettings($data)) {
-                $success = "Site settings successfully updated!";
+                $success = __('settings_success_save');
                 // Refresh settings array
                 $settings = $pm->getSiteSettings();
             } else {
-                $error = "Failed to update settings in the database.";
+                $error = __('settings_save_error');
             }
         }
     } catch (Exception $e) {
-        $error = "Error: " . $e->getMessage();
+        $error = __('admin_error') . ": " . $e->getMessage();
     }
 }
 
@@ -59,7 +59,7 @@ $seoPageType = 'admin';
 require_once PATH_ROOT . '/includes/header.php';
 ?>
 
-<div class="admin-layout">
+<<div class="admin-layout">
     <!-- Sidebar -->
     <?php require_once PATH_ROOT . '/includes/admin-sidebar.php'; ?>
 
@@ -67,8 +67,8 @@ require_once PATH_ROOT . '/includes/header.php';
     <main class="admin-main">
         <div class="admin-header-row" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem; margin-bottom: 2rem;">
             <div>
-                <h1 class="admin-title">Site Settings</h1>
-                <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;">Configure your platform logo, favicon, theme design system, and global SEO targets.</p>
+                <h1 class="admin-title"><?php echo __('admin_settings'); ?></h1>
+                <p style="color: #888; font-size: 0.9rem; margin-top: 0.25rem;"><?php echo __('settings_manage_desc'); ?></p>
             </div>
         </div>
 
@@ -86,7 +86,7 @@ require_once PATH_ROOT . '/includes/header.php';
             </div>
         <?php endif; ?>
 
-        <form id="settingsForm" action="<?php echo BASE_URL; ?>/admin/settings" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+        <form id="settingsForm" action="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/settings" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
             <?php echo Auth::csrfInput(); ?>
 
             <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start;">
@@ -98,16 +98,16 @@ require_once PATH_ROOT . '/includes/header.php';
                     <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                             <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            General Site Identity
+                            <?php echo __('settings_general_identity'); ?>
                         </h3>
                         
                         <div class="admin-form-group">
-                            <label for="set-sitename">Site Name</label>
+                            <label for="set-sitename"><?php echo __('settings_site_name'); ?></label>
                             <input type="text" id="set-sitename" name="siteName" value="<?php echo e($settings['siteName'] ?? 'Young Over 60'); ?>" class="admin-form-input" required />
                         </div>
 
                         <div class="admin-form-group">
-                            <label for="set-herobg">Hero Section Background Image URL</label>
+                            <label for="set-herobg"><?php echo __('settings_hero_bg'); ?></label>
                             <input type="text" id="set-herobg" name="heroBackgroundUrl" value="<?php echo e($settings['heroBackgroundUrl'] ?? '/images/hero-bg.png'); ?>" class="admin-form-input" />
                         </div>
                     </div>
@@ -116,19 +116,19 @@ require_once PATH_ROOT . '/includes/header.php';
                     <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                             <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            Global SEO Configuration (Search Engine Optimization)
+                            <?php echo __('settings_seo_config'); ?>
                         </h3>
                         
                         <div class="admin-form-group">
-                            <label for="set-metatitle">Default Meta Title</label>
+                            <label for="set-metatitle"><?php echo __('settings_meta_title'); ?></label>
                             <input type="text" id="set-metatitle" name="metaTitle" value="<?php echo e($settings['metaTitle'] ?? ''); ?>" class="admin-form-input" placeholder="e.g. Young Over 60 | Active Senior Inspiration" />
-                            <span style="font-size: 0.65rem; color: #888; margin-top: 0.25rem;">Recommended length is under 60 characters.</span>
+                            <span style="font-size: 0.65rem; color: #888; margin-top: 0.25rem;"><?php echo __('settings_meta_title_hint'); ?></span>
                         </div>
 
                         <div class="admin-form-group">
-                            <label for="set-metadesc">Default Meta Description</label>
-                            <textarea id="set-metadesc" name="metaDescription" rows="4" class="admin-form-textarea" placeholder="Describe the focus of the website for search results..."><?php echo e($settings['metaDescription'] ?? ''); ?></textarea>
-                            <span style="font-size: 0.65rem; color: #888; margin-top: 0.25rem;">Recommended length is 150-160 characters.</span>
+                            <label for="set-metadesc"><?php echo __('settings_meta_desc'); ?></label>
+                            <textarea id="set-metadesc" name="metaDescription" rows="4" class="admin-form-textarea" placeholder="..."><?php echo e($settings['metaDescription'] ?? ''); ?></textarea>
+                            <span style="font-size: 0.65rem; color: #888; margin-top: 0.25rem;"><?php echo __('settings_meta_desc_hint'); ?></span>
                         </div>
                     </div>
 
@@ -136,23 +136,23 @@ require_once PATH_ROOT . '/includes/header.php';
                     <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                             <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
-                            Design System Palette & Theme Manager
+                            <?php echo __('settings_design_palette'); ?>
                         </h3>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                             
                             <!-- Theme Mode -->
                             <div class="admin-form-group" style="grid-column: span 2;">
-                                <label for="set-theme-mode">Default Theme Mode</label>
+                                <label for="set-theme-mode"><?php echo __('settings_theme_mode_default'); ?></label>
                                 <select id="set-theme-mode" name="themeMode" class="admin-form-input" onchange="updateLivePreview();">
-                                    <option value="light" <?php echo ($settings['themeMode'] ?? 'light') === 'light' ? 'selected' : ''; ?>>Light Editorial</option>
-                                    <option value="dark" <?php echo ($settings['themeMode'] ?? 'light') === 'dark' ? 'selected' : ''; ?>>Dark Luxury</option>
+                                    <option value="light" <?php echo ($settings['themeMode'] ?? 'light') === 'light' ? 'selected' : ''; ?>><?php echo __('settings_mode_light'); ?></option>
+                                    <option value="dark" <?php echo ($settings['themeMode'] ?? 'light') === 'dark' ? 'selected' : ''; ?>><?php echo __('settings_mode_dark'); ?></option>
                                 </select>
                             </div>
 
                             <!-- Primary Color -->
                             <div class="admin-form-group">
-                                <label for="color-primary">Primary Branding Color</label>
+                                <label for="color-primary"><?php echo __('settings_primary_color_label'); ?></label>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <input type="color" value="<?php echo e($settings['primaryColor'] ?? '#0F4C81'); ?>" oninput="document.getElementById('color-primary-text').value = this.value; updateLivePreview();" style="width: 42px; height: 42px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; padding: 0;" />
                                     <input type="text" id="color-primary-text" name="primaryColor" value="<?php echo e($settings['primaryColor'] ?? '#0F4C81'); ?>" class="admin-form-input" style="flex-grow:1;" oninput="updateLivePreview();" />
@@ -161,7 +161,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Secondary Color -->
                             <div class="admin-form-group">
-                                <label for="color-secondary">Secondary Color</label>
+                                <label for="color-secondary"><?php echo __('settings_secondary_color_label'); ?></label>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <input type="color" value="<?php echo e($settings['secondaryColor'] ?? '#1e3c5a'); ?>" oninput="document.getElementById('color-secondary-text').value = this.value; updateLivePreview();" style="width: 42px; height: 42px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; padding: 0;" />
                                     <input type="text" id="color-secondary-text" name="secondaryColor" value="<?php echo e($settings['secondaryColor'] ?? '#1e3c5a'); ?>" class="admin-form-input" style="flex-grow:1;" oninput="updateLivePreview();" />
@@ -170,7 +170,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Accent Color -->
                             <div class="admin-form-group">
-                                <label for="color-accent">Accent Color (Luxury Gold)</label>
+                                <label for="color-accent"><?php echo __('settings_accent_color_label'); ?></label>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <input type="color" value="<?php echo e($settings['accentColor'] ?? '#D4A75C'); ?>" oninput="document.getElementById('color-accent-text').value = this.value; updateLivePreview();" style="width: 42px; height: 42px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; padding: 0;" />
                                     <input type="text" id="color-accent-text" name="accentColor" value="<?php echo e($settings['accentColor'] ?? '#D4A75C'); ?>" class="admin-form-input" style="flex-grow:1;" oninput="updateLivePreview();" />
@@ -179,7 +179,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Background Color -->
                             <div class="admin-form-group">
-                                <label for="color-bg">Page Background Color</label>
+                                <label for="color-bg"><?php echo __('settings_bg_color_label'); ?></label>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <input type="color" value="<?php echo e($settings['backgroundColor'] ?? '#F8F6F2'); ?>" oninput="document.getElementById('color-bg-text').value = this.value; updateLivePreview();" style="width: 42px; height: 42px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; padding: 0;" />
                                     <input type="text" id="color-bg-text" name="backgroundColor" value="<?php echo e($settings['backgroundColor'] ?? '#F8F6F2'); ?>" class="admin-form-input" style="flex-grow:1;" oninput="updateLivePreview();" />
@@ -188,7 +188,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Surface Color -->
                             <div class="admin-form-group">
-                                <label for="color-surface">Card/Surface Background Color</label>
+                                <label for="color-surface"><?php echo __('settings_surface_color_label'); ?></label>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <input type="color" value="<?php echo e($settings['surfaceColor'] ?? '#ffffff'); ?>" oninput="document.getElementById('color-surface-text').value = this.value; updateLivePreview();" style="width: 42px; height: 42px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; padding: 0;" />
                                     <input type="text" id="color-surface-text" name="surfaceColor" value="<?php echo e($settings['surfaceColor'] ?? '#ffffff'); ?>" class="admin-form-input" style="flex-grow:1;" oninput="updateLivePreview();" />
@@ -197,7 +197,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Border Color -->
                             <div class="admin-form-group">
-                                <label for="color-border">UI Border Line Color</label>
+                                <label for="color-border"><?php echo __('settings_border_color_label'); ?></label>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <input type="color" value="<?php echo e(str_starts_with($settings['borderColor'] ?? 'rgba(0,0,0,0.05)', '#') ? $settings['borderColor'] : '#e5e7eb'); ?>" oninput="document.getElementById('color-border-text').value = this.value; updateLivePreview();" style="width: 42px; height: 42px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; padding: 0;" />
                                     <input type="text" id="color-border-text" name="borderColor" value="<?php echo e($settings['borderColor'] ?? 'rgba(0,0,0,0.05)'); ?>" class="admin-form-input" style="flex-grow:1;" oninput="updateLivePreview();" />
@@ -206,7 +206,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Text Color -->
                             <div class="admin-form-group" style="grid-column: span 2;">
-                                <label for="color-text">Base Body Typography Color</label>
+                                <label for="color-text"><?php echo __('settings_text_color_label'); ?></label>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <input type="color" value="<?php echo e($settings['textColor'] ?? '#1F1F1F'); ?>" oninput="document.getElementById('color-text-text').value = this.value; updateLivePreview();" style="width: 42px; height: 42px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; padding: 0;" />
                                     <input type="text" id="color-text-text" name="textColor" value="<?php echo e($settings['textColor'] ?? '#1F1F1F'); ?>" class="admin-form-input" style="flex-grow:1;" oninput="updateLivePreview();" />
@@ -220,14 +220,14 @@ require_once PATH_ROOT . '/includes/header.php';
                     <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                             <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                            Advanced Typography Controls
+                            <?php echo __('settings_section_weights'); ?>
                         </h3>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                             
                             <!-- Heading Font Family -->
                             <div class="admin-form-group">
-                                <label for="set-font-family">Heading Font Family (English)</label>
+                                <label for="set-font-family"><?php echo __('settings_typography_heading_en'); ?></label>
                                 <select id="set-font-family" name="fontFamily" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $enHeadingFonts = ['Outfit', 'Inter', 'Roboto', 'Open Sans', 'Montserrat', 'Playfair Display', 'Lora', 'Merriweather'];
@@ -241,7 +241,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Body Font Family -->
                             <div class="admin-form-group">
-                                <label for="set-font-family-body">Body Font Family (English)</label>
+                                <label for="set-font-family-body"><?php echo __('settings_typography_body_en'); ?></label>
                                 <select id="set-font-family-body" name="fontFamilyBody" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $enBodyFonts = ['Inter', 'Outfit', 'Roboto', 'Open Sans', 'Montserrat', 'Lora', 'Merriweather'];
@@ -255,7 +255,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Arabic Heading Font -->
                             <div class="admin-form-group">
-                                <label for="set-font-family-ar">Heading Font Family (Arabic)</label>
+                                <label for="set-font-family-ar"><?php echo __('settings_typography_heading_ar'); ?></label>
                                 <select id="set-font-family-ar" name="fontFamilyAr" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $arHeadingFonts = ['Cairo', 'Tajawal', 'Almarai', 'Amiri'];
@@ -269,7 +269,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Arabic Body Font -->
                             <div class="admin-form-group">
-                                <label for="set-font-family-ar-body">Body Font Family (Arabic)</label>
+                                <label for="set-font-family-ar-body"><?php echo __('settings_typography_body_ar'); ?></label>
                                 <select id="set-font-family-ar-body" name="fontFamilyArBody" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $arBodyFonts = ['Cairo', 'Tajawal', 'Almarai', 'Amiri'];
@@ -283,7 +283,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Base Font Size -->
                             <div class="admin-form-group">
-                                <label for="set-font-size">Base Typography Font Size</label>
+                                <label for="set-font-size"><?php echo __('settings_typography_size'); ?></label>
                                 <select id="set-font-size" name="fontSize" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $fontSizes = ['14px', '15px', '16px', '17px', '18px', '20px', '22px', '24px'];
@@ -297,7 +297,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Heading Weight -->
                             <div class="admin-form-group">
-                                <label for="set-heading-weight">Heading Weight</label>
+                                <label for="set-heading-weight"><?php echo __('settings_typography_heading_weight'); ?></label>
                                 <select id="set-heading-weight" name="headingWeight" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $weights = ['300', '400', '500', '700', '900'];
@@ -311,7 +311,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Body Weight -->
                             <div class="admin-form-group">
-                                <label for="set-body-weight">Body Text Weight</label>
+                                <label for="set-body-weight"><?php echo __('settings_typography_body_weight'); ?></label>
                                 <select id="set-body-weight" name="bodyWeight" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $weightsBody = ['300', '400', '500'];
@@ -325,7 +325,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Letter Spacing -->
                             <div class="admin-form-group">
-                                <label for="set-letter-spacing">Heading Letter Spacing</label>
+                                <label for="set-letter-spacing"><?php echo __('settings_typography_spacing'); ?></label>
                                 <select id="set-letter-spacing" name="letterSpacing" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $spacings = ['normal', '-0.02em', '-0.01em', '0.05em', '0.1em', '0.15em', '0.2em'];
@@ -339,7 +339,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                             <!-- Line Height -->
                             <div class="admin-form-group" style="grid-column: span 2;">
-                                <label for="set-line-height">Body Line Height</label>
+                                <label for="set-line-height"><?php echo __('settings_typography_line_height'); ?></label>
                                 <select id="set-line-height" name="lineHeight" class="admin-form-input" onchange="updateLivePreview();">
                                     <?php 
                                     $heights = ['1.4', '1.5', '1.6', '1.7', '1.8', '2.0'];
@@ -361,17 +361,17 @@ require_once PATH_ROOT . '/includes/header.php';
                     <!-- Light Theme Logo -->
                     <div class="admin-card-box" style="margin: 0; padding: 2rem;">
                         <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                            ☀️ Light Theme Logo
+                            <?php echo __('settings_light_logo'); ?>
                         </h3>
-                        <p style="font-size: 0.65rem; color:#888; margin-bottom: 1.25rem;">Used on white or light backgrounds across the site header and menus.</p>
+                        <p style="font-size: 0.65rem; color:#888; margin-bottom: 1.25rem;"><?php echo __('settings_light_logo_desc'); ?></p>
                         
                         <div class="admin-form-group">
-                            <label for="set-logo">Logo Image URL</label>
+                            <label for="set-logo"><?php echo __('admin_brand_logo_url'); ?></label>
                             <input type="text" id="set-logo" name="logoUrl" value="<?php echo e($settings['logoUrl'] ?? ''); ?>" class="admin-form-input" placeholder="/uploads/..." />
                         </div>
                         
                         <div id="logoDropzone" class="image-upload-preview-box" style="margin-top: 1rem; border: 1px dashed var(--accent-color); padding: 1.5rem 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: var(--transition-smooth);">
-                            <p style="font-size: 0.7rem; color: #777; margin: 0;">Click or drop image here</p>
+                            <p style="font-size: 0.7rem; color: #777; margin: 0;"><?php echo __('settings_click_drop'); ?></p>
                             <span style="font-size: 0.55rem; color:#999; display:block; margin-top:0.25rem;">PNG, JPG, WebP, SVG (Max 2MB)</span>
                             <input type="file" id="logoFileSelector" accept="image/*" style="display:none;" />
                             <div id="logoStatusText" style="font-size:0.65rem; color: var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
@@ -382,9 +382,9 @@ require_once PATH_ROOT . '/includes/header.php';
                     <!-- Dark Theme Logo -->
                     <div class="admin-card-box" style="margin: 0; padding: 2rem;">
                         <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                            🌙 Dark/Contrast Theme Logo
+                            <?php echo __('settings_dark_logo'); ?>
                         </h3>
-                        <p style="font-size: 0.65rem; color:#888; margin-bottom: 1.25rem;">Swapped automatically when High Contrast accessibility mode is active.</p>
+                        <p style="font-size: 0.65rem; color:#888; margin-bottom: 1.25rem;"><?php echo __('settings_dark_logo_desc'); ?></p>
                         
                         <div class="admin-form-group">
                             <label for="set-logo-dark">Dark Logo Image URL</label>
@@ -392,7 +392,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         </div>
                         
                         <div id="logoDarkDropzone" class="image-upload-preview-box" style="margin-top: 1rem; border: 1px dashed var(--accent-color); padding: 1.5rem 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: var(--transition-smooth);">
-                            <p style="font-size: 0.7rem; color: #777; margin: 0;">Click or drop image here</p>
+                            <p style="font-size: 0.7rem; color: #777; margin: 0;"><?php echo __('settings_click_drop'); ?></p>
                             <span style="font-size: 0.55rem; color:#999; display:block; margin-top:0.25rem;">PNG, JPG, WebP, SVG (Max 2MB)</span>
                             <input type="file" id="logoDarkFileSelector" accept="image/*" style="display:none;" />
                             <div id="logoDarkStatusText" style="font-size:0.65rem; color: var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
@@ -403,17 +403,17 @@ require_once PATH_ROOT . '/includes/header.php';
                     <!-- Favicon Upload Card -->
                     <div class="admin-card-box" style="margin: 0; padding: 2rem;">
                         <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                            🎯 Browser Favicon
+                            <?php echo __('settings_browser_favicon'); ?>
                         </h3>
-                        <p style="font-size: 0.65rem; color:#888; margin-bottom: 1.25rem;">The tiny tab icon displayed in browsers next to your page title.</p>
+                        <p style="font-size: 0.65rem; color:#888; margin-bottom: 1.25rem;"><?php echo __('settings_favicon_desc'); ?></p>
                         
                         <div class="admin-form-group">
-                            <label for="set-favicon">Favicon URL</label>
+                            <label for="set-favicon"><?php echo __('admin_favicon_url'); ?></label>
                             <input type="text" id="set-favicon" name="faviconUrl" value="<?php echo e($settings['faviconUrl'] ?? ''); ?>" class="admin-form-input" placeholder="/favicon.ico or /uploads/..." />
                         </div>
                         
                         <div id="faviconDropzone" class="image-upload-preview-box" style="margin-top: 1rem; border: 1px dashed var(--accent-color); padding: 1.5rem 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: var(--transition-smooth);">
-                            <p style="font-size: 0.7rem; color: #777; margin: 0;">Click or drop favicon here</p>
+                            <p style="font-size: 0.7rem; color: #777; margin: 0;"><?php echo __('settings_click_drop_favicon'); ?></p>
                             <span style="font-size: 0.55rem; color:#999; display:block; margin-top:0.25rem;">ICO, PNG, SVG, GIF (Max 2MB)</span>
                             <input type="file" id="faviconFileSelector" accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/svg+xml,image/gif" style="display:none;" />
                             <div id="faviconStatusText" style="font-size:0.65rem; color: var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
@@ -424,27 +424,28 @@ require_once PATH_ROOT . '/includes/header.php';
                     <!-- SEO Open Graph Image Card -->
                     <div class="admin-card-box" style="margin: 0; padding: 2rem;">
                         <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                            🔗 Social Share Image (OG Image)
+                            <?php echo __('settings_social_share'); ?>
                         </h3>
-                        <p style="font-size: 0.65rem; color:#888; margin-bottom: 1.25rem;">The fallback preview banner shown when sharing your site link on Facebook, Twitter, WhatsApp.</p>
+                        <p style="font-size: 0.65rem; color:#888; margin-bottom: 1.25rem;"><?php echo __('settings_social_share_desc'); ?></p>
                         
                         <div class="admin-form-group">
-                            <label for="set-ogimage">Social Share Image URL</label>
+                            <label for="set-ogimage"><?php echo __('admin_seo_og_url'); ?></label>
                             <input type="text" id="set-ogimage" name="ogImage" value="<?php echo e($settings['ogImage'] ?? ''); ?>" class="admin-form-input" placeholder="/uploads/..." />
                         </div>
                         
                         <div id="ogDropzone" class="image-upload-preview-box" style="margin-top: 1rem; border: 1px dashed var(--accent-color); padding: 1.5rem 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: var(--transition-smooth);">
-                            <p style="font-size: 0.7rem; color: #777; margin: 0;">Click or drop image here</p>
+                            <p style="font-size: 0.7rem; color: #777; margin: 0;"><?php echo __('settings_click_drop'); ?></p>
                             <span style="font-size: 0.55rem; color:#999; display:block; margin-top:0.25rem;">PNG, JPG, WebP (Max 2MB)</span>
                             <input type="file" id="ogFileSelector" accept="image/*" style="display:none;" />
                             <div id="ogStatusText" style="font-size:0.65rem; color: var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
                             <img id="ogPreview" src="<?php echo $settings['ogImage'] ? BASE_URL . $settings['ogImage'] : ''; ?>" style="display: <?php echo $settings['ogImage'] ? 'inline-block' : 'none'; ?>; max-height: 80px; max-width: 100%; object-fit: cover; margin-top: 1rem; border-radius: 4px;" />
+                        </div>
                     </div>
 
                     <!-- Live Theme & Style Preview Card -->
                     <div class="admin-card-box theme-preview-container" style="margin: 0; padding: 2rem; position: sticky; top: 2rem; z-index: 5;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            🎨 Live Theme & Style Preview
+                            <?php echo __('settings_live_preview'); ?>
                         </h3>
                         
                         <div id="theme-preview-card" style="border-radius: 12px; border: 1px solid #ddd; overflow: hidden; padding: 1.5rem; transition: all 0.3s ease;">
@@ -452,37 +453,37 @@ require_once PATH_ROOT . '/includes/header.php';
                             <div id="prev-hero" style="position: relative; height: 140px; background-size: cover; background-position: center; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem; background-image: url('<?php echo BASE_URL; ?>/images/hero-bg.png');">
                                 <div id="prev-hero-overlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
                                 <div style="position: relative; text-align: center; color: #fff; padding: 1rem; z-index: 2;">
-                                    <h4 id="prev-hero-title" style="font-size: 1.25rem; margin: 0; font-weight: 700; line-height: 1.2;">Luxury Travel Magazine</h4>
-                                    <p id="prev-hero-sub" style="font-size: 0.65rem; margin: 0.25rem 0 0 0; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.1em;">Explore Without Limits</p>
+                                    <h4 id="prev-hero-title" style="font-size: 1.25rem; margin: 0; font-weight: 700; line-height: 1.2;"><?php echo __('settings_sim_hero_title'); ?></h4>
+                                    <p id="prev-hero-sub" style="font-size: 0.65rem; margin: 0.25rem 0 0 0; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.1em;"><?php echo __('settings_sim_hero_sub'); ?></p>
                                 </div>
                             </div>
                             
                             <!-- Typography Preview -->
                             <div style="margin-bottom: 1.5rem;">
-                                <h4 id="prev-heading" style="margin-bottom: 0.5rem; font-size: 1.25rem; line-height: 1.2;">Editorial Heading</h4>
+                                <h4 id="prev-heading" style="margin-bottom: 0.5rem; font-size: 1.25rem; line-height: 1.2;"><?php echo __('settings_sim_heading'); ?></h4>
                                 <p id="prev-body" style="font-size: 0.85rem; margin: 0;">
-                                    Experience travel like never before. Read inspiring stories and access tailored guidelines for all requirements.
+                                    <?php echo __('settings_sim_body'); ?>
                                 </p>
                             </div>
                             
                             <!-- Buttons Preview -->
                             <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
-                                <button type="button" id="prev-btn-primary" style="flex-grow: 1; padding: 0.6rem 1rem; font-size: 0.8rem; border-radius: 30px; border: none; cursor: default;">Primary Button</button>
-                                <button type="button" id="prev-btn-secondary" style="flex-grow: 1; padding: 0.6rem 1rem; font-size: 0.8rem; border-radius: 30px; border: 1px solid #ddd; background: transparent; cursor: default;">Secondary</button>
+                                <button type="button" id="prev-btn-primary" style="flex-grow: 1; padding: 0.6rem 1rem; font-size: 0.8rem; border-radius: 30px; border: none; cursor: default;"><?php echo __('settings_sim_primary_btn'); ?></button>
+                                <button type="button" id="prev-btn-secondary" style="flex-grow: 1; padding: 0.6rem 1rem; font-size: 0.8rem; border-radius: 30px; border: 1px solid #ddd; background: transparent; cursor: default;"><?php echo __('settings_sim_secondary_btn'); ?></button>
                             </div>
                             
                             <!-- Form Preview -->
                             <div style="margin-bottom: 1.5rem;">
-                                <label id="prev-form-label" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.25rem;">Input Label</label>
-                                <input type="text" id="prev-form-input" value="Sample text input" style="width: 100%; padding: 0.5rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #ddd; background: transparent;" readonly />
+                                <label id="prev-form-label" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.25rem;"><?php echo __('settings_sim_input_label'); ?></label>
+                                <input type="text" id="prev-form-input" value="<?php echo addslashes(__('settings_sim_input_val')); ?>" style="width: 100%; padding: 0.5rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid #ddd; background: transparent;" readonly />
                             </div>
                             
                             <!-- Card Preview -->
                             <div id="prev-card" style="border-radius: 8px; border: 1px solid #eee; overflow: hidden; padding: 1rem; display: flex; gap: 1rem; align-items: center;">
                                 <div style="width: 50px; height: 50px; background: #eee; border-radius: 4px; flex-shrink: 0; background-image: url('<?php echo BASE_URL; ?>/images/australia.png'); background-size: cover;"></div>
                                 <div>
-                                    <h5 id="prev-card-title" style="font-size: 0.85rem; margin: 0; font-weight: 700; line-height: 1.2;">Featured Destination</h5>
-                                    <p id="prev-card-desc" style="font-size: 0.7rem; margin: 0.2rem 0 0 0; opacity: 0.7; line-height: 1.3;">Beautiful beach resorts with mobility assistance.</p>
+                                    <h5 id="prev-card-title" style="font-size: 0.85rem; margin: 0; font-weight: 700; line-height: 1.2;"><?php echo __('settings_sim_card_title'); ?></h5>
+                                    <p id="prev-card-desc" style="font-size: 0.7rem; margin: 0.2rem 0 0 0; opacity: 0.7; line-height: 1.3;"><?php echo __('settings_sim_card_desc'); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -493,9 +494,10 @@ require_once PATH_ROOT . '/includes/header.php';
 
             <!-- Form Actions -->
             <div style="border-top: 1px solid #e5e7eb; padding-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
-                <button type="submit" class="btn-primary" style="padding: 1rem 3.5rem; border-radius: 8px;">Save Settings</button>
+                <button type="submit" class="btn-primary" style="padding: 1rem 3.5rem; border-radius: 8px;"><?php echo __('admin_save'); ?></button>
             </div>
 
+        </form>
         </form>
 
         <script>
