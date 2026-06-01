@@ -45,15 +45,12 @@ if ($isAdminRoute) {
         $lang = $_GET['lang'];
     } elseif ($lang_prefix !== null) {
         $lang = $lang_prefix;
-    } elseif (isset($_SESSION['admin_lang']) && array_key_exists($_SESSION['admin_lang'], SUPPORTED_LANGUAGES)) {
-        $lang = $_SESSION['admin_lang'];
     } elseif (isset($_COOKIE['admin_lang']) && array_key_exists($_COOKIE['admin_lang'], SUPPORTED_LANGUAGES)) {
         $lang = $_COOKIE['admin_lang'];
     } else {
         $lang = DEFAULT_LANG;
     }
 
-    $_SESSION['admin_lang'] = $lang;
     if (!headers_sent()) {
         setcookie('admin_lang', $lang, time() + 30 * 24 * 60 * 60, '/');
     }
@@ -68,15 +65,12 @@ if ($isAdminRoute) {
         $lang = $_GET['lang'];
     } elseif ($lang_prefix !== null) {
         $lang = $lang_prefix;
-    } elseif (isset($_SESSION['lang']) && array_key_exists($_SESSION['lang'], SUPPORTED_LANGUAGES)) {
-        $lang = $_SESSION['lang'];
     } elseif (isset($_COOKIE['lang']) && array_key_exists($_COOKIE['lang'], SUPPORTED_LANGUAGES)) {
         $lang = $_COOKIE['lang'];
     } else {
         $lang = DEFAULT_LANG;
     }
 
-    $_SESSION['lang'] = $lang;
     if (!headers_sent()) {
         setcookie('lang', $lang, time() + 30 * 24 * 60 * 60, '/');
     }

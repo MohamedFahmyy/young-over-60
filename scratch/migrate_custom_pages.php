@@ -1,6 +1,7 @@
 <?php
-// scratch/migrate_custom_pages.php
-// Enterprise Custom Pages CMS Database Migration Utility
+if (php_sapi_name() === 'cli' && !defined('DB_HOST')) {
+    define('DB_HOST', '127.0.0.1');
+}
 
 if (!defined('PATH_ROOT')) {
     define('PATH_ROOT', dirname(__DIR__));
@@ -22,6 +23,8 @@ try {
       `title_ar` VARCHAR(255) DEFAULT NULL,
       `content_en` LONGTEXT DEFAULT NULL,
       `content_ar` LONGTEXT DEFAULT NULL,
+      `excerpt_en` TEXT DEFAULT NULL,
+      `excerpt_ar` TEXT DEFAULT NULL,
       `template_type` VARCHAR(50) NOT NULL DEFAULT 'default',
       `sort_order` INT NOT NULL DEFAULT 0,
       `show_in_menu` TINYINT(1) NOT NULL DEFAULT 0,
@@ -65,6 +68,8 @@ try {
       `title_ar` VARCHAR(255) DEFAULT NULL,
       `content_en` LONGTEXT DEFAULT NULL,
       `content_ar` LONGTEXT DEFAULT NULL,
+      `excerpt_en` TEXT DEFAULT NULL,
+      `excerpt_ar` TEXT DEFAULT NULL,
       `template_type` VARCHAR(50) NOT NULL,
       `sort_order` INT NOT NULL,
       `show_in_menu` TINYINT(1) NOT NULL,

@@ -1,4 +1,8 @@
 <?php
+if (php_sapi_name() === 'cli' && !defined('DB_HOST')) {
+    define('DB_HOST', '127.0.0.1');
+}
+
 define('PATH_ROOT', dirname(__DIR__));
 require_once PATH_ROOT . '/config/database.php';
 require_once PATH_ROOT . '/classes/Database.php';

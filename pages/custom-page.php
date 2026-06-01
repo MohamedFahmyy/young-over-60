@@ -62,6 +62,13 @@ $seoPageData = [
 
 require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
+
+// Replace placeholders in page content
+$logoHtml = '';
+if (!empty($settings['logoUrl'])) {
+    $logoHtml = '<img src="' . BASE_URL . $settings['logoUrl'] . '" alt="' . htmlspecialchars(t($settings, 'siteName')) . '" class="about-logo" />';
+}
+$pageContent = str_replace('{logo}', $logoHtml, $pageContent);
 ?>
 
 <?php // ====== HERO SECTION (if hero_image or hero_title set) ====== ?>
@@ -79,10 +86,10 @@ require_once PATH_ROOT . '/includes/navbar.php';
 </section>
 <?php endif; ?>
 
-<main class="<?php echo ($templateType === 'full-width') ? '' : 'container'; ?> custom-page-main">
+<main class="<?php echo in_array($templateType, ['full-width', 'about']) ? '' : 'container'; ?> custom-page-main">
 
     <?php // Breadcrumbs (not for landing/full-width) ?>
-    <?php if (!in_array($templateType, ['landing', 'full-width'])): ?>
+    <?php if (!in_array($templateType, ['landing', 'full-width', 'about'])): ?>
     <?php
     $bcTitle = $pageMgr->getField($page, 'menu_title') ?: $pageTitle;
     renderBreadcrumbs([$bcTitle => '']);
@@ -103,13 +110,13 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
     <?php // ====== ABOUT US LAYOUT ====== ?>
     <?php elseif ($templateType === 'about'): ?>
-    <article class="custom-page-about" data-scroll-reveal>
+    <article class="custom-page-about" data-scroll-reveal style="width: 100%; max-width: 100%; margin: 0; padding: 0;">
         <?php if ($featuredImage): ?>
         <div class="about-hero-img-wrap">
             <img src="<?php echo e(BASE_URL . $featuredImage); ?>" alt="<?php echo e($pageTitle); ?>" class="about-featured-img" loading="lazy" />
         </div>
         <?php endif; ?>
-        <div class="about-prose post-prose">
+        <div class="about-prose post-prose" style="width: 100%; max-width: 100%; padding: 0;">
             <?php echo $pageContent; ?>
         </div>
     </article>

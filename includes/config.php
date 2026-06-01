@@ -32,21 +32,26 @@ if (session_status() === PHP_SESSION_NONE) {
 // Database Credentials
 require_once dirname(__DIR__) . '/config/database.php';
 
-// Dynamic Base URL Calculation (for local subdirectories or production domains)
+// Dynamic Base URL Calculation (supporting subdirectories, virtual hosts, and dev servers)
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-$dir = dirname($scriptName);
-$dir = str_replace('\\', '/', $dir);
-// Strip subdirectories like /admin or /api if script is executed directly
-$dir = preg_replace('/\\/(admin|api)$/', '', $dir);
-if ($dir === '/' || $dir === '\\') {
-    $dir = '';
+
+$docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+$pathRoot = str_replace('\\', '/', dirname(__DIR__));
+$subDir = '';
+
+if (!empty($docRoot) && strpos($pathRoot, $docRoot) === 0) {
+    $subDir = substr($pathRoot, strlen($docRoot));
 }
-define('BASE_URL', $protocol . $host . $dir);
+$subDir = str_replace('\\', '/', $subDir);
+$subDir = rtrim($subDir, '/');
+
+define('BASE_URL', $protocol . $host . $subDir);
 
 // System Paths
-define('PATH_ROOT', dirname(__DIR__));
+if (!defined('PATH_ROOT')) {
+    define('PATH_ROOT', dirname(__DIR__));
+}
 define('PATH_UPLOADS', PATH_ROOT . '/uploads');
 define('PATH_CACHE', PATH_ROOT . '/cache');
 
