@@ -214,6 +214,12 @@ require_once PATH_ROOT . '/includes/header.php';
         margin-bottom: 1.5rem;
         box-sizing: border-box;
     }
+    
+    @media (max-width: 480px) {
+        .admin-login-card {
+            padding: 2rem 1.5rem !important;
+        }
+    }
 </style>
 
 <div class="admin-login-container">

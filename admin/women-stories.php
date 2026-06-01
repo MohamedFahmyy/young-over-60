@@ -248,13 +248,13 @@ require_once PATH_ROOT . '/includes/header.php';
                 <input type="hidden" id="storyContentInputEn" name="content_en" />
                 <input type="hidden" id="storyContentInputAr" name="content_ar" />
 
-                <div class="admin-grid-layout" style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 2rem; align-items: start;">
+                <div class="admin-grid-layout admin-split-22-1">
                     
                     <!-- Left Column: Rich Text Editor & Text Areas -->
                     <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
                         
                         <!-- Titles Row -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="admin-grid-fields-2">
                             <!-- Title EN -->
                             <div class="admin-form-group">
                                 <label for="story-title-en"><?php echo __("dash_title"); ?> (EN)</label>
@@ -268,7 +268,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         </div>
 
                         <!-- Slugs Row -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="admin-grid-fields-2">
                             <!-- Slug EN -->
                             <div class="admin-form-group">
                                 <label for="story-slug-en"><?php echo __("admin_slug"); ?> (EN)</label>
@@ -282,7 +282,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         </div>
 
                         <!-- Excerpts Row -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="admin-grid-fields-2">
                             <!-- Excerpt EN -->
                             <div class="admin-form-group">
                                 <label for="story-excerpt-en"><?php echo __("admin_description"); ?> (EN)</label>
@@ -325,7 +325,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'بيانات النشر' : 'Publishing Metadata'; ?></h3>
                             
                             <!-- Categories Row -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="admin-grid-fields-2" style="gap: 1rem;">
                                 <div class="admin-form-group">
                                     <label for="story-category-en"><?php echo __("pod_field_cat_en"); ?></label>
                                     <select id="story-category-en" name="category_en" class="admin-form-select">
@@ -348,7 +348,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             </div>
 
                             <!-- Authors Row -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="admin-grid-fields-2" style="gap: 1rem;">
                                 <!-- Author EN -->
                                 <div class="admin-form-group">
                                     <label for="story-author-en"><?php echo __("wstory_field_author_en"); ?></label>

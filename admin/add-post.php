@@ -121,11 +121,11 @@ require_once PATH_ROOT . '/includes/header.php';
             <input type="hidden" id="postContentInputEn" name="content_en" />
             <input type="hidden" id="postContentInputAr" name="content_ar" />
 
-            <div class="admin-grid-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <div class="admin-grid-layout admin-split-2-1">
                 <!-- Left panel (main editor content) -->
                 <div style="display:flex; flex-direction:column; gap:1.5rem; min-width: 0;">
                     <!-- Titles Row -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="admin-grid-fields-2">
                         <!-- Title EN -->
                         <div class="admin-form-group">
                             <label for="post-title-en"><?php echo __("post_field_title_en"); ?></label>
@@ -139,7 +139,7 @@ require_once PATH_ROOT . '/includes/header.php';
                     </div>
 
                     <!-- Slugs Row -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="admin-grid-fields-2">
                         <!-- Slug EN -->
                         <div class="admin-form-group">
                             <label for="post-slug-en"><?php echo __("post_field_slug_en"); ?></label>
@@ -153,7 +153,7 @@ require_once PATH_ROOT . '/includes/header.php';
                     </div>
 
                     <!-- Excerpts Row -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="admin-grid-fields-2">
                         <!-- Excerpt EN -->
                         <div class="admin-form-group">
                             <label for="post-excerpt-en"><?php echo __("admin_description"); ?> (EN)</label>

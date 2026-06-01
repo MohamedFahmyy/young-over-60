@@ -107,6 +107,73 @@ html[data-font-size="5"] { font-size: calc(var(--base-font-size, 16px) * 1.75); 
   border: 1px solid #00bcff !important;
 }
 
+/* ---- High Contrast: About Us page deep overrides ---- */
+/* The about page stores inline <style> tags with hardcoded colors;
+   we need higher-specificity selectors to win over them. */
+html.acc-high-contrast .about-container,
+html.acc-high-contrast .about-container .about-inner-wrap,
+html.acc-high-contrast .about-container .about-inner,
+html.acc-high-contrast .about-container .offer-card,
+html.acc-high-contrast .about-container .philosophy-block,
+html.acc-high-contrast .about-container .join-cta,
+html.acc-high-contrast .about-container .slogan,
+html.acc-high-contrast .custom-page-about,
+html.acc-high-contrast .about-prose {
+  background-color: #000000 !important;
+  background: #000000 !important;
+  border-color: #00bcff !important;
+  box-shadow: none !important;
+}
+
+html.acc-high-contrast .about-container h1,
+html.acc-high-contrast .about-container h2,
+html.acc-high-contrast .about-container h3,
+html.acc-high-contrast .about-container h4,
+html.acc-high-contrast .about-container p,
+html.acc-high-contrast .about-container span,
+html.acc-high-contrast .about-container a,
+html.acc-high-contrast .about-container li,
+html.acc-high-contrast .about-container strong,
+html.acc-high-contrast .about-container .slogan span,
+html.acc-high-contrast .about-container .intro-text,
+html.acc-high-contrast .about-container .offer-card strong,
+html.acc-high-contrast .about-container .offer-card p,
+html.acc-high-contrast .about-container .signature,
+html.acc-high-contrast .about-container .join-cta p {
+  color: #00bcff !important;
+  border-color: #00bcff !important;
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+html.acc-high-contrast .about-container .brand-bar {
+  background: #00bcff !important;
+  background-color: #00bcff !important;
+}
+
+html.acc-high-contrast .about-container .about-logo {
+  filter: brightness(0) invert(1) sepia(1) saturate(2) hue-rotate(170deg) !important;
+}
+
+/* Slogan shimmer → plain contrast colour in high-contrast mode */
+html.acc-high-contrast .about-container .slogan span {
+  -webkit-text-fill-color: #00bcff !important;
+  background: none !important;
+  background-color: transparent !important;
+  animation: none !important;
+  box-shadow: 0 0 0 2px #00bcff !important;
+  color: #00bcff !important;
+}
+html.acc-high-contrast .about-container .slogan .sparkle {
+  background: #00bcff !important;
+}
+html.acc-high-contrast .about-container .slogan::before,
+html.acc-high-contrast .about-container .slogan::after {
+  display: none !important;
+}
+/* ---- end About Us high-contrast overrides ---- */
+
+
 .acc-underline-links a {
   text-decoration: underline !important;
 }
@@ -2493,6 +2560,8 @@ html.acc-high-contrast .lang-btn:hover {
     top: 0;
     z-index: 1000;
     border-bottom: 1px solid #222222;
+    max-height: 100vh;
+    overflow-y: auto;
   }
   
   .admin-menu-toggle {
@@ -2810,6 +2879,62 @@ html.acc-high-contrast .lang-btn:hover {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+}
+
+/* --- Responsive Admin Dashboard Layouts --- */
+.admin-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .admin-grid-layout.admin-split-2-1 {
+    grid-template-columns: 2fr 1fr;
+  }
+  .admin-grid-layout.admin-split-22-1 {
+    grid-template-columns: 2.2fr 1fr;
+  }
+  .admin-grid-layout.admin-split-18-1 {
+    grid-template-columns: 1.8fr 1fr;
+  }
+  .admin-grid-layout.admin-split-12-1 {
+    grid-template-columns: 1.2fr 1fr;
+  }
+  .admin-grid-layout.admin-split-320 {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+.admin-grid-fields-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .admin-grid-fields-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.admin-grid-fields-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 576px) {
+  .admin-grid-fields-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .admin-grid-fields-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* Image Upload Preview Box */

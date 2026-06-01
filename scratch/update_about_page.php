@@ -62,27 +62,137 @@ $cssStyles = '<style>
       }
     }
 
-    /* slogan highlight — blue accent */
+
+    /* ====== SLOGAN — PREMIUM ANIMATED ====== */
     .about-container .slogan {
       text-align: center;
-      margin-bottom: 2.5rem;
-      font-size: 1.6rem;
-      font-weight: 500;
-      letter-spacing: -0.01em;
-      color: #1e5a7d;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 1.5rem;
+      margin-bottom: 3rem;
+      padding: 2.5rem 1rem 2.5rem;
+      position: relative;
+      overflow: visible;
     }
 
-    .about-container .slogan span {
-      background: #eef4fc;
+    /* Glowing aura ring */
+    .about-container .slogan::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 2rem;
+      background: radial-gradient(ellipse at center, rgba(30,90,125,0.08) 0%, transparent 70%);
+      animation: sloganAuraPulse 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* Thin accent line below */
+    .about-container .slogan::after {
+      content: "";
+      display: block;
+      margin: 1.8rem auto 0;
+      width: 80px;
+      height: 3px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, transparent, #1e5a7d, #6ec6f5, #1e5a7d, transparent);
+      animation: sloganLineGrow 2s ease-out forwards;
+    }
+
+    @keyframes sloganAuraPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.04); }
+    }
+
+    @keyframes sloganLineGrow {
+      from { width: 0; opacity: 0; }
+      to   { width: 120px; opacity: 1; }
+    }
+
+    /* Sparkle particles */
+    .about-container .slogan .sparkles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .about-container .slogan .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6ec6f5;
+      opacity: 0;
+      animation: sparkleFly 4s ease-in-out infinite;
+    }
+    .about-container .slogan .sparkle:nth-child(1)  { top: 10%; left: 8%;   animation-delay: 0s;    width:5px;  height:5px; }
+    .about-container .slogan .sparkle:nth-child(2)  { top: 20%; left: 18%;  animation-delay: 0.6s;  width:4px;  height:4px; background:#b3dcf5; }
+    .about-container .slogan .sparkle:nth-child(3)  { top: 5%;  left: 35%;  animation-delay: 1.2s;  width:7px;  height:7px; }
+    .about-container .slogan .sparkle:nth-child(4)  { top: 15%; right: 30%; animation-delay: 0.3s;  width:5px;  height:5px; background:#a0d4f5; }
+    .about-container .slogan .sparkle:nth-child(5)  { top: 25%; right: 12%; animation-delay: 0.9s;  width:6px;  height:6px; }
+    .about-container .slogan .sparkle:nth-child(6)  { bottom:15%; left: 10%; animation-delay: 1.5s; width:4px;  height:4px; background:#c8e8ff; }
+    .about-container .slogan .sparkle:nth-child(7)  { bottom:20%; right:8%;  animation-delay: 0.4s; width:5px;  height:5px; }
+    .about-container .slogan .sparkle:nth-child(8)  { top:50%;   left: 3%;   animation-delay: 2.1s; width:3px;  height:3px; background:#6ec6f5; }
+    .about-container .slogan .sparkle:nth-child(9)  { top:50%;   right:3%;   animation-delay: 1.8s; width:4px;  height:4px; }
+    .about-container .slogan .sparkle:nth-child(10) { bottom:5%; left:40%;   animation-delay: 0.7s; width:5px;  height:5px; background:#b3dcf5; }
+
+    @keyframes sparkleFly {
+      0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+      30%  { opacity: 0.9; }
+      60%  { opacity: 0.6; transform: translateY(-18px) scale(1.1); }
+      100% { opacity: 0; transform: translateY(-32px) scale(0.3); }
+    }
+
+    /* The main slogan text wrapper */
+    .about-container .slogan-text-wrap {
       display: inline-block;
-      padding: 0.3rem 1.2rem;
-      border-radius: 60px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Shimmer gradient text */
+    .about-container .slogan span {
+      display: inline-block;
+      font-family: var(--heading-font), Georgia, serif;
+      font-size: clamp(1.4rem, 3.5vw, 2.1rem);
+      font-weight: 700;
       font-style: italic;
-      font-weight: 500;
-      font-size: 1.5rem;
-      color: #0f4a6e;
+      letter-spacing: 0.01em;
+      line-height: 1.3;
+      padding: 0.6rem 2rem;
+      border-radius: 999px;
+      position: relative;
+      /* gradient shimmer text */
+      background: linear-gradient(
+        270deg,
+        #0a3d62 0%,
+        #1e5a7d 20%,
+        #2980b9 40%,
+        #6ec6f5 55%,
+        #2980b9 70%,
+        #1e5a7d 85%,
+        #0a3d62 100%
+      );
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: sloganShimmer 5s linear infinite;
+      /* pill glow border */
+      box-shadow:
+        0 0 0 2px rgba(110,198,245,0.25),
+        0 0 24px rgba(30,90,125,0.12),
+        inset 0 0 20px rgba(110,198,245,0.06);
+      background-color: rgba(238,244,252,0.7);
+    }
+
+    @keyframes sloganShimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+
+
+    /* RTL slogan */
+    html[dir="rtl"] .about-container .slogan span {
+      letter-spacing: 0;
     }
 
     .about-container .about-logo {
@@ -261,8 +371,22 @@ $contentEn = $cssStyles . "\n" . '<div class="about-container">
   <div class="about-inner">
     <!-- slogan -->
     <div class="slogan">
+      <div class="sparkles">
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+      </div>
       {logo}
-      <span>✨ Beyond 60, life begins again. ✨</span>
+      <div class="slogan-text-wrap">
+        <span>Beyond 60, life begins again.</span>
+      </div>
     </div>
 
     <!-- main title -->
@@ -338,8 +462,22 @@ $contentAr = $cssStyles . "\n" . '<div class="about-container">
   <div class="about-inner">
     <!-- slogan -->
     <div class="slogan">
+      <div class="sparkles">
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+        <span class="sparkle"></span>
+      </div>
       {logo}
-      <span>✨ بعد الستين، تبدأ الحياة من جديد. ✨</span>
+      <div class="slogan-text-wrap">
+        <span>بعد الستين، تبدأ الحياة من جديد.</span>
+      </div>
     </div>
 
     <!-- main title -->

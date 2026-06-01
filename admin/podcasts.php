@@ -234,7 +234,7 @@ require_once PATH_ROOT . '/includes/header.php';
             <form id="podcastForm" action="<?php echo BASE_URL; ?>/admin/podcasts?action=<?php echo $action; ?><?php echo !empty($editId) ? '&id='.$editId : ''; ?>" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
                 <?php echo Auth::csrfInput(); ?>
 
-                <div class="admin-grid-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+                <div class="admin-grid-layout admin-split-2-1">
                     
                     <!-- Left Column: Details -->
                     <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
@@ -242,7 +242,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'معلومات الحلقة' : 'Episode Information'; ?></h3>
                             
                             <!-- Titles Row -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="admin-grid-fields-2">
                                 <!-- Title EN -->
                                 <div class="admin-form-group">
                                     <label for="pod-title-en"><?php echo __("dash_title"); ?> (EN)</label>
@@ -256,7 +256,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             </div>
 
                             <!-- Slugs Row -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="admin-grid-fields-2">
                                 <!-- Slug EN -->
                                 <div class="admin-form-group">
                                     <label for="pod-slug-en"><?php echo __("admin_slug"); ?> (EN)</label>
@@ -270,7 +270,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             </div>
 
                             <!-- Descriptions Row -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="admin-grid-fields-2">
                                 <!-- Description EN -->
                                 <div class="admin-form-group">
                                     <label for="pod-desc-en"><?php echo __("admin_description"); ?> (EN)</label>
@@ -284,7 +284,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             </div>
 
                             <!-- Category & Duration -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                            <div class="admin-grid-fields-3">
                                 <div class="admin-form-group">
                                     <label for="pod-category-en"><?php echo __("pod_field_cat_en"); ?></label>
                                     <input type="text" id="pod-category-en" name="category_en" value="<?php echo e($editItem ? $editItem['category_en'] : ''); ?>" class="admin-form-input" placeholder="e.g. Solo Travel" />

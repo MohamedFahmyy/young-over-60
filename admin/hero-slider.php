@@ -229,7 +229,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         </h3>
 
                         <!-- Video Upload Grid (EN/AR) -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <div class="admin-grid-fields-2" style="margin-bottom: 1.5rem;">
                             <!-- English Video URL & Dropzone -->
                             <div class="admin-form-group">
                                 <label for="hero-video-en"><?php echo CURRENT_LANG === 'ar' ? 'رابط الفيديو (EN)' : 'Video File URL (EN)'; ?></label>
@@ -260,7 +260,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         </div>
 
                         <!-- Titles Row -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <div class="admin-grid-fields-2" style="margin-bottom: 1.5rem;">
                             <div class="admin-form-group">
                                 <label for="hero-video-title-en"><?php echo CURRENT_LANG === 'ar' ? 'العنوان الرئيسي (EN)' : 'Hero Title (EN)'; ?></label>
                                 <input type="text" id="hero-video-title-en" name="hero_video_title_en" value="<?php echo e($settings['hero_video_title_en'] ?? ''); ?>" class="admin-form-input" placeholder="e.g. Travel Without Limits" />
@@ -272,7 +272,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         </div>
 
                         <!-- Subtitles Row -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <div class="admin-grid-fields-2" style="margin-bottom: 1.5rem;">
                             <div class="admin-form-group">
                                 <label for="hero-video-subtitle-en"><?php echo CURRENT_LANG === 'ar' ? 'العنوان الفرعي (EN)' : 'Hero Subtitle (EN)'; ?></label>
                                 <input type="text" id="hero-video-subtitle-en" name="hero_video_subtitle_en" value="<?php echo e($settings['hero_video_subtitle_en'] ?? ''); ?>" class="admin-form-input" placeholder="e.g. Accessible travel guides..." />
@@ -284,7 +284,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         </div>
 
                         <!-- Button Text & Link Row -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="admin-grid-fields-3" style="margin-bottom: 1.5rem;">
                             <div class="admin-form-group">
                                 <label for="hero-video-btn-en"><?php echo CURRENT_LANG === 'ar' ? 'نص الزر (EN)' : 'Button Text (EN)'; ?></label>
                                 <input type="text" id="hero-video-btn-en" name="hero_video_btn_text_en" value="<?php echo e($settings['hero_video_btn_text_en'] ?? ''); ?>" class="admin-form-input" placeholder="e.g. Discover More" />
@@ -544,7 +544,7 @@ require_once PATH_ROOT . '/includes/header.php';
             <form id="slideForm" action="<?php echo BASE_URL; ?>/admin/hero-slider?action=<?php echo $action; ?><?php echo !empty($editId) ? '&id='.$editId : ''; ?>" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
                 <?php echo Auth::csrfInput(); ?>
 
-                <div class="admin-grid-layout" style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; align-items: start;">
+                <div class="admin-grid-layout admin-split-18-1">
                     
                     <!-- Left Column: Details -->
                     <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
@@ -552,7 +552,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;"><?php echo CURRENT_LANG === 'ar' ? 'محتوى الشريحة' : 'Slide Content'; ?></h3>
                             
                             <!-- Titles Row -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="admin-grid-fields-2">
                                 <!-- Title EN -->
                                 <div class="admin-form-group">
                                     <label for="slide-title-en"><?php echo __("dash_title"); ?> (EN)</label>
@@ -566,7 +566,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             </div>
 
                             <!-- Subtitles Row -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="admin-grid-fields-2">
                                 <!-- Subtitle EN -->
                                 <div class="admin-form-group">
                                     <label for="slide-subtitle-en"><?php echo __("slider_field_subtitle_en"); ?></label>
@@ -580,7 +580,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             </div>
 
                             <!-- Call to Action Link -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                            <div class="admin-grid-fields-3">
                                 <div class="admin-form-group">
                                     <label for="slide-btntext-en"><?php echo __("slider_field_btn_text_en"); ?></label>
                                     <input type="text" id="slide-btntext-en" name="button_text_en" value="<?php echo e($editItem ? $editItem['button_text_en'] : ''); ?>" class="admin-form-input" placeholder="e.g. Discover More" />

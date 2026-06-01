@@ -112,7 +112,7 @@ require_once PATH_ROOT . '/includes/header.php';
         <form id="settingsForm" action="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/settings" method="POST" style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
             <?php echo Auth::csrfInput(); ?>
 
-            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start;">
+            <div class="admin-grid-layout admin-split-12-1">
                 
                 <!-- Left Column: Settings Fields -->
                 <div style="display: flex; flex-direction: column; gap: 2rem;">
@@ -128,13 +128,13 @@ require_once PATH_ROOT . '/includes/header.php';
                             <label for="set-sitename"><?php echo __('settings_site_name'); ?></label>
                             <input type="text" id="set-sitename" name="siteName" value="<?php echo e($settings['siteName'] ?? 'Young Over 60'); ?>" class="admin-form-input" required />
                         </div>
-
+ 
                         <div class="admin-form-group">
                             <label for="set-herobg"><?php echo __('settings_hero_bg'); ?></label>
                             <input type="text" id="set-herobg" name="heroBackgroundUrl" value="<?php echo e($settings['heroBackgroundUrl'] ?? '/images/hero-bg.png'); ?>" class="admin-form-input" />
                         </div>
                     </div>
-
+ 
                     <!-- SEO Meta Configuration -->
                     <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -147,14 +147,14 @@ require_once PATH_ROOT . '/includes/header.php';
                             <input type="text" id="set-metatitle" name="metaTitle" value="<?php echo e($settings['metaTitle'] ?? ''); ?>" class="admin-form-input" placeholder="e.g. Young Over 60 | Active Senior Inspiration" />
                             <span style="font-size: 0.65rem; color: #888; margin-top: 0.25rem;"><?php echo __('settings_meta_title_hint'); ?></span>
                         </div>
-
+ 
                         <div class="admin-form-group">
                             <label for="set-metadesc"><?php echo __('settings_meta_desc'); ?></label>
                             <textarea id="set-metadesc" name="metaDescription" rows="4" class="admin-form-textarea" placeholder="..."><?php echo e($settings['metaDescription'] ?? ''); ?></textarea>
                             <span style="font-size: 0.65rem; color: #888; margin-top: 0.25rem;"><?php echo __('settings_meta_desc_hint'); ?></span>
                         </div>
                     </div>
-
+ 
                     <!-- Brand Color Palette & Theme Manager -->
                     <div class="admin-card-box" style="margin: 0; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
                         <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -162,7 +162,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             <?php echo __('settings_design_palette'); ?>
                         </h3>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="admin-grid-fields-2">
                             
                             <!-- Theme Mode -->
                             <div class="admin-form-group" style="grid-column: span 2;">
@@ -246,7 +246,7 @@ require_once PATH_ROOT . '/includes/header.php';
                             <?php echo __('settings_section_weights'); ?>
                         </h3>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="admin-grid-fields-2">
                             
                             <!-- Heading Font Family -->
                             <div class="admin-form-group">
@@ -525,7 +525,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                 <!-- Section 1: Static Website Sections -->
                 <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-color);">Static Website Sections</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem;">
+                <div class="admin-grid-fields-2" style="gap: 0.75rem; margin-bottom: 2rem;">
                     <?php
                     $navItems = [
                         'nav_show_podcasts'      => __('nav_podcasts'),
@@ -549,7 +549,7 @@ require_once PATH_ROOT . '/includes/header.php';
 
                 <!-- Section 2: Dynamic Category Menus -->
                 <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-color);">Dynamic Navigation Menus</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="admin-grid-fields-2" style="gap: 0.75rem;">
                     <?php
                     $db = Database::getInstance()->getConnection();
                     $dynamicMenusQuery = $db->query("SELECT * FROM menus ORDER BY `order` ASC");

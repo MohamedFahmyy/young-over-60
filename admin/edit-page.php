@@ -130,7 +130,7 @@ require_once PATH_ROOT . '/includes/header.php';
         <form method="POST" action="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/edit-page/<?php echo e($pageId); ?>" id="page-form">
             <?php echo Auth::csrfInput(); ?>
 
-            <div style="display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start;">
+            <div class="admin-grid-layout admin-split-320">
 
                 <!-- Main Column -->
                 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
