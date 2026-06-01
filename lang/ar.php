@@ -490,4 +490,8 @@ return [
     'admin_search'             => 'بحث',
     'admin_view'               => 'عرض',
     'admin_cancel'             => 'إلغاء',
+    // Navigation visibility settings
+    'settings_nav_visibility'       => 'إظهار عناصر القائمة',
+    'settings_nav_visibility_desc'  => 'تحكم في العناصر التي تظهر في قائمة التنقل. تسري التغييرات فور الحفظ.',
+    'settings_nav_custom_pages_note'=> 'الصفحات المخصصة (من نحن، السياحة العلاجية...) تُتحكم بها بشكل منفصل من إعدادات الصفحات المخصصة.',
 ];

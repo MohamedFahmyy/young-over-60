@@ -404,7 +404,22 @@ class PostManager {
                 headingWeight = :headingWeight,
                 bodyWeight = :bodyWeight,
                 letterSpacing = :letterSpacing,
-                lineHeight = :lineHeight
+                lineHeight = :lineHeight,
+                nav_show_podcasts = :nav_show_podcasts,
+                nav_show_stories = :nav_show_stories,
+                nav_show_news = :nav_show_news,
+                nav_show_accessibility = :nav_show_accessibility,
+                nav_show_contact = :nav_show_contact,
+                hero_mode = :hero_mode,
+                hero_video_en = :hero_video_en,
+                hero_video_ar = :hero_video_ar,
+                hero_video_title_en = :hero_video_title_en,
+                hero_video_title_ar = :hero_video_title_ar,
+                hero_video_subtitle_en = :hero_video_subtitle_en,
+                hero_video_subtitle_ar = :hero_video_subtitle_ar,
+                hero_video_btn_text_en = :hero_video_btn_text_en,
+                hero_video_btn_text_ar = :hero_video_btn_text_ar,
+                hero_video_btn_link = :hero_video_btn_link
                 WHERE id = 1";
         
         $stmt = $this->db->prepare($sql);
@@ -437,7 +452,22 @@ class PostManager {
             'headingWeight' => $data['headingWeight'] ?? '700',
             'bodyWeight' => $data['bodyWeight'] ?? '400',
             'letterSpacing' => $data['letterSpacing'] ?? 'normal',
-            'lineHeight' => $data['lineHeight'] ?? '1.8'
+            'lineHeight' => $data['lineHeight'] ?? '1.8',
+            'nav_show_podcasts' => $data['nav_show_podcasts'] ?? '1',
+            'nav_show_stories' => $data['nav_show_stories'] ?? '1',
+            'nav_show_news' => $data['nav_show_news'] ?? '1',
+            'nav_show_accessibility' => $data['nav_show_accessibility'] ?? '1',
+            'nav_show_contact' => $data['nav_show_contact'] ?? '1',
+            'hero_mode' => $data['hero_mode'] ?? 'slider',
+            'hero_video_en' => $data['hero_video_en'] ?? null,
+            'hero_video_ar' => $data['hero_video_ar'] ?? null,
+            'hero_video_title_en' => $data['hero_video_title_en'] ?? null,
+            'hero_video_title_ar' => $data['hero_video_title_ar'] ?? null,
+            'hero_video_subtitle_en' => $data['hero_video_subtitle_en'] ?? null,
+            'hero_video_subtitle_ar' => $data['hero_video_subtitle_ar'] ?? null,
+            'hero_video_btn_text_en' => $data['hero_video_btn_text_en'] ?? null,
+            'hero_video_btn_text_ar' => $data['hero_video_btn_text_ar'] ?? null,
+            'hero_video_btn_link' => $data['hero_video_btn_link'] ?? null
         ]);
     }
 

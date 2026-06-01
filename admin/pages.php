@@ -14,9 +14,9 @@ $lang_prefix_url = CURRENT_LANG === 'ar' ? '/ar' : '/en';
 
 // Handle deletions
 if (isset($_GET['action']) && $_GET['action'] === 'delete') {
-    $pageId = (int)($_GET['id'] ?? 0);
+    $pageId = trim($_GET['id'] ?? '');
     $token  = $_GET['csrf_token'] ?? '';
-    if (verifyCsrf($token) && $pageId > 0) {
+    if (verifyCsrf($token) && !empty($pageId)) {
         if ($pageMgr->deletePage($pageId)) {
             $success = __('pages_deleted');
         } else {
@@ -29,10 +29,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
 
 // Handle quick publish/unpublish toggle
 if (isset($_GET['action']) && in_array($_GET['action'], ['publish', 'unpublish'])) {
-    $pageId  = (int)($_GET['id'] ?? 0);
+    $pageId  = trim($_GET['id'] ?? '');
     $token   = $_GET['csrf_token'] ?? '';
     $newPub  = ($_GET['action'] === 'publish') ? 1 : 0;
-    if (verifyCsrf($token) && $pageId > 0) {
+    if (verifyCsrf($token) && !empty($pageId)) {
         $pageMgr->updatePage($pageId, ['is_published' => $newPub]);
         $success = $newPub ? __('pages_published') : __('pages_unpublished');
     } else {

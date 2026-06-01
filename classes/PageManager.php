@@ -152,12 +152,14 @@ class PageManager {
         $stmt = $this->db->prepare("
             INSERT INTO custom_pages 
                 (id, title_en, title_ar, slug_en, slug_ar, content_en, content_ar,
+                 excerpt_en, excerpt_ar,
                  meta_title_en, meta_title_ar, meta_description_en, meta_description_ar,
                  hero_title_en, hero_title_ar, hero_subtitle_en, hero_subtitle_ar,
                  hero_image, featured_image, template_type, is_published, show_in_menu,
                  menu_title_en, menu_title_ar, sort_order, created_at, updated_at)
             VALUES
                 (:id, :title_en, :title_ar, :slug_en, :slug_ar, :content_en, :content_ar,
+                 :excerpt_en, :excerpt_ar,
                  :meta_title_en, :meta_title_ar, :meta_description_en, :meta_description_ar,
                  :hero_title_en, :hero_title_ar, :hero_subtitle_en, :hero_subtitle_ar,
                  :hero_image, :featured_image, :template_type, :is_published, :show_in_menu,
@@ -172,6 +174,8 @@ class PageManager {
             ':slug_ar'            => $data['slug_ar'] ?? '',
             ':content_en'         => $data['content_en'] ?? '',
             ':content_ar'         => $data['content_ar'] ?? '',
+            ':excerpt_en'         => $data['excerpt_en'] ?? '',
+            ':excerpt_ar'         => $data['excerpt_ar'] ?? '',
             ':meta_title_en'      => $data['meta_title_en'] ?? '',
             ':meta_title_ar'      => $data['meta_title_ar'] ?? '',
             ':meta_description_en'=> $data['meta_description_en'] ?? '',
@@ -231,6 +235,7 @@ class PageManager {
                 title_en = :title_en, title_ar = :title_ar,
                 slug_en = :slug_en, slug_ar = :slug_ar,
                 content_en = :content_en, content_ar = :content_ar,
+                excerpt_en = :excerpt_en, excerpt_ar = :excerpt_ar,
                 meta_title_en = :meta_title_en, meta_title_ar = :meta_title_ar,
                 meta_description_en = :meta_description_en, meta_description_ar = :meta_description_ar,
                 hero_title_en = :hero_title_en, hero_title_ar = :hero_title_ar,
@@ -250,6 +255,8 @@ class PageManager {
             ':slug_ar'            => $data['slug_ar'] ?? $existing['slug_ar'],
             ':content_en'         => $data['content_en'] ?? $existing['content_en'],
             ':content_ar'         => $data['content_ar'] ?? $existing['content_ar'],
+            ':excerpt_en'         => $data['excerpt_en'] ?? $existing['excerpt_en'],
+            ':excerpt_ar'         => $data['excerpt_ar'] ?? $existing['excerpt_ar'],
             ':meta_title_en'      => $data['meta_title_en'] ?? $existing['meta_title_en'],
             ':meta_title_ar'      => $data['meta_title_ar'] ?? $existing['meta_title_ar'],
             ':meta_description_en'=> $data['meta_description_en'] ?? $existing['meta_description_en'],
@@ -295,12 +302,12 @@ class PageManager {
         $revId = 'rev-' . uniqid();
         $stmt = $this->db->prepare("
             INSERT INTO page_revisions 
-                (id, page_id, title_en, title_ar, content_en, content_ar, template_type,
+                (id, page_id, title_en, title_ar, content_en, content_ar, excerpt_en, excerpt_ar, template_type,
                  sort_order, show_in_menu, menu_title_en, menu_title_ar,
                  hero_title_en, hero_title_ar, hero_subtitle_en, hero_subtitle_ar, hero_image,
                  meta_title_en, meta_title_ar, meta_description_en, meta_description_ar, featured_image, created_at)
             VALUES 
-                (:id, :page_id, :title_en, :title_ar, :content_en, :content_ar, :template_type,
+                (:id, :page_id, :title_en, :title_ar, :content_en, :content_ar, :excerpt_en, :excerpt_ar, :template_type,
                  :sort_order, :show_in_menu, :menu_title_en, :menu_title_ar,
                  :hero_title_en, :hero_title_ar, :hero_subtitle_en, :hero_subtitle_ar, :hero_image,
                  :meta_title_en, :meta_title_ar, :meta_description_en, :meta_description_ar, :featured_image, :created_at)
@@ -312,6 +319,8 @@ class PageManager {
             ':title_ar'            => $pageData['title_ar'] ?? '',
             ':content_en'          => $pageData['content_en'] ?? '',
             ':content_ar'          => $pageData['content_ar'] ?? '',
+            ':excerpt_en'          => $pageData['excerpt_en'] ?? '',
+            ':excerpt_ar'          => $pageData['excerpt_ar'] ?? '',
             ':template_type'       => $pageData['template_type'] ?? 'default',
             ':sort_order'          => $pageData['sort_order'] ?? 0,
             ':show_in_menu'        => $pageData['show_in_menu'] ?? 0,

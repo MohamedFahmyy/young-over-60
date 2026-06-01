@@ -15,6 +15,7 @@ class SeoManager {
         $description = $settings['metaDescription'] ?? 'Active Travel & Inspiration for Seniors';
         $ogImage = !empty($settings['ogImage']) ? $settings['ogImage'] : ($settings['logoUrl'] ?? '/images/hero-bg.png');
         $url = BASE_URL . $_SERVER['REQUEST_URI'];
+        $canonical = !empty($data['canonical']) ? $data['canonical'] : $url;
         $robots = 'index, follow';
         $twitterCard = 'summary_large_image';
 
@@ -77,6 +78,7 @@ class SeoManager {
         echo '<title>' . e($title) . '</title>' . "\n";
         echo '<meta name="description" content="' . e($description) . '">' . "\n";
         echo '<meta name="robots" content="' . e($robots) . '">' . "\n";
+        echo '<link rel="canonical" href="' . e($canonical) . '">' . "\n";
         
         echo '<!-- Open Graph / Facebook -->' . "\n";
         echo '<meta property="og:type" content="' . ($type === 'post' ? 'article' : 'website') . '">' . "\n";

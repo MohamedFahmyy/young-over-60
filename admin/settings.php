@@ -47,11 +47,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($data['siteName'])) {
             $error = __('settings_sitename_required');
         } else {
-            if ($pm->updateSiteSettings($data)) {
+            $dbConnection = Database::getInstance()->getConnection();
+            $dbConnection->beginTransaction();
+            
+            $settingsUpdated = $pm->updateSiteSettings($data);
+            
+            // Save dynamic menu visibility
+            $menuStmt = $dbConnection->query("SELECT id FROM menus");
+            $dbMenus = $menuStmt->fetchAll();
+            foreach ($dbMenus as $dbMenu) {
+                $isActive = isset($_POST['menu_show_' . $dbMenu['id']]) ? 1 : 0;
+                $updateStmt = $dbConnection->prepare("UPDATE menus SET isActive = :isActive WHERE id = :id");
+                $updateStmt->execute(['isActive' => $isActive, 'id' => $dbMenu['id']]);
+            }
+            
+            if ($settingsUpdated) {
+                $dbConnection->commit();
+                $pm->clearCache(); // Force immediate cache invalidation
                 $success = __('settings_success_save');
                 // Refresh settings array
                 $settings = $pm->getSiteSettings();
             } else {
+                $dbConnection->rollBack();
                 $error = __('settings_save_error');
             }
         }
@@ -506,7 +523,9 @@ require_once PATH_ROOT . '/includes/header.php';
                 </h3>
                 <p style="font-size: 0.8rem; color: #888; margin-bottom: 1.5rem;"><?php echo __('settings_nav_visibility_desc'); ?></p>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <!-- Section 1: Static Website Sections -->
+                <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-color);">Static Website Sections</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem;">
                     <?php
                     $navItems = [
                         'nav_show_podcasts'      => __('nav_podcasts'),
@@ -528,7 +547,27 @@ require_once PATH_ROOT . '/includes/header.php';
                     <?php endforeach; ?>
                 </div>
 
-                <p style="font-size: 0.75rem; color: #888; margin-top: 1rem;">
+                <!-- Section 2: Dynamic Category Menus -->
+                <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-color);">Dynamic Navigation Menus</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <?php
+                    $db = Database::getInstance()->getConnection();
+                    $dynamicMenusQuery = $db->query("SELECT * FROM menus ORDER BY `order` ASC");
+                    $dynamicMenus = $dynamicMenusQuery->fetchAll();
+                    foreach ($dynamicMenus as $menu):
+                        $menuIsOn = (int)$menu['isActive'] === 1;
+                    ?>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: background 0.2s; background: var(--surface-color);" onmouseover="this.style.background='rgba(15,76,129,0.05)'" onmouseout="this.style.background='var(--surface-color)'">
+                        <input type="checkbox" name="menu_show_<?php echo $menu['id']; ?>" value="1" <?php echo $menuIsOn ? 'checked' : ''; ?> style="width: 1rem; height: 1rem; accent-color: var(--primary-color); cursor: pointer;" />
+                        <span style="font-size: 0.9rem; font-weight: 500;"><?php echo e(t($menu, 'title')); ?></span>
+                        <span style="margin-inline-start: auto; font-size: 0.7rem; color: <?php echo $menuIsOn ? '#10b981' : '#f59e0b'; ?>; font-weight: 600;">
+                            <?php echo $menuIsOn ? __('pages_status_published') : __('pages_status_draft'); ?>
+                        </span>
+                    </label>
+                    <?php endforeach; ?>
+                </div>
+
+                <p style="font-size: 0.75rem; color: #888; margin-top: 1.5rem;">
                     <?php echo __('settings_nav_custom_pages_note'); ?>
                 </p>
             </div>

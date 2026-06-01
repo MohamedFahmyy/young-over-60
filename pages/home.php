@@ -171,8 +171,38 @@ require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
 ?>
 
-<!-- 1. Immersive Hero Section (Dynamic Slider) -->
-<?php if (!empty($slides)): ?>
+<!-- 1. Immersive Hero Section (Dynamic Slider or Background Video) -->
+<?php
+$heroMode = $settings['hero_mode'] ?? 'slider';
+$heroVideo = t($settings, 'hero_video');
+$heroVideoTitle = t($settings, 'hero_video_title');
+$heroVideoSubtitle = t($settings, 'hero_video_subtitle');
+$heroVideoBtnText = t($settings, 'hero_video_btn_text');
+$heroVideoBtnLink = $settings['hero_video_btn_link'] ?? '';
+$heroPoster = t($settings, 'heroBackgroundUrl') ?: ($settings['logoUrl'] ?? '/images/hero-bg.png');
+
+if ($heroMode === 'video' && !empty($heroVideo)):
+?>
+    <section class="hero-video-section" aria-label="Featured background video">
+        <div class="hero-slider-container">
+            <video class="hero-video-bg" autoplay loop muted playsinline poster="<?php echo e(BASE_URL . $heroPoster); ?>">
+                <source src="<?php echo e(BASE_URL . $heroVideo); ?>" type="video/mp4">
+            </video>
+            <div class="hero-slide-overlay" style="background: rgba(0,0,0,0.50);"></div>
+            <div class="hero-slide-content container">
+                <?php if ($heroVideoSubtitle !== ''): ?>
+                    <p class="hero-slide-subtitle" style="opacity: 1; transform: translateY(0);"><?php echo e($heroVideoSubtitle); ?></p>
+                <?php endif; ?>
+                <h1 class="hero-slide-title" style="opacity: 1; transform: translateY(0);"><?php echo e($heroVideoTitle); ?></h1>
+                <?php if ($heroVideoBtnText !== '' && !empty($heroVideoBtnLink)): ?>
+                    <a href="<?php echo url($heroVideoBtnLink); ?>" class="btn-primary hero-slide-btn" style="border-radius: 8px; margin-top: 1rem; opacity: 1; transform: translateY(0);">
+                        <?php echo e($heroVideoBtnText); ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section>
+<?php elseif (!empty($slides)): ?>
     <section class="hero-slider-section" aria-label="Featured content slider">
         <div class="hero-slider-container">
             <?php foreach ($slides as $index => $slide): 
@@ -181,20 +211,27 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     $slideImg = !empty($slide['image_en']) ? $slide['image_en'] : '/images/hero-bg.png';
                 }
                 $isActive = ($index === 0) ? 'active' : '';
+                $isVideo = preg_match('/\.(mp4|webm|mov|ogg)$/i', $slideImg);
                 ?>
                 <div class="hero-slide <?php echo $isActive; ?>" data-index="<?php echo $index; ?>" role="group" aria-roledescription="slide" aria-label="<?php echo $index + 1; ?> of <?php echo count($slides); ?>">
-                    <!-- Ken Burns zoom image -->
-                    <img 
-                        <?php if ($index === 0): ?>
-                            src="<?php echo e(BASE_URL . $slideImg); ?>" 
-                        <?php else: ?>
-                            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" 
-                            data-src="<?php echo e(BASE_URL . $slideImg); ?>" 
-                        <?php endif; ?>
-                        alt="<?php echo e(t($slide, 'alt_text') ?: t($slide, 'title')); ?>" 
-                        class="hero-slide-img" 
-                        loading="<?php echo ($index === 0) ? 'eager' : 'lazy'; ?>" 
-                    />
+                    <?php if ($isVideo): ?>
+                        <video class="hero-slide-video" autoplay loop muted playsinline>
+                            <source src="<?php echo e(BASE_URL . $slideImg); ?>" type="video/mp4">
+                        </video>
+                    <?php else: ?>
+                        <!-- Ken Burns zoom image -->
+                        <img 
+                            <?php if ($index === 0): ?>
+                                src="<?php echo e(BASE_URL . $slideImg); ?>" 
+                            <?php else: ?>
+                                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3C/svg%3E" 
+                                data-src="<?php echo e(BASE_URL . $slideImg); ?>" 
+                            <?php endif; ?>
+                            alt="<?php echo e(t($slide, 'alt_text') ?: t($slide, 'title')); ?>" 
+                            class="hero-slide-img" 
+                            loading="<?php echo ($index === 0) ? 'eager' : 'lazy'; ?>" 
+                        />
+                    <?php endif; ?>
                     
                     <div class="hero-slide-overlay" style="background: rgba(0,0,0,<?php echo floatval($slide['overlay_opacity']); ?>);"></div>
                     
@@ -215,10 +252,10 @@ require_once PATH_ROOT . '/includes/navbar.php';
         
         <!-- Controls (arrows) -->
         <?php if (count($slides) > 1): ?>
-            <button class="slider-arrow prev" aria-label="Previous slide">
+            <button class="slider-arrow prev" style="display: none !important;" aria-label="Previous slide">
                 <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
             </button>
-            <button class="slider-arrow next" aria-label="Next slide">
+            <button class="slider-arrow next" style="display: none !important;" aria-label="Next slide">
                 <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
             </button>
             

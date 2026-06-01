@@ -44,6 +44,15 @@ try {
             'filename' => $result['filename'],
             'message' => 'Audio file uploaded successfully.'
         ]);
+    } elseif ($type === 'video' || strpos($_FILES['file']['type'], 'video/') === 0) {
+        $result = $uploader->uploadVideo($_FILES['file']);
+        echo json_encode([
+            'success' => true,
+            'url' => $result['url'],
+            'relativeUrl' => $result['relativeUrl'],
+            'filename' => $result['filename'],
+            'message' => 'Video uploaded successfully.'
+        ]);
     } else {
         $result = $uploader->upload($_FILES['file']);
         echo json_encode([

@@ -153,6 +153,74 @@ class UploadManager {
         ];
     }
 
+    // Handles secure upload of video files for backgrounds
+    public function uploadVideo($file) {
+        // 1. Error check
+        if (!isset($file['error']) || is_array($file['error'])) {
+            throw new Exception("Invalid upload parameters.");
+        }
+
+        switch ($file['error']) {
+            case UPLOAD_ERR_OK:
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                throw new Exception("No file sent.");
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                throw new Exception("Exceeded file size limit.");
+            default:
+                throw new Exception("Unknown upload error.");
+        }
+
+        // 2. Validate Size (allow up to 50MB for video files)
+        $maxVideoSize = 52428800; // 50MB
+        if ($file['size'] > $maxVideoSize) {
+            throw new Exception("Exceeded 50MB video size limit.");
+        }
+
+        // 3. Validate MIME Type
+        $allowedVideoMimes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-matroska', 'video/avi', 'video/mpeg'];
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($file['tmp_name']);
+        if (!in_array($mime, $allowedVideoMimes)) {
+            throw new Exception("Invalid file type. Only MP4, WebM, OGG, and MOV video files are allowed.");
+        }
+
+        // 4. Generate Target Filename
+        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        if (empty($ext)) {
+            $extMap = ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/ogg' => 'ogg', 'video/quicktime' => 'mov'];
+            $ext = $extMap[$mime] ?? 'bin';
+        }
+        $filename = bin2hex(random_bytes(8)) . '_' . time() . '.' . $ext;
+        $targetPath = PATH_UPLOADS . '/' . $filename;
+        $relativeUrl = '/uploads/' . $filename;
+
+        // 5. Move file directly
+        if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+            throw new Exception("Failed to save video file.");
+        }
+
+        // 6. Save to Database
+        $id = bin2hex(random_bytes(16));
+        $stmt = $this->db->prepare("INSERT INTO media (id, filename, url, mimeType, fileSize, width, height) 
+                                    VALUES (:id, :filename, :url, :mime, :size, NULL, NULL)");
+        $stmt->execute([
+            'id' => $id,
+            'filename' => $filename,
+            'url' => $relativeUrl,
+            'mime' => $mime,
+            'size' => filesize($targetPath)
+        ]);
+
+        return [
+            'id' => $id,
+            'url' => BASE_URL . $relativeUrl,
+            'relativeUrl' => $relativeUrl,
+            'filename' => $filename
+        ];
+    }
+
     // Compress JPEG, PNG, and WebP using GD library
     private function compressImage($sourcePath, $destinationPath, $mime) {
         if (!extension_loaded('gd')) {

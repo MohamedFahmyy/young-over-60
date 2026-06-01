@@ -10,7 +10,10 @@ unset($switch_params['route']);
 $query_string = !empty($switch_params) ? '?' . http_build_query($switch_params) : '';
 
 $route_clean = $route_clean ?? 'admin/dashboard';
-$lang_prefix_url = CURRENT_LANG === 'ar' ? '/ar' : '/en';
+$lang_prefix_url = CURRENT_LANG === 'ar' ? '/ar' : '';
+
+$enUrl = BASE_URL . '/' . ltrim($route_clean, '/') . ($query_string ? $query_string . '&lang=en' : '?lang=en');
+$arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($query_string ? $query_string . '&lang=ar' : '?lang=ar');
 ?>
 <aside class="admin-sidebar">
     <div class="admin-sidebar-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -31,9 +34,9 @@ $lang_prefix_url = CURRENT_LANG === 'ar' ? '/ar' : '/en';
 
     <div class="admin-lang-switcher" style="padding: 0.75rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; gap: 0.75rem; align-items: center; font-size: 0.8rem; background: rgba(0,0,0,0.15);">
         <span style="color: rgba(255,255,255,0.4);"><?php echo __('admin_lang'); ?>:</span>
-        <a href="<?php echo BASE_URL . '/en/' . ltrim($route_clean, '/') . $query_string; ?>" class="lang-switch-btn <?php echo CURRENT_LANG === 'en' ? 'active' : ''; ?>" style="text-decoration: none; color: <?php echo CURRENT_LANG === 'en' ? '#ffffff' : 'rgba(255,255,255,0.5)'; ?>; font-weight: <?php echo CURRENT_LANG === 'en' ? '600' : '400'; ?>; transition: color 0.2s;"><?php echo CURRENT_LANG === 'ar' ? 'الإنجليزية' : 'English'; ?></a>
+        <a href="<?php echo $enUrl; ?>" class="lang-switch-btn <?php echo CURRENT_LANG === 'en' ? 'active' : ''; ?>" style="text-decoration: none; color: <?php echo CURRENT_LANG === 'en' ? '#ffffff' : 'rgba(255,255,255,0.5)'; ?>; font-weight: <?php echo CURRENT_LANG === 'en' ? '600' : '400'; ?>; transition: color 0.2s;"><?php echo CURRENT_LANG === 'ar' ? 'الإنجليزية' : 'English'; ?></a>
         <span style="color: rgba(255,255,255,0.2);">|</span>
-        <a href="<?php echo BASE_URL . '/ar/' . ltrim($route_clean, '/') . $query_string; ?>" class="lang-switch-btn <?php echo CURRENT_LANG === 'ar' ? 'active' : ''; ?>" style="text-decoration: none; color: <?php echo CURRENT_LANG === 'ar' ? '#ffffff' : 'rgba(255,255,255,0.5)'; ?>; font-weight: <?php echo CURRENT_LANG === 'ar' ? '600' : '400'; ?>; transition: color 0.2s;">العربية</a>
+        <a href="<?php echo $arUrl; ?>" class="lang-switch-btn <?php echo CURRENT_LANG === 'ar' ? 'active' : ''; ?>" style="text-decoration: none; color: <?php echo CURRENT_LANG === 'ar' ? '#ffffff' : 'rgba(255,255,255,0.5)'; ?>; font-weight: <?php echo CURRENT_LANG === 'ar' ? '600' : '400'; ?>; transition: color 0.2s;">العربية</a>
     </div>
 
     <ul class="admin-nav-list">

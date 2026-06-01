@@ -69,8 +69,8 @@ $queryString = preg_replace('/[?&]lang=[^&]*/', '', $queryString);
 if ($queryString === '?') $queryString = '';
 if ($queryString && !str_starts_with($queryString, '?')) $queryString = '?' . $queryString;
 
-$enUrl = BASE_URL . '/en/' . ltrim($route_clean, '/') . $queryString;
-$arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . $queryString;
+$enUrl = BASE_URL . '/' . ltrim($route_clean, '/') . ($queryString ? $queryString . '&lang=en' : '?lang=en');
+$arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($queryString ? $queryString . '&lang=ar' : '?lang=ar');
 ?>
 <nav class="navbar-sticky">
     <div class="container navbar-container">

@@ -3203,6 +3203,32 @@ img {
   background-color: #000;
 }
 
+/* Video Background Support for Hero Section */
+.hero-video-bg,
+.hero-slide-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  z-index: 0;
+}
+
+.hero-video-section {
+  position: relative;
+  height: 90vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .hero-slider-container {
   position: relative;
   width: 100%;
@@ -5608,4 +5634,272 @@ html[dir="rtl"] .news-slide-badge {
 
 html[dir="rtl"] .news-meta {
   flex-direction: row;
+}
+
+/* ==========================================================================
+   ENTERPRISE CUSTOM PAGES CMS MODULE STYLING
+   ========================================================================== */
+
+/* Hero Layouts */
+.custom-page-hero {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-align: center;
+  padding: 4rem 1.5rem;
+}
+
+.custom-page-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  z-index: 1;
+}
+
+.custom-page-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.custom-page-hero-title {
+  font-family: var(--heading-font);
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.25rem;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  letter-spacing: -0.02em;
+}
+
+.custom-page-hero-subtitle {
+  font-family: var(--body-font);
+  font-size: clamp(1rem, 2.5vw, 1.45rem);
+  font-weight: 300;
+  opacity: 0.95;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Page Layout Wrappers */
+.custom-page-main {
+  padding-top: 3.5rem;
+  padding-bottom: 6rem;
+}
+
+.custom-page-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.custom-page-standalone-title {
+  font-family: var(--heading-font);
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
+  font-weight: 800;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  line-height: 1.25;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.custom-page-featured-img {
+  width: 100%;
+  max-height: 520px;
+  object-fit: cover;
+  border-radius: 20px;
+  margin-bottom: 3rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.custom-page-prose {
+  margin-top: 2rem;
+  font-size: 1.125rem;
+  line-height: 1.85;
+}
+
+/* Template: About Us Layout */
+.custom-page-about {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-hero-img-wrap {
+  width: 100%;
+  margin-bottom: 3.5rem;
+  overflow: hidden;
+  border-radius: 24px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
+}
+
+.about-featured-img {
+  width: 100%;
+  max-height: 540px;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.about-hero-img-wrap:hover .about-featured-img {
+  transform: scale(1.02);
+}
+
+.about-prose {
+  font-size: 1.15rem;
+  line-height: 1.9;
+}
+
+/* Template: Landing Page Layout */
+.custom-page-landing {
+  padding-bottom: 6rem;
+}
+
+.landing-cover {
+  width: 100%;
+  max-height: 60vh;
+  min-height: 400px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 4rem;
+}
+
+.landing-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.landing-prose {
+  max-width: 860px;
+  margin: 0 auto;
+  font-size: 1.125rem;
+  line-height: 1.85;
+  padding: 0 1.5rem;
+}
+
+/* Template: Medical Tourism Layout */
+.custom-page-medical {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.medical-intro {
+  background: rgba(15, 76, 129, 0.05);
+  border-left: 4px solid var(--primary-color);
+  padding: 2rem 2.5rem;
+  border-radius: 8px;
+  margin-bottom: 3rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+html[dir="rtl"] .medical-intro {
+  border-left: none;
+  border-right: 4px solid var(--primary-color);
+}
+
+.medical-lead {
+  font-family: var(--heading-font);
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.medical-image-wrap {
+  width: 100%;
+  margin-bottom: 3.5rem;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.medical-img {
+  width: 100%;
+  max-height: 520px;
+  object-fit: cover;
+}
+
+.medical-content {
+  font-size: 1.125rem;
+  line-height: 1.85;
+}
+
+/* Template: FAQ Layout */
+.custom-page-faq {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.faq-intro {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.faq-lead {
+  font-size: 1.25rem;
+  color: #666666;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.faq-content {
+  margin-top: 2rem;
+}
+
+/* Administrative Tab CSS rules */
+.admin-tabs-row {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1px;
+}
+
+.admin-tab-trigger {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.25s ease;
+  margin-bottom: -2px;
+}
+
+.admin-tab-trigger:hover {
+  color: var(--primary-color, #4f46e5);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.admin-tab-trigger.active {
+  color: var(--primary-color, #4f46e5);
+  border-bottom-color: var(--primary-color, #4f46e5);
+}
+
+.admin-tab-content {
+  display: none;
+}
+
+.admin-tab-content.active {
+  display: block !important;
 }
