@@ -23,6 +23,8 @@ usort($destList, function($a, $b) {
     return strcmp($a['name'], $b['name']);
 });
 
+$seoPageData = $destList;
+
 require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
 ?>
@@ -61,6 +63,29 @@ require_once PATH_ROOT . '/includes/navbar.php';
                 </a>
             <?php endforeach; ?>
         </div>
+
+        <!-- Featured Guides & Stories Section (Internal Linking & Crawl Depth) -->
+        <section style="margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 4rem;">
+            <div class="mb-16 text-center max-w-3xl mx-auto" data-scroll-reveal>
+                <span class="section-label">Read Stories</span>
+                <h3 class="serif-title" style="margin-top: 1rem;">Featured Guides &amp; Experiences</h3>
+                <p style="color: #666666; font-size: 1.1rem; font-weight: 300; margin-top: 0.5rem;">
+                    Get practical, real-world accessibility details and travel guides from our experienced travelers.
+                </p>
+            </div>
+            
+            <div class="posts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                <?php
+                if ($pm instanceof PostManager) {
+                    $latestPostsRes = $pm->getPosts(['status' => 'PUBLISHED', 'limit' => 3]);
+                    $latestPosts = $latestPostsRes['data'] ?? [];
+                    foreach ($latestPosts as $post) {
+                        renderPostCard($post);
+                    }
+                }
+                ?>
+            </div>
+        </section>
     </section>
 </main>
 

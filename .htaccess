@@ -1,18 +1,46 @@
 # .htaccess
-# Travel Without Limits Apache Server Routing and Security Headers
+# Production-Optimized Routing, Security, and Caching Configuration
+
+# Disable Directory Browsing
+Options -Indexes
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Force routing for admin and api
+    # 1. Force HTTPS and Remove WWW (Single Hop Redirect)
+    RewriteCond %{HTTPS} off [OR]
+    RewriteCond %{HTTP_HOST} ^www\.(.+) [NC]
+    RewriteRule ^(.*)$ https://youngover60.com/$1 [R=301,L]
+
+    # 2. Redirect root sitemaps to dynamic index
+    RewriteRule ^sitemap\.xml$ sitemap-index.xml [R=301,L]
+
+    # 3. Prevent access to sensitive directories and files
+    RewriteCond %{REQUEST_URI} ^/\.git [NC,OR]
+    RewriteCond %{REQUEST_URI} ^/cache [NC,OR]
+    RewriteCond %{REQUEST_URI} ^/config [NC]
+    RewriteRule ^.*$ - [F,L]
+
+    # 4. Force routing for admin and api
     RewriteRule ^admin/?(.*)$ index.php?route=admin/$1 [QSA,L]
     RewriteRule ^api/?(.*)$ index.php?route=api/$1 [QSA,L]
 
-    # Normal routing
+    # 5. Normal routing (Clean URLs)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.+)$ index.php?route=$1 [QSA,L]
 </IfModule>
+
+# Protect sensitive files individually
+<FilesMatch "^\.(git|htaccess|env)|(schema\.sql|error\.log|composer\.json|package\.json)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
 
 # Security Headers Configuration
 <IfModule mod_headers.c>
@@ -28,9 +56,39 @@
     # Define Referrer Policy
     Header set Referrer-Policy "strict-origin-when-cross-origin"
     
+    # Restrict device sensor capabilities
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    
     # Basic Content Security Policy (allows local assets, Google Fonts, and images)
     Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: http: https: *; font-src 'self' https://fonts.gstatic.com; frame-src 'self';"
 </IfModule>
 
-# Disable Directory Browsing for security
-Options -Indexes
+# Enable Gzip/Deflate Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json application/xml
+</IfModule>
+
+# Enable Browser Caching (Expires Headers)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    
+    # CSS, Javascript
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType application/x-javascript "access plus 1 year"
+    
+    # Images & Icons
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # Web Fonts
+    ExpiresByType font/opentype "access plus 1 year"
+    ExpiresByType font/truetype "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>

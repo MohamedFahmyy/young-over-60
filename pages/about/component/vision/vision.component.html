@@ -1,0 +1,102 @@
+<section id="our-story" class="relative py-24 overflow-hidden bg-white">
+  <!-- Decorative Circles -->
+  <div class="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#d89d2e]/5"></div>
+
+  <div
+    class="absolute bottom-0 right-0 w-[450px] h-[450px] rounded-full border border-[#0B1F3B]/10"
+  ></div>
+
+  <div class="max-w-7xl mx-auto px-6">
+    <!-- Section Header -->
+    <div class="max-w-4xl mb-20">
+      <span
+        class="inline-flex items-center gap-3 uppercase tracking-[4px] text-sm font-medium text-[#d89d2e]"
+      >
+        {{ 'aboutPage.vision.sectionLabel' | translate }}
+
+        <span class="w-10 h-[2px] bg-[#d89d2e]"></span>
+      </span>
+
+      <h2 class="mt-6 text-4xl md:text-5xl lg:text-6xl font-bold text-[#0B1F3B] leading-tight">
+        {{ 'aboutPage.vision.titleLine1' | translate }}
+        <span class="italic text-[#d89d2e]">
+          {{ 'aboutPage.vision.titleHighlight' | translate }}
+        </span>
+      </h2>
+
+      <p class="mt-6 text-xl italic text-gray-500 border-l-4 border-[#d89d2e] pl-6">
+        {{ 'aboutPage.vision.quote' | translate }}
+      </p>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="grid lg:grid-cols-[1.3fr_.7fr] gap-12 items-start">
+      <!-- Left Content -->
+      <div class="space-y-8">
+        <div class="bg-stone-50 rounded-[32px] p-8 md:p-10 border border-stone-200">
+          <h3 class="text-2xl font-bold text-[#0B1F3B] mb-4">
+            {{ 'aboutPage.vision.cardTitle' | translate }}
+          </h3>
+
+          <p class="text-gray-600 hidden md:block leading-relaxed">
+            {{ 'aboutPage.vision.text1' | translate }}
+          </p>
+
+          <p class="text-gray-600 md:hidden block leading-relaxed">
+            {{ 'aboutPage.vision.text1mob' | translate }}
+          </p>
+
+          <p class="text-gray-600 hidden md:block leading-relaxed mt-5">
+            {{ 'aboutPage.vision.text2' | translate }}
+          </p>
+
+          <p class="text-gray-600 md:hidden block leading-relaxed mt-5">
+            {{ 'aboutPage.vision.text2mob' | translate }}
+          </p>
+        </div>
+
+        <div class="bg-[#0B1F3B] text-white rounded-[32px] p-8 md:p-10 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5"></div>
+
+          <h3 class="text-2xl font-bold mb-4">{{ 'aboutPage.vision.visionTitle' | translate }}</h3>
+
+          <p class="text-white/80 hidden md:block leading-relaxed">
+            {{ 'aboutPage.vision.visionText1' | translate }}
+          </p>
+
+          <p class="text-white/80 md:hidden block text-[14px] font-medium leading-relaxed">
+            {{ 'aboutPage.vision.visionText1mob' | translate }}
+          </p>
+          <br />
+          <p class="text-white/80 hidden md:block leading-relaxed mt-5">
+            {{ 'aboutPage.vision.visionText2' | translate }}
+          </p>
+          <p class="text-white/80 md:hidden block text-[14px] font-medium leading-relaxed">
+            {{ 'aboutPage.vision.visionText2mob' | translate }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Side -->
+      <div class="space-y-6">
+        <div class="rounded-[28px] border border-stone-200 p-8 hover:-translate-y-1 transition">
+          <h4 class="text-5xl font-bold text-[#d89d2e]">60+</h4>
+
+          <p class="mt-3 text-gray-600">{{ 'aboutPage.vision.stats.seniors' | translate }}</p>
+        </div>
+
+        <div class="rounded-[28px] border border-stone-200 p-8 hover:-translate-y-1 transition">
+          <h4 class="text-5xl font-bold text-[#0B1F3B]">∞</h4>
+
+          <p class="mt-3 text-gray-600">{{ 'aboutPage.vision.stats.infinity' | translate }}</p>
+        </div>
+
+        <div class="rounded-[28px] border border-stone-200 p-8 hover:-translate-y-1 transition">
+          <h4 class="text-5xl font-bold text-[#d89d2e]">100%</h4>
+
+          <p class="mt-3 text-gray-600">{{ 'aboutPage.vision.stats.accessibility' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

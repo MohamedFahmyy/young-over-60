@@ -54,6 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'meta_title_ar'       => trim($_POST['meta_title_ar'] ?? ''),
             'meta_description_en' => trim($_POST['meta_description_en'] ?? ''),
             'meta_description_ar' => trim($_POST['meta_description_ar'] ?? ''),
+            'canonical_url_en'    => trim($_POST['canonical_url_en'] ?? ''),
+            'canonical_url_ar'    => trim($_POST['canonical_url_ar'] ?? ''),
             'hero_title_en'       => trim($_POST['hero_title_en'] ?? ''),
             'hero_title_ar'       => trim($_POST['hero_title_ar'] ?? ''),
             'hero_subtitle_en'    => trim($_POST['hero_subtitle_en'] ?? ''),
@@ -250,9 +252,14 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <label for="meta_title_en"><?php echo __('settings_meta_title'); ?> (EN)</label>
                                 <input type="text" id="meta_title_en" name="meta_title_en" class="admin-form-input" value="<?php echo e($p['meta_title_en'] ?? ''); ?>" maxlength="70" />
                             </div>
-                            <div class="admin-form-group">
+                            <div class="admin-form-group" style="margin-bottom:1rem;">
                                 <label for="meta_description_en"><?php echo __('settings_meta_desc'); ?> (EN)</label>
                                 <textarea id="meta_description_en" name="meta_description_en" rows="3" class="admin-form-textarea" maxlength="170"><?php echo e($p['meta_description_en'] ?? ''); ?></textarea>
+                            </div>
+                            <div class="admin-form-group">
+                                <label for="canonical_url_en">Canonical URL (EN)</label>
+                                <input type="url" id="canonical_url_en" name="canonical_url_en" class="admin-form-input" value="<?php echo e($p['canonical_url_en'] ?? ''); ?>" placeholder="https://youngover60.com/pages/..." />
+                                <p style="font-size:0.75rem; color:#888; margin-top:0.35rem;">Override default canonical URL for English version if needed.</p>
                             </div>
                         </div>
                         <div id="tab-seo-ar" class="admin-tab-content" style="direction:rtl; text-align:right;">
@@ -260,9 +267,14 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <label for="meta_title_ar"><?php echo __('settings_meta_title'); ?> (AR)</label>
                                 <input type="text" id="meta_title_ar" name="meta_title_ar" class="admin-form-input" value="<?php echo e($p['meta_title_ar'] ?? ''); ?>" dir="rtl" />
                             </div>
-                            <div class="admin-form-group">
+                            <div class="admin-form-group" style="margin-bottom:1rem;">
                                 <label for="meta_description_ar"><?php echo __('settings_meta_desc'); ?> (AR)</label>
                                 <textarea id="meta_description_ar" name="meta_description_ar" rows="3" class="admin-form-textarea" dir="rtl"><?php echo e($p['meta_description_ar'] ?? ''); ?></textarea>
+                            </div>
+                            <div class="admin-form-group" style="text-align:left;">
+                                <label for="canonical_url_ar">Canonical URL (AR)</label>
+                                <input type="url" id="canonical_url_ar" name="canonical_url_ar" class="admin-form-input" value="<?php echo e($p['canonical_url_ar'] ?? ''); ?>" placeholder="https://youngover60.com/ar/pages/..." dir="ltr" />
+                                <p style="font-size:0.75rem; color:#888; margin-top:0.35rem;">Override default canonical URL for Arabic version if needed.</p>
                             </div>
                         </div>
                     </div>

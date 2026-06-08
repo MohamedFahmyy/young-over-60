@@ -19,6 +19,7 @@ $podcastsResult = $podcastMgr->getPodcasts([
 ]);
 
 $podcasts = $podcastsResult['data'];
+$seoPageData = $podcasts;
 $meta = $podcastsResult['meta'];
 
 $featuredPodcasts = $podcastMgr->getFeaturedPodcasts();
@@ -227,6 +228,28 @@ require_once PATH_ROOT . '/includes/navbar.php';
                 <p style="color: #b3b3b3; font-weight: 300;">We couldn't find any podcast episodes matching your queries.</p>
             </div>
         <?php endif; ?>
+
+        <!-- Featured Guides & Stories Section (Internal Linking & Crawl Depth) -->
+        <section style="margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 4rem;">
+            <div class="mb-16 text-center max-w-3xl mx-auto" data-scroll-reveal>
+                <span class="section-label" style="color: var(--accent-color);">Read Chronicles</span>
+                <h3 class="serif-title" style="margin-top: 1rem; color: #ffffff;">Stories Inspired by Audio Journeys</h3>
+                <p style="color: #b3b3b3; font-size: 1.1rem; font-weight: 300; margin-top: 0.5rem;">
+                    Read our premium memoirs and detailed logs written by senior and accessible travel adventurers.
+                </p>
+            </div>
+            
+            <div class="posts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                <?php
+                $pmForPod = new PostManager();
+                $latestPostsRes = $pmForPod->getPosts(['status' => 'PUBLISHED', 'limit' => 3]);
+                $latestPosts = $latestPostsRes['data'] ?? [];
+                foreach ($latestPosts as $post) {
+                    renderPostCard($post);
+                }
+                ?>
+            </div>
+        </section>
     </section>
 </main>
 

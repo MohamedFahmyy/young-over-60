@@ -1,0 +1,268 @@
+{
+  "info": {
+    "_postman_id": "0b3cf17d-2b4f-4d37-88de-2661c56ad8ff",
+    "name": "Travel Without Limits - youngover60.com REST APIs",
+    "description": "API collection for Travel Without Limits website (youngover60.com). Includes public post query streams, newsletter subscription, contact inquiries, and secure administrative media file upload.\n\n### Authentication & CSRF Details:\n* **CSRF Token**: All `POST` endpoints strictly require a valid `csrf_token` in the request body. In practice, extract this from the DOM using `document.querySelector('input[name=\"csrf_token\"]').value` or from the global PHP session wrapper.\n* **Sessions**: Admin file uploads (`/api/upload`) require an active session authentication cookie (`PHPSESSID`) indicating you are logged into the admin dashboard.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Retrieve / Search Posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts?categoryId=destinations&search=&limit=10&page=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "destinations",
+                  "description": "Filter by Category ID or slug (e.g. destinations, destinations-ar)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Text search query. Matches title, excerpt, and content in the active session language."
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of records to fetch per page (Default: 10)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page offset index (Default: 1)"
+                }
+              ]
+            },
+            "description": "Retrieves lists of published posts with option to filter by category or search terms."
+          },
+          "response": []
+        }
+      ],
+      "description": "Public content retrieval APIs."
+    },
+    {
+      "name": "Forms & Submissions",
+      "item": [
+        {
+          "name": "Submit Contact Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "csrf_token",
+                  "value": "{{csrfToken}}",
+                  "description": "Active session CSRF token (Required)",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "Jane Doe",
+                  "description": "Full name of sender (Required)",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "jane.doe@example.com",
+                  "description": "Valid sender email address (Required)",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "+1 (555) 123-4567",
+                  "description": "Sender phone number (Required)",
+                  "type": "text"
+                },
+                {
+                  "key": "message",
+                  "value": "Hello! I am interested in accessibility features for Cairo tour packages.",
+                  "description": "Message content (Required)",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contact"
+              ]
+            },
+            "description": "Submits user message data to the database and triggers administrative notification email."
+          },
+          "response": []
+        },
+        {
+          "name": "Subscribe Newsletter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "csrf_token",
+                  "value": "{{csrfToken}}",
+                  "description": "Active session CSRF token (Required)",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "subscriber@example.com",
+                  "description": "Email address to subscribe (Required)",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/newsletter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "newsletter"
+              ]
+            },
+            "description": "Registers email addresses to the mailing list."
+          },
+          "response": []
+        }
+      ],
+      "description": "Interactive data submission forms."
+    },
+    {
+      "name": "Media",
+      "item": [
+        {
+          "name": "Upload Media Asset (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "csrf_token",
+                  "value": "{{csrfToken}}",
+                  "description": "Active session CSRF token (Required)",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "description": "Binary file payload (Required). Image max size: 2MB. Audio & Video max size: 50MB.",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload?type=image",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "upload"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "image",
+                  "description": "Explicit asset categorization (image, audio, or video)"
+                }
+              ]
+            },
+            "description": "Securely uploads media files to the server. Requires an active administrator session (cookie authentication) and CSRF token parameter validation.\n\n* **Image constraints**: Max size 2MB. Dynamic compression applied.\n* **Audio constraints**: Max size 50MB (Allowed: MP3, WAV, AAC, OGG).\n* **Video constraints**: Max size 50MB (Allowed: MP4, WebM, OGG, MOV)."
+          },
+          "response": []
+        }
+      ],
+      "description": "Secured administrative file uploading tools."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://youngover60.com",
+      "type": "string"
+    },
+    {
+      "key": "csrfToken",
+      "value": "your_csrf_token_here",
+      "type": "string"
+    }
+  ]
+}

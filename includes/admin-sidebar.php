@@ -16,7 +16,7 @@ $enUrl = BASE_URL . '/' . ltrim($route_clean, '/') . ($query_string ? $query_str
 $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($query_string ? $query_string . '&lang=ar' : '?lang=ar');
 ?>
 <aside class="admin-sidebar">
-    <div class="admin-sidebar-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div class="admin-sidebar-header">
         <div>
             <span class="admin-logo-text" style="font-size: 0.95rem; font-weight: bold; color: var(--primary-color);"><?php echo e($settings['siteName'] ?? 'Young Over 60'); ?> Admin</span>
             <p style="font-size: 0.6rem; color:#666666; text-transform:uppercase; letter-spacing:0.15em; margin-top:0.25rem;">
@@ -24,15 +24,19 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($query_string ? $query_
             </p>
         </div>
         <!-- Hamburger Menu Button -->
-        <button class="admin-menu-toggle" aria-label="Toggle Menu" style="display: none; background: none; border: none; color: #ffffff; cursor: pointer; padding: 0.5rem; outline: none;">
-            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path class="menu-icon-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                <path class="menu-icon-close" style="display: none;" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        <button class="admin-menu-toggle" aria-label="Toggle Menu">
+            <!-- Open Icon (Hamburger) -->
+            <svg class="menu-icon-open" style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+            <!-- Close Icon (X) -->
+            <svg class="menu-icon-close" style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
         </button>
     </div>
 
-    <div class="admin-lang-switcher" style="padding: 0.75rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; gap: 0.75rem; align-items: center; font-size: 0.8rem; background: rgba(0,0,0,0.15);">
+    <div class="admin-lang-switcher">
         <span style="color: rgba(255,255,255,0.4);"><?php echo __('admin_lang'); ?>:</span>
         <a href="<?php echo $enUrl; ?>" class="lang-switch-btn <?php echo CURRENT_LANG === 'en' ? 'active' : ''; ?>" style="text-decoration: none; color: <?php echo CURRENT_LANG === 'en' ? '#ffffff' : 'rgba(255,255,255,0.5)'; ?>; font-weight: <?php echo CURRENT_LANG === 'en' ? '600' : '400'; ?>; transition: color 0.2s;"><?php echo CURRENT_LANG === 'ar' ? 'الإنجليزية' : 'English'; ?></a>
         <span style="color: rgba(255,255,255,0.2);">|</span>
@@ -109,28 +113,42 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($query_string ? $query_
 </aside>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const toggleBtn = document.querySelector('.admin-menu-toggle');
-    const navList = document.querySelector('.admin-nav-list');
-    const sidebarFooter = document.querySelector('.admin-sidebar-footer');
-    const openIcon = document.querySelector('.menu-icon-open');
-    const closeIcon = document.querySelector('.menu-icon-close');
-    const sidebar = document.querySelector('.admin-sidebar');
+(function() {
+    function initSidebar() {
+        const toggleBtn = document.querySelector('.admin-menu-toggle');
+        const navList = document.querySelector('.admin-nav-list');
+        const sidebarFooter = document.querySelector('.admin-sidebar-footer');
+        const sidebar = document.querySelector('.admin-sidebar');
 
-    if (toggleBtn && navList) {
-        toggleBtn.addEventListener('click', function() {
-            const isOpen = navList.classList.toggle('show');
-            if (sidebarFooter) sidebarFooter.classList.toggle('show');
-            if (sidebar) sidebar.classList.toggle('expanded');
-            
-            if (isOpen) {
-                openIcon.style.display = 'none';
-                closeIcon.style.display = 'block';
-            } else {
-                openIcon.style.display = 'block';
-                closeIcon.style.display = 'none';
-            }
-        });
+        if (toggleBtn && navList) {
+            const openIcon = toggleBtn.querySelector('.menu-icon-open');
+            const closeIcon = toggleBtn.querySelector('.menu-icon-close');
+
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isOpen = toggleBtn.classList.toggle('open');
+                navList.classList.toggle('show');
+                if (sidebarFooter) sidebarFooter.classList.toggle('show');
+                if (sidebar) sidebar.classList.toggle('expanded');
+
+                // Toggle visibility inline in JS to ensure solid rendering updates across all device engines
+                if (openIcon && closeIcon) {
+                    if (isOpen) {
+                        openIcon.style.setProperty('display', 'none', 'important');
+                        closeIcon.style.setProperty('display', 'block', 'important');
+                    } else {
+                        openIcon.style.setProperty('display', 'block', 'important');
+                        closeIcon.style.setProperty('display', 'none', 'important');
+                    }
+                }
+            });
+        }
     }
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener("DOMContentLoaded", initSidebar);
+    } else {
+        initSidebar();
+    }
+})();
 </script>

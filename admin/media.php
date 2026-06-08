@@ -39,6 +39,29 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
     exit();
 }
 
+// Handle Alt Text Update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'update_alt') {
+    try {
+        Auth::requireCsrf();
+        $mediaId = $_GET['id'] ?? '';
+        $altEn = trim($_POST['alt_text_en'] ?? '');
+        $altAr = trim($_POST['alt_text_ar'] ?? '');
+        
+        $updateStmt = $db->prepare("UPDATE media SET alt_text_en = :alt_en, alt_text_ar = :alt_ar WHERE id = :id");
+        $updateStmt->execute([
+            ':alt_en' => $altEn !== '' ? $altEn : null,
+            ':alt_ar' => $altAr !== '' ? $altAr : null,
+            ':id' => $mediaId
+        ]);
+        
+        $_SESSION['admin_flash_success'] = "Alt texts updated successfully.";
+    } catch (Exception $e) {
+        $_SESSION['admin_flash_error'] = "Update error: " . $e->getMessage();
+    }
+    header("Location: " . BASE_URL . "/admin/media");
+    exit();
+}
+
 // Fetch all media assets
 $stmt = $db->query("SELECT * FROM media ORDER BY created_at DESC");
 $mediaFiles = $stmt->fetchAll();
@@ -119,6 +142,16 @@ require_once PATH_ROOT . '/includes/header.php';
                                         <?php endif; ?>
                                         <span><?php echo CURRENT_LANG === 'ar' ? 'تم الرفع:' : 'Uploaded:'; ?> <?php echo date('Y-m-d H:i', strtotime($asset['created_at'])); ?></span>
                                     </div>
+                                    
+                                    <!-- Alt Text Editing Form -->
+                                    <form method="POST" action="<?php echo BASE_URL; ?>/admin/media?action=update_alt&id=<?php echo $asset['id']; ?>" style="margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem; border-top: 1px dashed #f0f0f0; padding-top: 0.5rem;">
+                                        <?php echo Auth::csrfInput(); ?>
+                                        <input type="text" name="alt_text_en" class="admin-form-input" style="font-size: 0.7rem; padding: 4px 8px; height: auto;" placeholder="Alt Text (EN)" value="<?php echo e($asset['alt_text_en'] ?? ''); ?>" />
+                                        <input type="text" name="alt_text_ar" class="admin-form-input" style="font-size: 0.7rem; padding: 4px 8px; height: auto;" placeholder="نص بديل (AR)" value="<?php echo e($asset['alt_text_ar'] ?? ''); ?>" dir="rtl" />
+                                        <button type="submit" class="btn-primary" style="font-size: 0.65rem; padding: 3px 6px; border-radius: 4px; height: auto; min-height: auto; align-self: flex-end; width: auto; margin-top: 0.25rem;">
+                                            <?php echo CURRENT_LANG === 'ar' ? 'حفظ النص' : 'Save Alt'; ?>
+                                        </button>
+                                    </form>
                                 </div>
                                 
                                 <div style="display: flex; gap: 0.5rem; margin-top: 1rem; border-top: 1px solid #f0f0f0; padding-top: 0.5rem; justify-content: space-between; align-items: center;">

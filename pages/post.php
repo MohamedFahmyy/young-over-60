@@ -14,6 +14,10 @@ if (!$post) {
 // Set SEO Page Context
 $seoPageType = 'post';
 $seoPageData = $post;
+$heroImageToPreload = !empty($post['coverImage']) ? $post['coverImage'] : '/images/hero-bg.png';
+if (!empty($heroImageToPreload) && !str_starts_with($heroImageToPreload, 'http') && !str_starts_with($heroImageToPreload, '//')) {
+    $heroImageToPreload = BASE_URL . $heroImageToPreload;
+}
 
 // 2. Fetch related posts (same category, limit 4, exclude current)
 $relatedResult = $pm->getPosts([

@@ -1,0 +1,111 @@
+<section class="relative py-10 bg-stone-50 overflow-hidden">
+  <!-- Background accents -->
+  <div class="absolute top-0 left-0 w-96 h-96 bg-[#0B1F3B]/5 blur-3xl rounded-full"></div>
+  <div
+    class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#d89d2e]/10 blur-3xl rounded-full"
+  ></div>
+
+  <div class="max-w-7xl mx-auto md:px-6 relative z-10">
+    <!-- Header -->
+    <div class="text-center mb-16">
+      <span class="uppercase tracking-[4px] text-sm text-[#d89d2e] font-medium">
+        {{ 'aboutPage.contactMe.header.title' | translate }}
+      </span>
+
+      <h2 class="mt-4 text-3xl md:text-5xl font-bold text-[#0B1F3B]">
+        {{ 'aboutPage.contactMe.header.headingLine1' | translate }}
+        <span class="italic text-[#d89d2e]">
+          {{ 'aboutPage.contactMe.header.headingHighlight' | translate }}
+        </span>
+      </h2>
+
+      <p class="mt-5 hidden md:block text-gray-600 max-w-2xl mx-auto">
+        {{ 'aboutPage.contactMe.header.descriptionDesktop' | translate }}
+      </p>
+
+      <p class="mt-5 md:hidden text-gray-600 max-w-2xl mx-auto">
+        {{ 'aboutPage.contactMe.header.descriptionMobile' | translate }}
+      </p>
+    </div>
+
+    <!-- Content -->
+    <div class="grid lg:grid-cols-2 gap-12 items-start">
+      <!-- Founder Card (Clickable LinkedIn) -->
+      <a
+        href="https://www.linkedin.com/in/zakaria-dawoud-26902b180?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+        target="_blank"
+        class="group block bg-white rounded-[32px] shadow-xl p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+      >
+        <div class="flex items-center gap-5">
+          <!-- Image -->
+          <div class="relative">
+            <img
+              src="/assets/images/founder.jpeg"
+              class="w-25 h-25 rounded-2xl object-cover object-top"
+              alt="Founder"
+            />
+
+            <div
+              class="absolute inset-0 rounded-2xl ring-2 ring-[#d89d2e]/30 group-hover:ring-[#d89d2e] transition"
+            ></div>
+          </div>
+
+          <!-- Info -->
+          <div>
+            <h3 class="text-2xl font-bold text-[#0B1F3B] group-hover:text-[#d89d2e] transition">
+              Zakaria Dawoud
+            </h3>
+
+            <p class="text-gray-500 text-sm mt-1">
+              {{ 'aboutPage.contactMe.founderCard.role' | translate }}
+            </p>
+
+            <div class="mt-2 flex items-center gap-2 text-[#0B1F3B] text-sm font-medium">
+              <span> {{ 'aboutPage.contactMe.founderCard.cta' | translate }} </span>
+              <span class="group-hover:translate-x-1 transition">→</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quote -->
+        <p class="mt-6 text-gray-600 leading-relaxed">
+          {{ 'aboutPage.contactMe.founderCard.quote' | translate }}
+        </p>
+      </a>
+
+      <!-- Contact Form -->
+      <div class="bg-white rounded-[32px] shadow-xl p-8 md:p-10">
+        <h3 class="text-2xl font-bold text-[#0B1F3B] mb-6">
+          {{ 'aboutPage.contactMe.form.title' | translate }}
+        </h3>
+
+        <form class="space-y-5">
+          <input
+            type="text"
+            [placeholder]="'aboutPage.contactMe.form.name' | translate"
+            class="w-full px-5 py-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#d89d2e] transition"
+          />
+
+          <input
+            type="email"
+            [placeholder]="'aboutPage.contactMe.form.email' | translate"
+            class="w-full px-5 py-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#d89d2e] transition"
+          />
+
+          <textarea
+            rows="5"
+            [placeholder]="'aboutPage.contactMe.form.message' | translate"
+            class="w-full px-5 py-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#d89d2e] transition"
+          ></textarea>
+
+          <button
+            type="submit"
+            class="w-full py-4 rounded-xl bg-[#0B1F3B] text-white font-medium hover:-translate-y-2 hover:shadow-2xl transition-all duration-500"
+          >
+            {{ 'aboutPage.contactMe.form.button' | translate }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

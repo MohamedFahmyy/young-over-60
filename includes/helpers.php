@@ -59,7 +59,76 @@ function e($value) {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-// 7. Renders the luxury Post Card component (reusable card)
+// 7. Media Library Metadata Fetcher
+function getImageMetadata($url) {
+    static $cache = [];
+    if (empty($url)) return null;
+    
+    $relativeUrl = $url;
+    if (strpos($url, BASE_URL) === 0) {
+        $relativeUrl = substr($url, strlen(BASE_URL));
+    }
+    
+    if (isset($cache[$relativeUrl])) {
+        return $cache[$relativeUrl];
+    }
+    
+    try {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT width, height, alt_text_en, alt_text_ar FROM media WHERE url = :url LIMIT 1");
+        $stmt->execute([':url' => $relativeUrl]);
+        $meta = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($meta) {
+            $cache[$relativeUrl] = $meta;
+            return $meta;
+        }
+    } catch (Exception $e) {
+        error_log("Failed to fetch media metadata: " . $e->getMessage());
+    }
+    
+    // Fallback: getimagesize for local files
+    $filePath = PATH_ROOT . $relativeUrl;
+    if (file_exists($filePath)) {
+        $info = @getimagesize($filePath);
+        if ($info) {
+            $meta = [
+                'width' => $info[0],
+                'height' => $info[1],
+                'alt_text_en' => '',
+                'alt_text_ar' => ''
+            ];
+            $cache[$relativeUrl] = $meta;
+            return $meta;
+        }
+    }
+    
+    return null;
+}
+
+// 8. Reusable, Optimized Image Tag Builder
+function renderImageTag($url, $defaultAlt = '', $class = '', $lazy = true) {
+    if (empty($url)) return;
+    
+    $imgMeta = getImageMetadata($url);
+    
+    // Resolve alt text
+    $alt = $defaultAlt;
+    if ($imgMeta) {
+        $metaAlt = t($imgMeta, 'alt_text');
+        if (!empty($metaAlt)) {
+            $alt = $metaAlt;
+        }
+    }
+    
+    $widthAttr = ($imgMeta && !empty($imgMeta['width'])) ? ' width="' . e($imgMeta['width']) . '"' : '';
+    $heightAttr = ($imgMeta && !empty($imgMeta['height'])) ? ' height="' . e($imgMeta['height']) . '"' : '';
+    $loadingAttr = $lazy ? ' loading="lazy"' : ' loading="eager"';
+    $classAttr = !empty($class) ? ' class="' . e($class) . '"' : '';
+    
+    echo '<img src="' . e($url) . '" alt="' . e($alt) . '"' . $classAttr . $widthAttr . $heightAttr . $loadingAttr . ' />';
+}
+
+// 9. Renders the luxury Post Card component (reusable card)
 function renderPostCard($post, $ratioType = 'landscape') {
     $url = url('posts/' . e(t($post, 'slug')));
     $categorySlug = t($post, 'categorySlug');
@@ -67,7 +136,9 @@ function renderPostCard($post, $ratioType = 'landscape') {
     $cover = !empty($post['coverImage']) ? e($post['coverImage']) : '/images/hero-bg.png';
     $published = formatDate($post['publishedAt']);
     $author = e(t($post, 'authorName') ?: ($post['authorName'] ?? 'Site Admin'));
-    $alt = e(t($post, 'alt_text'));
+    
+    // Fallback alt
+    $defaultAlt = t($post, 'alt_text') ?: t($post, 'title');
     
     $ratioClass = 'ratio-' . $ratioType;
     ?>
@@ -75,7 +146,7 @@ function renderPostCard($post, $ratioType = 'landscape') {
         <a href="<?php echo $url; ?>" class="post-card-link" aria-label="<?php echo __('btn_read_story'); ?> <?php echo e(t($post, 'title')); ?>">
             <div class="post-card-media <?php echo $ratioClass; ?>">
                 <div class="progressive-image-placeholder"></div>
-                <img src="<?php echo $cover; ?>" alt="<?php echo $alt ?: e(t($post, 'title')); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
+                <?php renderImageTag($cover, $defaultAlt, 'post-card-img', true); ?>
                 <div class="post-card-badge">
                     <span class="badge-text"><?php echo e(t($post, 'categoryName')); ?></span>
                 </div>

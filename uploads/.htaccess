@@ -1,0 +1,12 @@
+# uploads/.htaccess
+# Disable execution of scripts in uploads folder for security hardening
+
+<FilesMatch "\.(php|php5|php7|php8|phtml|pl|py|jsp|asp|sh|cgi)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

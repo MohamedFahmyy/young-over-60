@@ -2,9 +2,21 @@
 // includes/config.php
 // Travel Without Limits Global Configurations
 
-// Set error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Environment Detection (Production vs Development)
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$isProd = ($host === 'youngover60.com' || $host === 'www.youngover60.com');
+
+if ($isProd) {
+    // Production settings
+    error_reporting(0);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    ini_set('error_log', dirname(__DIR__) . '/error.log');
+} else {
+    // Development/Local settings
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
 
 // Set timezone to Sydney (default for TWL Australia)
 date_default_timezone_set('Australia/Sydney');
@@ -20,6 +32,7 @@ define('DEFAULT_LANG', 'en');
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
+    ini_set('session.cookie_samesite', 'Lax');
     
     // Enable secure cookies if HTTPS is on
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
@@ -33,20 +46,24 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once dirname(__DIR__) . '/config/database.php';
 
 // Dynamic Base URL Calculation (supporting subdirectories, virtual hosts, and dev servers)
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+if ($isProd) {
+    define('BASE_URL', 'https://youngover60.com');
+} else {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-$docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
-$pathRoot = str_replace('\\', '/', dirname(__DIR__));
-$subDir = '';
+    $docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+    $pathRoot = str_replace('\\', '/', dirname(__DIR__));
+    $subDir = '';
 
-if (!empty($docRoot) && strpos($pathRoot, $docRoot) === 0) {
-    $subDir = substr($pathRoot, strlen($docRoot));
+    if (!empty($docRoot) && strpos($pathRoot, $docRoot) === 0) {
+        $subDir = substr($pathRoot, strlen($docRoot));
+    }
+    $subDir = str_replace('\\', '/', $subDir);
+    $subDir = rtrim($subDir, '/');
+
+    define('BASE_URL', $protocol . $host . $subDir);
 }
-$subDir = str_replace('\\', '/', $subDir);
-$subDir = rtrim($subDir, '/');
-
-define('BASE_URL', $protocol . $host . $subDir);
 
 // System Paths
 if (!defined('PATH_ROOT')) {

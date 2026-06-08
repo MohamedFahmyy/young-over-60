@@ -1,0 +1,187 @@
+<section class="relative py-10 overflow-hidden overflow-x-hidden md:min-h-[900px] bg-[#0B1F3B]">
+  <!-- Decorative Background -->
+  <div class="absolute top-0 left-0 w-96 h-96 rounded-full bg-white/5 blur-3xl"></div>
+
+  <div
+    class="absolute top-10 right-0 w-[500px] h-[500px] rounded-full border border-white/10"
+  ></div>
+
+  <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+    <!-- Header -->
+    <div class="text-center max-w-4xl mx-auto py-3 md:mb-20">
+      <span class="uppercase tracking-[4px] text-sm font-medium text-[#d89d2e]">
+        {{ 'aboutPage.offerSec.header.label' | translate }}
+      </span>
+
+      <h2 class="mt-5 text-4xl md:text-5xl lg:text-6xl w-full font-bold text-white">
+        {{ 'aboutPage.offerSec.header.titleLine1' | translate }}
+        <span class="italic text-[#d89d2e]">
+          {{ 'aboutPage.offerSec.header.titleHighlight' | translate }}
+        </span>
+      </h2>
+
+      <p class="mt-6 text-lg hidden md:block text-white/70 leading-relaxed">
+        {{ 'aboutPage.offerSec.header.descriptionDesktop' | translate }}
+      </p>
+
+      <p class="mt-6 text-lg md:hidden text-white/70 leading-relaxed">
+        {{ 'aboutPage.offerSec.header.descriptionMobile' | translate }}
+      </p>
+    </div>
+
+    <!-- Cards -->
+    <div class="md:grid grid-cols-1 hidden md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- Card 1 -->
+      <div
+        class="group bg-stone-50 rounded-[32px] p-8 h-full min-h-[320px] flex flex-col transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
+      >
+        <div
+          class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6 transition duration-500 group-hover:scale-110 group-hover:rotate-3"
+        >
+          <i class="fa-solid fa-newspaper"></i>
+        </div>
+
+        <h3 class="text-2xl font-bold text-[#0B1F3B] mb-4 min-h-[64px]">
+          {{ 'aboutPage.offerSec.cards.card1.title' | translate }}
+        </h3>
+
+        <p class="text-gray-600 leading-relaxed flex-1">
+          {{ 'aboutPage.offerSec.cards.card1.text' | translate }}
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div
+        class="group bg-stone-50 rounded-[32px] p-8 h-full min-h-[320px] flex flex-col transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
+      >
+        <div
+          class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6 transition duration-500 group-hover:scale-110 group-hover:rotate-3"
+        >
+          <i class="fa-regular fa-map"></i>
+        </div>
+
+        <h3 class="text-2xl font-bold text-[#0B1F3B] mb-4 min-h-[64px]">
+          {{ 'aboutPage.offerSec.cards.card2.title' | translate }}
+        </h3>
+
+        <p class="text-gray-600 leading-relaxed flex-1">
+          {{ 'aboutPage.offerSec.cards.card2.text' | translate }}
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div
+        class="group bg-stone-50 rounded-[32px] p-8 h-full min-h-[320px] flex flex-col transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
+      >
+        <div
+          class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6 transition duration-500 group-hover:scale-110 group-hover:rotate-3"
+        >
+          <i class="fa-regular fa-lightbulb"></i>
+        </div>
+
+        <h3 class="text-2xl font-bold text-[#0B1F3B] mb-4 min-h-[64px]">
+          {{ 'aboutPage.offerSec.cards.card3.title' | translate }}
+        </h3>
+
+        <p class="text-gray-600 leading-relaxed flex-1">
+          {{ 'aboutPage.offerSec.cards.card3.text' | translate }}
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div
+        class="group bg-stone-50 rounded-[32px] p-8 h-full min-h-[320px] flex flex-col transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
+      >
+        <div
+          class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6 transition duration-500 group-hover:scale-110 group-hover:rotate-3"
+        >
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+
+        <h3 class="text-2xl font-bold text-[#0B1F3B] mb-4 min-h-[64px]">
+          {{ 'aboutPage.offerSec.cards.card4.title' | translate }}
+        </h3>
+
+        <p class="text-gray-600 leading-relaxed flex-1">
+          {{ 'aboutPage.offerSec.cards.card4.text' | translate }}
+        </p>
+      </div>
+    </div>
+    <div class="relative md:hidden py-4 overflow-hidden" dir="ltr">
+      <div class="flex w-max gap-8 animate-scroll hover:[animation-play-state:paused]">
+        <!-- Card 1 -->
+        <div
+          class="group bg-stone-50 rounded-[32px] p-8 w-[320px] flex flex-col transition hover:-translate-y-2"
+        >
+          <div
+            class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6"
+          >
+            <i class="fa-solid fa-newspaper"></i>
+          </div>
+          <h3 class="text-xl font-bold text-[#0B1F3B] mb-3">
+            {{ 'aboutPage.offerSec.cards.card1.title' | translate }}
+          </h3>
+          <p class="text-gray-600">{{ 'aboutPage.offerSec.cards.card1.text' | translate }}</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div
+          class="group bg-stone-50 rounded-[32px] p-8 w-[320px] flex flex-col transition hover:-translate-y-2"
+        >
+          <div
+            class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6"
+          >
+            <i class="fa-regular fa-map"></i>
+          </div>
+          <h3 class="text-xl font-bold text-[#0B1F3B] mb-3">
+            {{ 'aboutPage.offerSec.cards.card2.title' | translate }}
+          </h3>
+          <p class="text-gray-600">{{ 'aboutPage.offerSec.cards.card2.text' | translate }}</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div
+          class="group bg-stone-50 rounded-[32px] p-8 w-[320px] flex flex-col transition hover:-translate-y-2"
+        >
+          <div
+            class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6"
+          >
+            <i class="fa-regular fa-lightbulb"></i>
+          </div>
+          <h3 class="text-xl font-bold text-[#0B1F3B] mb-3">
+            {{ 'aboutPage.offerSec.cards.card3.title' | translate }}
+          </h3>
+          <p class="text-gray-600">{{ 'aboutPage.offerSec.cards.card3.text' | translate }}</p>
+        </div>
+
+        <!-- Card 4 -->
+        <div
+          class="group bg-stone-50 rounded-[32px] p-8 w-[320px] flex flex-col transition hover:-translate-y-2"
+        >
+          <div
+            class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6"
+          >
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <h3 class="text-xl font-bold text-[#0B1F3B] mb-3">
+            {{ 'aboutPage.offerSec.cards.card4.title' | translate }}
+          </h3>
+          <p class="text-gray-600">{{ 'aboutPage.offerSec.cards.card4.text' | translate }}</p>
+        </div>
+
+        <!-- 🔁 duplicate for smooth loop -->
+        <div class="group bg-stone-50 rounded-[32px] p-8 w-[320px] flex flex-col">
+          <div
+            class="w-16 h-16 text-[#0B1F3B] rounded-2xl bg-[#d89d2e]/10 flex items-center justify-center text-3xl mb-6"
+          >
+            <i class="fa-solid fa-newspaper"></i>
+          </div>
+          <h3 class="text-xl font-bold text-[#0B1F3B] mb-3">
+            {{ 'aboutPage.offerSec.cards.card1.title' | translate }}
+          </h3>
+          <p class="text-gray-600">{{ 'aboutPage.offerSec.cards.card1.text' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

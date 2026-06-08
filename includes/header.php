@@ -63,14 +63,19 @@ $themeClass = ($settings['themeMode'] ?? 'light') === 'dark' ? 'theme-dark' : 't
     
     <!-- Dynamic SEO and Meta Output -->
     <?php SeoManager::renderMeta($pageType, $pageData); ?>
+
+    <!-- Preload Hero Image -->
+    <?php if (!empty($heroImageToPreload)): ?>
+    <link rel="preload" as="image" href="<?php echo e($heroImageToPreload); ?>">
+    <?php endif; ?>
     
     <!-- Dynamic Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="<?php echo $googleFontsUrl; ?>" rel="stylesheet">
 
-    <!-- Global CSS stylesheet -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/styles.css?v=<?php echo time(); ?>">
+    <!-- Dynamic CSS Minification Compiler with Caching -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/styles-min.php?v=<?php echo file_exists(PATH_ROOT . '/assets/css/styles.css') ? filemtime(PATH_ROOT . '/assets/css/styles.css') : time(); ?>">
 
     <!-- Dynamic Theme Styling Overrides -->
     <style id="dynamic-theme-overrides">
@@ -130,17 +135,6 @@ $themeClass = ($settings['themeMode'] ?? 'light') === 'dark' ? 'theme-dark' : 't
         }
         <?php endif; ?>
     </style>
-    
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "<?php echo e(t($settings, 'siteName')); ?>",
-      "url": "<?php echo BASE_URL; ?>/",
-      "inLanguage": "<?php echo $activeLang; ?>"
-    }
-    </script>
     
     <!-- Load accessibility configuration immediately to prevent theme FOUC -->
     <script src="<?php echo BASE_URL; ?>/assets/js/accessibility.js"></script>

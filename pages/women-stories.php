@@ -31,6 +31,10 @@ if (!empty($slug)) {
     // Custom SEO Meta for this Story
     $seoPageType = 'post';
     $seoPageData = $story;
+    $heroImageToPreload = !empty($cover) ? $cover : '/images/hero-bg.png';
+    if (!empty($heroImageToPreload) && !str_starts_with($heroImageToPreload, 'http') && !str_starts_with($heroImageToPreload, '//')) {
+        $heroImageToPreload = BASE_URL . $heroImageToPreload;
+    }
 
     require_once PATH_ROOT . '/includes/header.php';
     require_once PATH_ROOT . '/includes/navbar.php';

@@ -170,6 +170,8 @@ CREATE TABLE `site_settings` (
   `metaTitle_ar` VARCHAR(255) DEFAULT NULL,
   `metaDescription_en` TEXT DEFAULT NULL,
   `metaDescription_ar` TEXT DEFAULT NULL,
+  `metaKeywords_en` VARCHAR(255) DEFAULT NULL,
+  `metaKeywords_ar` VARCHAR(255) DEFAULT NULL,
   `ogImage` VARCHAR(255) DEFAULT NULL,
   `faviconUrl` VARCHAR(255) DEFAULT NULL,
   `primaryColor` VARCHAR(50) NOT NULL DEFAULT '#0F4C81',
@@ -216,6 +218,8 @@ CREATE TABLE `media` (
   `fileSize` INT NOT NULL,
   `width` INT DEFAULT NULL,
   `height` INT DEFAULT NULL,
+  `alt_text_en` VARCHAR(255) DEFAULT NULL,
+  `alt_text_ar` VARCHAR(255) DEFAULT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -306,8 +310,8 @@ CREATE TABLE `testimonials` (
 -- ==========================================
 
 -- Seed Site Settings
-INSERT INTO `site_settings` (`id`, `siteName_en`, `siteName_ar`, `logoUrl`, `heroBackgroundUrl_en`, `heroBackgroundUrl_ar`, `metaTitle_en`, `metaTitle_ar`, `metaDescription_en`, `metaDescription_ar`, `faviconUrl`, `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor`, `surfaceColor`, `borderColor`, `themeMode`, `fontFamily`, `fontFamilyBody`, `fontFamilyAr`, `fontFamilyArBody`, `fontSize`, `headingWeight`, `bodyWeight`, `letterSpacing`, `lineHeight`)
-VALUES (1, 'Young Over 60', 'شباب فوق الستين', NULL, '/images/hero-bg.png', '/images/hero-bg.png', 'Young Over 60 | Active Travel & Inspiration', 'شباب فوق الستين | سفر نشط وإلهام', 'Premium accessible travel guides, stories, and reviews tailored for active seniors and travelers over 60.', 'أدلة سفر متميزة ميسرة لذوي الاحتياجات الخاصة، وقصص ومراجعات مخصصة للمسافرين النشطين فوق الستين من العمر.', '/favicon.ico', '#0F4C81', '#1e3c5a', '#D4A75C', '#F8F6F2', '#1F1F1F', '#ffffff', 'rgba(0,0,0,0.05)', 'light', 'Outfit', 'Inter', 'Cairo', 'Cairo', '16px', '700', '400', 'normal', '1.8');
+INSERT INTO `site_settings` (`id`, `siteName_en`, `siteName_ar`, `logoUrl`, `heroBackgroundUrl_en`, `heroBackgroundUrl_ar`, `metaTitle_en`, `metaTitle_ar`, `metaDescription_en`, `metaDescription_ar`, `metaKeywords_en`, `metaKeywords_ar`, `faviconUrl`, `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor`, `surfaceColor`, `borderColor`, `themeMode`, `fontFamily`, `fontFamilyBody`, `fontFamilyAr`, `fontFamilyArBody`, `fontSize`, `headingWeight`, `bodyWeight`, `letterSpacing`, `lineHeight`)
+VALUES (1, 'Young Over 60', 'شباب فوق الستين', NULL, '/images/hero-bg.png', '/images/hero-bg.png', 'Young Over 60 | Active Travel & Inspiration', 'شباب فوق الستين | سفر نشط وإلهام', 'Premium accessible travel guides, stories, and reviews tailored for active seniors and travelers over 60.', 'أدلة سفر متميزة ميسرة لذوي الاحتياجات الخاصة، وقصص ومراجعات مخصصة للمسافرين النشطين فوق الستين من العمر.', 'travel, young, traveler, egypt, young over 60, active travel, senior travel, accessible travel, youngover60.com', 'السفر, الشباب, مسافر, مصر, شباب فوق الستين, السفر النشط, سفر كبار السن, السياحة الميسرة, youngover60.com', '/favicon.ico', '#0F4C81', '#1e3c5a', '#D4A75C', '#F8F6F2', '#1F1F1F', '#ffffff', 'rgba(0,0,0,0.05)', 'light', 'Outfit', 'Inter', 'Cairo', 'Cairo', '16px', '700', '400', 'normal', '1.8');
 
 -- Seed Admin User (password is bcrypt hashed version of 'Password123')
 INSERT INTO `users` (`id`, `email`, `password`, `name`, `bio`, `avatar`, `role`, `website`)
@@ -445,6 +449,8 @@ CREATE TABLE IF NOT EXISTS `custom_pages` (
   `meta_title_ar` VARCHAR(255) DEFAULT NULL,
   `meta_description_en` TEXT DEFAULT NULL,
   `meta_description_ar` TEXT DEFAULT NULL,
+  `canonical_url_en` VARCHAR(255) DEFAULT NULL,
+  `canonical_url_ar` VARCHAR(255) DEFAULT NULL,
   `featured_image` VARCHAR(255) DEFAULT NULL,
   `og_title_en` VARCHAR(255) DEFAULT NULL,
   `og_title_ar` VARCHAR(255) DEFAULT NULL,

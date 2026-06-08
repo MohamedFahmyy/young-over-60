@@ -97,6 +97,28 @@ try {
     error_log("Failed to fetch hero slides: " . $e->getMessage());
 }
 
+// Determine Hero Image to Preload (LCP Optimization)
+$heroImageToPreload = null;
+$heroMode = $settings['hero_mode'] ?? 'slider';
+if ($heroMode === 'video') {
+    $heroPoster = t($settings, 'heroBackgroundUrl') ?: ($settings['logoUrl'] ?? '/images/hero-bg.png');
+    if ($heroPoster) {
+        $heroImageToPreload = BASE_URL . $heroPoster;
+    }
+} elseif (!empty($slides)) {
+    $firstSlide = reset($slides);
+    $slideImg = t($firstSlide, 'image') ?: (!empty($firstSlide['image_en']) ? $firstSlide['image_en'] : '/images/hero-bg.png');
+    $isVideo = preg_match('/\.(mp4|webm|mov|ogg)$/i', $slideImg);
+    if (!$isVideo) {
+        $heroImageToPreload = BASE_URL . $slideImg;
+    }
+} else {
+    $fallbackPoster = t($settings, 'heroBackgroundUrl') ?: ($settings['logoUrl'] ?? '/images/hero-bg.png');
+    if ($fallbackPoster) {
+        $heroImageToPreload = BASE_URL . $fallbackPoster;
+    }
+}
+
 // Fetch Specific Needs Categories Dynamically
 $needsCategoriesList = [];
 $needsSlugs = ['physical-mobility', 'cruises', 'accommodation', 'gear', 'sensory-needs', 'tips-tricks'];
@@ -239,7 +261,7 @@ if ($heroMode === 'video' && !empty($heroVideo)):
                         <?php if (t($slide, 'subtitle') !== ''): ?>
                             <p class="hero-slide-subtitle"><?php echo e(t($slide, 'subtitle')); ?></p>
                         <?php endif; ?>
-                        <h1 class="hero-slide-title"><?php echo e(t($slide, 'title')); ?></h1>
+                        <<?php echo ($index === 0) ? 'h1' : 'h2'; ?> class="hero-slide-title"><?php echo e(t($slide, 'title')); ?></<?php echo ($index === 0) ? 'h1' : 'h2'; ?>>
                         <?php if (t($slide, 'button_text') !== '' && !empty($slide['button_link'])): ?>
                             <a href="<?php echo url($slide['button_link']); ?>" class="btn-primary hero-slide-btn" style="border-radius: 8px; margin-top: 1rem;">
                                 <?php echo e(t($slide, 'button_text')); ?>

@@ -211,11 +211,26 @@ if ($base === '' || $base === 'home') {
         header("HTTP/1.0 404 Not Found");
         echo json_encode(['success' => false, 'error' => 'API endpoint not found']);
     }
-} elseif ($route === 'sitemap.xml') {
-    // 4.11 Dynamic sitemap XML
-    require_once __DIR__ . '/sitemap.xml';
+} elseif ($route === 'sitemap.xml' || $route === 'sitemap-index.xml') {
+    // Dynamic sitemap index XML
+    require_once __DIR__ . '/sitemaps/index.php';
+} elseif ($route === 'sitemap-pages.xml') {
+    require_once __DIR__ . '/sitemaps/pages.php';
+} elseif ($route === 'sitemap-posts.xml') {
+    require_once __DIR__ . '/sitemaps/posts.php';
+} elseif ($route === 'sitemap-podcasts.xml') {
+    require_once __DIR__ . '/sitemaps/podcasts.php';
+} elseif ($route === 'sitemap-stories.xml') {
+    require_once __DIR__ . '/sitemaps/stories.php';
 } else {
-    // 4.12 Not Found Fallback
-    header("HTTP/1.0 404 Not Found");
-    require_once __DIR__ . '/pages/404.php';
+    // Before giving up with a 404, check if the clean route matches a root-level custom CMS page slug
+    $checkPage = $pageMgrGlobal->getPageBySlug($base);
+    if ($checkPage) {
+        $customPageSlug = $base;
+        require_once __DIR__ . '/pages/custom-page.php';
+    } else {
+        // 4.12 Not Found Fallback
+        header("HTTP/1.0 404 Not Found");
+        require_once __DIR__ . '/pages/404.php';
+    }
 }

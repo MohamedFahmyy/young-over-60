@@ -1,0 +1,111 @@
+<section class="relative overflow-hidden py-20 lg:py-15 bg-stone-50">
+  <!-- Background Effects -->
+  <div class="absolute top-0 left-0 w-72 h-72 bg-[#d89d2e]/10 rounded-full blur-3xl"></div>
+  <div class="absolute bottom-0 right-0 w-96 h-96 bg-[#0B1F3B]/5 rounded-full blur-3xl"></div>
+
+  <div class="absolute -top-10 z-0 -left-3 w-64 h-64 rounded-full bg-[#d89d2e]/10"></div>
+
+  <!-- Outline Circle -->
+  <div
+    class="absolute top-32 right-10 hidden md:block w-80 h-80 rounded-full border border-[#d89d2e]/80"
+  ></div>
+
+  <!-- Small Filled Circle -->
+  <div class="absolute -bottom-15 left-1/3 w-32 h-32 rounded-full bg-[#0B1F3B]/20"></div>
+
+  <!-- Large Outline Circle -->
+  <div
+    class="absolute -bottom-20 right-0 w-[450px] h-[450px] rounded-full border border-[#0B1F3B]/10"
+  ></div>
+
+  <!-- Medium Circle -->
+  <div
+    class="absolute top-1/2 left-90 -translate-y-1/2 w-44 h-44 rounded-full border-2 border-[#d89d2e]/20"
+  ></div>
+  <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 z-50 gap-16 items-center">
+    <!-- Content -->
+    <div>
+      <span
+        class="inline-flex items-center z-10 gap-3 uppercase tracking-[4px] text-sm font-medium text-[#d89d2e]"
+      >
+        {{ 'aboutPage.header.ourStory' | translate }}
+
+        <span class="w-10 h-[2px] bg-[#d89d2e]"></span>
+      </span>
+
+      <h1 class="mt-6 text-5xl z-10 md:text-6xl lg:text-7xl font-bold leading-tight text-[#0B1F3B]">
+        {{ 'aboutPage.header.titleLine1' | translate }}
+        <span class="italic text-[#d89d2e]">
+          {{ 'aboutPage.header.titleHighlight' | translate }}
+        </span>
+        <br />
+        {{ 'aboutPage.header.titleLine2' | translate }}
+      </h1>
+
+      <!-- Quote -->
+      <div class="mt-6 border-l-4 border-[#d89d2e] pl-5 text-lg italic text-gray-500">
+        {{ 'aboutPage.header.titleLine2' | translate }}
+      </div>
+
+      <p class="mt-8 text-lg hidden md:block text-gray-600 leading-relaxed max-w-xl">
+        {{ 'aboutPage.header.descriptionDesktop' | translate }}
+      </p>
+
+      <p class="mt-8 text-lg md:hidden text-gray-600 leading-relaxed max-w-xl">
+        {{ 'aboutPage.header.descriptionMobile' | translate }}
+      </p>
+
+      <!-- Buttons -->
+      <div class="flex flex-wrap gap-4 mt-10">
+        <a
+          href="#our-story"
+          class="group relative overflow-hidden px-8 py-4 transition-all duration-300 rounded-full bg-[#0B1F3B] hover:bg-[#122e58] hover:shadow-lg text-white font-medium"
+        >
+          <span class="relative z-10"> {{ 'aboutPage.header.ctaPrimary' | translate }} </span>
+        </a>
+
+        <a
+          href="#team"
+          class="px-8 py-4 rounded-full border border-gray-300 text-gray-700 hover:bg-white hover:shadow-lg transition duration-300"
+        >
+          {{ 'aboutPage.header.ctaSecondary' | translate }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Image Side -->
+    <div class="group relative flex justify-center">
+      <!-- SVG Frame -->
+      <svg
+        class="absolute -z-10 w-[115%] h-[115%] text-[#d89d2e] opacity-50 animate-[spin_40s_linear_infinite]"
+        viewBox="0 0 600 600"
+        fill="none"
+      >
+        <path
+          d="M140 50C260 -10 490 40 540 210C590 380 500 560 300 560C100 560 20 390 40 240C60 120 90 80 140 50Z"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-dasharray="10 10"
+        />
+      </svg>
+
+      <!-- Image -->
+      <div class="relative overflow-hidden rounded-[40px] shadow-2xl max-w-[520px]">
+        <img
+          src="/assets/images/about-header.jpeg"
+          alt="About Us"
+          class="w-full h-full object-cover transition duration-[2000ms] group-hover:scale-110"
+        />
+      </div>
+
+      <!-- Floating Card -->
+      <div
+        class="absolute -bottom-6 -left-6 bg-white rounded-3xl shadow-xl p-6 hidden md:block transition duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl"
+      >
+        <p class="text-sm text-gray-500">Stories Shared</p>
+
+        <h3 class="text-3xl font-bold text-[#0B1F3B]">500+</h3>
+      </div>
+    </div>
+  </div>
+</section>

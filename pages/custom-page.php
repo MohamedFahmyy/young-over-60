@@ -53,12 +53,12 @@ $featuredImage  = $page['featured_image'] ?? '';
 
 // SEO configuration for header
 $seoPageType = 'custom_page';
-$seoPageData = [
-    'title'       => $metaTitle,
-    'description' => $metaDesc,
-    'ogImage'     => $heroImage ?: $featuredImage,
-    'canonical'   => BASE_URL . '/' . ($lang !== 'en' ? $lang . '/' : '') . 'pages/' . $slug,
-];
+$seoPageData = $page;
+
+$heroImageToPreload = !empty($heroImage) ? $heroImage : (!empty($featuredImage) ? $featuredImage : null);
+if (!empty($heroImageToPreload) && !str_starts_with($heroImageToPreload, 'http') && !str_starts_with($heroImageToPreload, '//')) {
+    $heroImageToPreload = BASE_URL . $heroImageToPreload;
+}
 
 require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
