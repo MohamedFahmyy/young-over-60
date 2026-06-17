@@ -99,6 +99,7 @@ $remainingWords = implode(' ', array_slice($titleParts, 1));
                 <h4 class="footer-title"><?php echo __('footer_explore_title'); ?></h4>
                 <ul class="footer-links">
                     <li><a href="<?php echo url('news'); ?>" class="footer-link"><?php echo __('nav_news'); ?></a></li>
+                    <li><a href="<?php echo url('about'); ?>" class="footer-link"><?php echo ($activeLang === 'ar' ? 'عن الموقع' : 'About'); ?></a></li>
                     <li><a href="<?php echo url('accessibility'); ?>" class="footer-link"><?php echo __('nav_accessibility'); ?></a></li>
                     <li><a href="<?php echo url('contact'); ?>" class="footer-link"><?php echo __('nav_contact'); ?></a></li>
                     <li><a href="<?php echo url('admin/login'); ?>" class="footer-link"><?php echo __('btn_staff_login'); ?></a></li>

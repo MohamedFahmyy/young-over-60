@@ -65,7 +65,7 @@ class SeoManager {
             $urls['ar'] = BASE_URL . '/ar/pages/' . $slug_ar;
         } else {
             // Simple inner pages
-            $pages = ['destinations', 'experiences', 'news', 'accessibility', 'contact', 'podcasts'];
+            $pages = ['destinations', 'experiences', 'news', 'accessibility', 'contact', 'podcasts', 'about'];
             if (in_array($type, $pages)) {
                 $urls['en'] = BASE_URL . '/' . $type;
                 $urls['ar'] = BASE_URL . '/ar/' . $type;
@@ -147,6 +147,9 @@ class SeoManager {
         } elseif ($type === 'contact') {
             $title = 'Get In Touch | ' . $siteName;
             $description = 'Have a question or want to share your travel story? Contact the Young Over 60 team.';
+        } elseif ($type === 'about') {
+            $title = 'About Us — Beyond 60, Life Begins Again | ' . $siteName;
+            $description = 'Discover the story, vision, and people behind Young Over 60. We believe travel has no age limit and every journey is a chance to rediscover life.';
         } elseif ($type === 'accessibility') {
             $title = 'Accessibility Compliance & Tools | ' . $siteName;
             $description = 'Our commitment to accessibility. Use our custom accessibility widget to adjust font size, contrast, and layout.';
@@ -334,7 +337,8 @@ class SeoManager {
                     'news' => ($activeLang === 'ar' ? 'الأخبار' : 'News'),
                     'accessibility' => ($activeLang === 'ar' ? 'إمكانية الوصول' : 'Accessibility'),
                     'contact' => ($activeLang === 'ar' ? 'اتصل بنا' : 'Contact'),
-                    'podcasts' => ($activeLang === 'ar' ? 'البودكاست' : 'Podcasts')
+                    'podcasts' => ($activeLang === 'ar' ? 'البودكاست' : 'Podcasts'),
+                    'about' => ($activeLang === 'ar' ? 'عن الموقع' : 'About Us')
                 ];
                 $name = $pageTitles[$type] ?? (is_array($data) && isset($data['title']) ? $data['title'] : ($data['title_en'] ?? 'Page'));
                 $items[] = [

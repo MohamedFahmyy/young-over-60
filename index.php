@@ -108,6 +108,9 @@ if ($base === '' || $base === 'home') {
 } elseif ($base === 'contact') {
     // 4.6 Contact Page
     require_once __DIR__ . '/pages/contact.php';
+} elseif ($base === 'about') {
+    // 4.7 About Us Page
+    require_once __DIR__ . '/pages/about.php';
 } elseif ($base === 'podcasts') {
     // Podcasts Page
     require_once __DIR__ . '/pages/podcasts.php';

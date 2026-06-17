@@ -82,7 +82,7 @@ $seoPageType = 'admin';
 require_once PATH_ROOT . '/includes/header.php';
 ?>
 
-<<div class="admin-layout">
+<div class="admin-layout">
     <!-- Sidebar -->
     <?php require_once PATH_ROOT . '/includes/admin-sidebar.php'; ?>
 
@@ -535,7 +535,7 @@ require_once PATH_ROOT . '/includes/header.php';
                         'nav_show_contact'       => __('nav_contact'),
                     ];
                     foreach ($navItems as $key => $label):
-                        $isOn = ($settings[$key] ?? '1') === '1';
+                        $isOn = (int)($settings[$key] ?? 1) === 1;
                     ?>
                     <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: background 0.2s; background: var(--surface-color);" onmouseover="this.style.background='rgba(15,76,129,0.05)'" onmouseout="this.style.background='var(--surface-color)'">
                         <input type="checkbox" name="<?php echo $key; ?>" value="1" <?php echo $isOn ? 'checked' : ''; ?> style="width: 1rem; height: 1rem; accent-color: var(--primary-color); cursor: pointer;" />

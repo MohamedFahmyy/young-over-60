@@ -173,12 +173,47 @@ require_once PATH_ROOT . '/includes/header.php';
                             <button type="button" class="admin-tab-trigger" data-target="tab-content-ar">محتوى عربي</button>
                         </div>
                         <div id="tab-content-en" class="admin-tab-content active">
-                            <textarea id="content_en" name="content_en" rows="18" class="admin-form-textarea" placeholder="Write your page content in HTML or plain text..."><?php echo htmlspecialchars($_POST['content_en'] ?? ''); ?></textarea>
+                            <textarea id="content_en" name="content_en" style="display:none;"><?php echo htmlspecialchars($_POST['content_en'] ?? ''); ?></textarea>
+                            <div class="richtext-editor">
+                                <!-- Toolbar -->
+                                <div class="richtext-toolbar" data-editor="editorAreaEn">
+                                    <button type="button" class="richtext-btn" data-cmd="bold">B</button>
+                                    <button type="button" class="richtext-btn" data-cmd="italic" style="font-style: italic;">I</button>
+                                    <button type="button" class="richtext-btn" data-cmd="underline" style="text-decoration: underline;">U</button>
+                                    <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h2">H2</button>
+                                    <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h3">H3</button>
+                                    <button type="button" class="richtext-btn" data-cmd="createLink">Link</button>
+                                    <button type="button" class="richtext-btn" data-cmd="insertImage">Image</button>
+                                    <button type="button" class="richtext-btn" data-cmd="removeFormat">Clear</button>
+                                    <span class="upload-status" style="font-size: 0.75rem; color: #4f46e5; margin-left: 0.5rem; display: none; align-self: center;">Uploading...</span>
+                                </div>
+                                <!-- Contenteditable Area -->
+                                <div id="editorAreaEn" class="richtext-content" contenteditable="true" placeholder="Write page content in English..."><?php echo $_POST['content_en'] ?? ''; ?></div>
+                            </div>
+                            <input type="file" id="imageUploadEn" accept="image/*" style="display:none;" />
                         </div>
                         <div id="tab-content-ar" class="admin-tab-content" style="direction:rtl;">
-                            <textarea id="content_ar" name="content_ar" rows="18" class="admin-form-textarea" placeholder="اكتب محتوى الصفحة..." dir="rtl"><?php echo htmlspecialchars($_POST['content_ar'] ?? ''); ?></textarea>
+                            <textarea id="content_ar" name="content_ar" style="display:none;"><?php echo htmlspecialchars($_POST['content_ar'] ?? ''); ?></textarea>
+                            <div class="richtext-editor">
+                                <!-- Toolbar -->
+                                <div class="richtext-toolbar" data-editor="editorAreaAr">
+                                    <button type="button" class="richtext-btn" data-cmd="bold">B</button>
+                                    <button type="button" class="richtext-btn" data-cmd="italic" style="font-style: italic;">I</button>
+                                    <button type="button" class="richtext-btn" data-cmd="underline" style="text-decoration: underline;">U</button>
+                                    <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h2">H2</button>
+                                    <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h3">H3</button>
+                                    <button type="button" class="richtext-btn" data-cmd="createLink">Link</button>
+                                    <button type="button" class="richtext-btn" data-cmd="insertImage">Image</button>
+                                    <button type="button" class="richtext-btn" data-cmd="removeFormat">Clear</button>
+                                    <span class="upload-status" style="font-size: 0.75rem; color: #4f46e5; margin-right: 0.5rem; display: none; align-self: center;">جاري الرفع...</span>
+                                </div>
+                                <!-- Contenteditable Area -->
+                                <div id="editorAreaAr" class="richtext-content" contenteditable="true" placeholder="اكتب محتوى الصفحة..." style="direction: rtl;"><?php echo $_POST['content_ar'] ?? ''; ?></div>
+                            </div>
+                            <input type="file" id="imageUploadAr" accept="image/*" style="display:none;" />
                         </div>
                     </div>
+
 
                     <!-- Hero Section -->
                     <div class="admin-card-box" style="padding: 1.75rem;">
@@ -369,6 +404,180 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // --- Visual WYSIWYG Rich Text Editor Logic ---
+    let savedRange = null;
+
+    function saveSelection(editor) {
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            if (editor.contains(range.commonAncestorContainer)) {
+                savedRange = range;
+                return;
+            }
+        }
+        savedRange = null;
+    }
+
+    function restoreSelection() {
+        if (savedRange) {
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(savedRange);
+        }
+    }
+
+    // Command executor for toolbar buttons
+    const toolbars = document.querySelectorAll('.richtext-toolbar');
+    toolbars.forEach(tb => {
+        const editorId = tb.getAttribute('data-editor');
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+
+        // Save selection on keyup, mouseup, blur to stay updated
+        editor.addEventListener('keyup', () => saveSelection(editor));
+        editor.addEventListener('mouseup', () => saveSelection(editor));
+        editor.addEventListener('blur', () => saveSelection(editor));
+
+        tb.querySelectorAll('.richtext-btn').forEach(btn => {
+            btn.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent losing focus in contenteditable
+            });
+
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                editor.focus();
+                
+                // If we have a saved range, restore it before command execution
+                restoreSelection();
+
+                const cmd = this.getAttribute('data-cmd');
+                const val = this.getAttribute('data-val') || null;
+
+                if (cmd === 'createLink') {
+                    const url = prompt("Enter hyperlink URL (e.g. https://example.com):");
+                    if (url) {
+                        document.execCommand(cmd, false, url);
+                    }
+                } else if (cmd === 'formatBlock') {
+                    document.execCommand(cmd, false, `<${val}>`);
+                } else if (cmd === 'insertImage') {
+                    const uploadInputId = editorId === 'editorAreaEn' ? 'imageUploadEn' : 'imageUploadAr';
+                    const fileInput = document.getElementById(uploadInputId);
+                    if (fileInput) {
+                        saveSelection(editor);
+                        fileInput.click();
+                    }
+                } else {
+                    document.execCommand(cmd, false, val);
+                }
+                
+                // Save selection again after modification
+                saveSelection(editor);
+            });
+        });
+    });
+
+    // Image Upload AJAX Logic
+    ['En', 'Ar'].forEach(lang => {
+        const fileInput = document.getElementById('imageUpload' + lang);
+        const editor = document.getElementById('editorArea' + lang);
+        if (!fileInput || !editor) return;
+
+        const toolbar = editor.closest('.richtext-editor').querySelector('.richtext-toolbar');
+        const statusText = toolbar.querySelector('.upload-status');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length === 0) return;
+            const file = this.files[0];
+
+            if (statusText) {
+                statusText.textContent = lang === 'En' ? 'Uploading image...' : 'جاري الرفع...';
+                statusText.style.display = 'inline';
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('csrf_token', '<?php echo csrfToken(); ?>');
+
+            fetch('<?php echo BASE_URL; ?>/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    if (statusText) statusText.style.display = 'none';
+
+                    editor.focus();
+                    restoreSelection();
+
+                    const img = document.createElement('img');
+                    img.src = result.relativeUrl;
+                    img.alt = file.name || 'Uploaded Image';
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+                    img.className = 'content-img';
+
+                    const sel = window.getSelection();
+                    if (sel.rangeCount > 0) {
+                        const range = sel.getRangeAt(0);
+                        range.deleteContents();
+                        range.insertNode(img);
+
+                        // Move cursor after the image
+                        range.setStartAfter(img);
+                        range.setEndAfter(img);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    } else {
+                        editor.appendChild(img);
+                    }
+                    
+                    // Save selection at new cursor position
+                    saveSelection(editor);
+                } else {
+                    if (statusText) {
+                        statusText.textContent = 'Error: ' + (result.error || 'upload failed');
+                        setTimeout(() => { statusText.style.display = 'none'; }, 5000);
+                    } else {
+                        alert('Upload failed: ' + (result.error || 'Unknown error'));
+                    }
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                if (statusText) {
+                    statusText.textContent = lang === 'En' ? 'Connection error.' : 'خطأ في الاتصال.';
+                    setTimeout(() => { statusText.style.display = 'none'; }, 5000);
+                } else {
+                    alert('Connection error occurred.');
+                }
+            });
+
+            // Reset file input value to allow uploading the same file again
+            this.value = '';
+        });
+    });
+
+    // Form submission sync
+    const pageForm = document.getElementById('page-form');
+    if (pageForm) {
+        pageForm.addEventListener('submit', function() {
+            const editorEn = document.getElementById('editorAreaEn');
+            const textareaEn = document.getElementById('content_en');
+            if (editorEn && textareaEn) {
+                textareaEn.value = editorEn.innerHTML;
+            }
+
+            const editorAr = document.getElementById('editorAreaAr');
+            const textareaAr = document.getElementById('content_ar');
+            if (editorAr && textareaAr) {
+                textareaAr.value = editorAr.innerHTML;
+            }
+        });
+    }
 });
 </script>
 

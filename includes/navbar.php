@@ -173,17 +173,17 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($queryString ? $querySt
             <?php endforeach; ?>
             
             <!-- Core pages static routes (admin-controlled visibility) -->
-            <?php if (($settings['nav_show_podcasts'] ?? '1') === '1'): ?>
+            <?php if ((int)($settings['nav_show_podcasts'] ?? 1) === 1): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('podcasts'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_podcasts'); ?></a>
             </li>
             <?php endif; ?>
-            <?php if (($settings['nav_show_stories'] ?? '1') === '1'): ?>
+            <?php if ((int)($settings['nav_show_stories'] ?? 1) === 1): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('women-stories'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_stories'); ?></a>
             </li>
             <?php endif; ?>
-            <?php if (($settings['nav_show_news'] ?? '1') === '1'): ?>
+            <?php if ((int)($settings['nav_show_news'] ?? 1) === 1): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('news'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_news'); ?></a>
             </li>
@@ -203,12 +203,15 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($queryString ? $querySt
                 <a href="<?php echo url('pages/' . $menuSlug); ?>" class="nav-link" role="menuitem"><?php echo e($menuLabel); ?></a>
             </li>
             <?php endforeach; ?>
-            <?php if (($settings['nav_show_accessibility'] ?? '1') === '1'): ?>
+            <li class="nav-item" role="none">
+                <a href="<?php echo url('about'); ?>" class="nav-link" role="menuitem"><?php echo ($activeLang === 'ar' ? 'عن الموقع' : 'About'); ?></a>
+            </li>
+            <?php if ((int)($settings['nav_show_accessibility'] ?? 1) === 1): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('accessibility'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_accessibility'); ?></a>
             </li>
             <?php endif; ?>
-            <?php if (($settings['nav_show_contact'] ?? '1') === '1'): ?>
+            <?php if ((int)($settings['nav_show_contact'] ?? 1) === 1): ?>
             <li class="nav-item" role="none">
                 <a href="<?php echo url('contact'); ?>" class="nav-link" role="menuitem"><?php echo __('nav_contact'); ?></a>
             </li>
@@ -279,17 +282,17 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($queryString ? $querySt
         <?php endforeach; ?>
         
         <!-- Core pages (admin-controlled visibility) -->
-        <?php if (($settings['nav_show_podcasts'] ?? '1') === '1'): ?>
+        <?php if ((int)($settings['nav_show_podcasts'] ?? 1) === 1): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('podcasts'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_podcasts'); ?></a>
         </li>
         <?php endif; ?>
-        <?php if (($settings['nav_show_stories'] ?? '1') === '1'): ?>
+        <?php if ((int)($settings['nav_show_stories'] ?? 1) === 1): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('women-stories'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_stories'); ?></a>
         </li>
         <?php endif; ?>
-        <?php if (($settings['nav_show_news'] ?? '1') === '1'): ?>
+        <?php if ((int)($settings['nav_show_news'] ?? 1) === 1): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('news'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_news'); ?></a>
         </li>
@@ -305,12 +308,15 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($queryString ? $querySt
             <a href="<?php echo url('pages/' . $mMenuSlug); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo e($mMenuLabel); ?></a>
         </li>
         <?php endforeach; endif; ?>
-        <?php if (($settings['nav_show_accessibility'] ?? '1') === '1'): ?>
+        <li class="mobile-nav-item">
+            <a href="<?php echo url('about'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo ($activeLang === 'ar' ? 'عن الموقع' : 'About'); ?></a>
+        </li>
+        <?php if ((int)($settings['nav_show_accessibility'] ?? 1) === 1): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('accessibility'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_accessibility'); ?></a>
         </li>
         <?php endif; ?>
-        <?php if (($settings['nav_show_contact'] ?? '1') === '1'): ?>
+        <?php if ((int)($settings['nav_show_contact'] ?? 1) === 1): ?>
         <li class="mobile-nav-item">
             <a href="<?php echo url('contact'); ?>" class="mobile-sub-link" style="font-weight:900;"><?php echo __('nav_contact'); ?></a>
         </li>
