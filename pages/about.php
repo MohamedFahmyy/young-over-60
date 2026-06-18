@@ -4,6 +4,55 @@
 
 $seoPageType = 'about';
 
+// Load about-page content from site_settings (populated by admin/about-page.php)
+// Merge with defaults so the page works before the migration has run.
+$_rawSettings = $pm->getSiteSettings();
+$abt = array_merge([
+    'about_hero_label'              => 'Our Story',
+    'about_hero_heading_line1'      => 'Beyond',
+    'about_hero_heading_accent'     => ' 60,',
+    'about_hero_heading_line2'      => 'Life Begins Again.',
+    'about_hero_quote'              => 'Life Begins Again.',
+    'about_hero_desc'               => 'The stories, people, and passion behind a community that believes every new chapter can become the greatest adventure yet. We celebrate curiosity, connection, and meaningful journeys at every stage of life.',
+    'about_hero_desc_mobile'        => 'A community celebrating curiosity, connection, and meaningful journeys at every stage of life.',
+    'about_hero_btn1_text'          => 'Discover Our Story →',
+    'about_hero_btn2_text'          => 'Meet The Team',
+    'about_hero_badge_label'        => 'Stories Shared',
+    'about_hero_badge_number'       => '500+',
+    'about_hero_image'              => '/assets/images/about-header.jpeg',
+    'about_vision_label'            => 'About Young Over 60',
+    'about_vision_heading'          => 'Travel Has',
+    'about_vision_heading_accent'   => 'No Age Limit',
+    'about_vision_quote'            => 'Beyond 60, life begins again.',
+    'about_vision_card1_title'      => 'Young Over 60',
+    'about_vision_card1_text1'      => 'We believe that travel is neither a luxury nor a privilege reserved for a specific age group. It is a fundamental right for everyone, regardless of age or physical ability.',
+    'about_vision_card1_text2'      => 'Travel opens windows to the world\'s beauty, creates connections between cultures, and contributes to both mental and physical wellbeing.',
+    'about_vision_card2_title'      => 'Our Vision: Travel Without Boundaries',
+    'about_vision_card2_text1'      => 'We strive to make travel accessible, comfortable, and enjoyable for everyone over 60 and for individuals with special needs.',
+    'about_vision_card2_text2'      => 'Our mission is to challenge outdated stereotypes and prove that adventure, curiosity, and exploration have no expiration date.',
+    'about_stat1_number'            => '60+',
+    'about_stat1_desc'              => 'Celebrating life beyond traditional limits.',
+    'about_stat2_number'            => '∞',
+    'about_stat2_desc'              => 'Endless opportunities to discover the world.',
+    'about_stat3_number'            => '100%',
+    'about_stat3_desc'              => 'Dedicated to accessible and inclusive travel.',
+    'about_phili_label'             => 'Our Philosophy',
+    'about_phili_heading'           => 'Life Begins',
+    'about_phili_heading_accent'    => 'After 60',
+    'about_phili_quote'             => 'True youth lives in a curious mind and an adventurous spirit.',
+    'about_phili_text1'             => 'We reject the idea of reducing a person to the number on their passport. Sixty is not the end of the road—it is a new beginning, filled with opportunities for discovery, growth, and unforgettable experiences.',
+    'about_phili_text2'             => 'We believe that true youth is not measured by age, but by the ability to remain curious, open-minded, and eager to explore the world.',
+    'about_phili_text3'             => 'At Young Over 60, every traveller has a story worth telling and every journey is a chance to rediscover life. The world is far too beautiful to be viewed only from a window, and your right to travel never expires.',
+    'about_founder_name'            => 'Zakaria Dawoud',
+    'about_founder_role'            => 'Founder & Project CEO',
+    'about_founder_linkedin'        => 'https://www.linkedin.com/in/zakaria-dawoud-26902b180?utm_source=share_via&utm_content=profile&utm_medium=member_android',
+    'about_founder_quote'           => 'Beyond 60, life begins again. This project was built to prove that travel has no age limit.',
+    'about_founder_image'           => '/assets/images/founder.jpeg',
+    'about_contact_heading'         => "Let's Build Something",
+    'about_contact_heading_accent'  => 'Meaningful',
+    'about_contact_desc'            => 'Whether you have a question, collaboration idea, or just want to say hello — feel free to reach out.',
+], $_rawSettings ?? []);
+
 require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
 ?>
@@ -25,35 +74,33 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <!-- Left: Text -->
         <div class="about-hero-text">
             <span class="about-label">
-                Our Story
+                <?php echo e($abt['about_hero_label']); ?>
                 <span class="about-label-line"></span>
             </span>
 
             <h1 class="about-hero-heading">
-                Beyond
-                <span class="about-heading-accent italic"> 60,</span><br>
-                Life Begins Again.
+                <?php echo e($abt['about_hero_heading_line1']); ?>
+                <span class="about-heading-accent italic"><?php echo e($abt['about_hero_heading_accent']); ?></span><br>
+                <?php echo e($abt['about_hero_heading_line2']); ?>
             </h1>
 
             <div class="about-hero-quote">
-                Life Begins Again.
+                <?php echo e($abt['about_hero_quote']); ?>
             </div>
 
             <p class="about-hero-desc desktop-only">
-                The stories, people, and passion behind a community that believes every new chapter can
-                become the greatest adventure yet. We celebrate curiosity, connection, and meaningful
-                journeys at every stage of life.
+                <?php echo e($abt['about_hero_desc']); ?>
             </p>
             <p class="about-hero-desc mobile-only">
-                A community celebrating curiosity, connection, and meaningful journeys at every stage of life.
+                <?php echo e($abt['about_hero_desc_mobile']); ?>
             </p>
 
             <div class="about-hero-cta-row">
                 <a href="#our-story" class="about-btn-primary">
-                    Discover Our Story →
+                    <?php echo e($abt['about_hero_btn1_text']); ?>
                 </a>
                 <a href="#team" class="about-btn-outline">
-                    Meet The Team
+                    <?php echo e($abt['about_hero_btn2_text']); ?>
                 </a>
             </div>
         </div>
@@ -72,7 +119,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
             <div class="about-hero-photo-frame">
                 <img
-                    src="<?php echo BASE_URL; ?>/assets/images/about-header.jpeg"
+                    src="<?php echo BASE_URL . e($abt['about_hero_image']); ?>"
                     alt="About Young Over 60"
                     class="about-hero-photo"
                     loading="eager"
@@ -81,8 +128,8 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
             <!-- Floating badge -->
             <div class="about-hero-badge desktop-only">
-                <p class="about-hero-badge-label">Stories Shared</p>
-                <h3 class="about-hero-badge-number">500+</h3>
+                <p class="about-hero-badge-label"><?php echo e($abt['about_hero_badge_label']); ?></p>
+                <h3 class="about-hero-badge-number"><?php echo e($abt['about_hero_badge_number']); ?></h3>
             </div>
         </div>
     </div>
@@ -100,15 +147,15 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <!-- Header -->
         <div class="about-vision-header">
             <span class="about-label">
-                About Young Over 60
+                <?php echo e($abt['about_vision_label']); ?>
                 <span class="about-label-line"></span>
             </span>
             <h2 class="about-section-heading">
-                Travel Has
-                <span class="about-heading-accent italic"> No Age Limit</span>
+                <?php echo e($abt['about_vision_heading']); ?>
+                <span class="about-heading-accent italic"> <?php echo e($abt['about_vision_heading_accent']); ?></span>
             </h2>
             <p class="about-vision-quote">
-                Beyond 60, life begins again.
+                <?php echo e($abt['about_vision_quote']); ?>
             </p>
         </div>
 
@@ -117,39 +164,23 @@ require_once PATH_ROOT . '/includes/navbar.php';
             <!-- Left: Cards -->
             <div class="about-vision-cards">
                 <div class="about-vision-card about-vision-card--light">
-                    <h3 class="about-vision-card-title">Young Over 60</h3>
-                    <p class="about-vision-card-text desktop-only">
-                        We believe that travel is neither a luxury nor a privilege reserved for a specific age group.
-                        It is a fundamental right for everyone, regardless of age or physical ability.
+                    <h3 class="about-vision-card-title"><?php echo e($abt['about_vision_card1_title']); ?></h3>
+                    <p class="about-vision-card-text">
+                        <?php echo e($abt['about_vision_card1_text1']); ?>
                     </p>
-                    <p class="about-vision-card-text mobile-only">
-                        Travel is for everyone, regardless of age or ability.
-                    </p>
-                    <p class="about-vision-card-text desktop-only" style="margin-top:1.25rem;">
-                        Travel opens windows to the world's beauty, creates connections between cultures,
-                        and contributes to both mental and physical wellbeing.
-                    </p>
-                    <p class="about-vision-card-text mobile-only" style="margin-top:1.25rem;">
-                        Travel connects cultures and supports wellbeing.
+                    <p class="about-vision-card-text" style="margin-top:1.25rem;">
+                        <?php echo e($abt['about_vision_card1_text2']); ?>
                     </p>
                 </div>
 
                 <div class="about-vision-card about-vision-card--dark">
                     <div class="about-vision-card-ring"></div>
-                    <h3 class="about-vision-card-title">Our Vision: Travel Without Boundaries</h3>
-                    <p class="about-vision-card-subtext desktop-only">
-                        We strive to make travel accessible, comfortable, and enjoyable for everyone over 60
-                        and for individuals with special needs.
+                    <h3 class="about-vision-card-title"><?php echo e($abt['about_vision_card2_title']); ?></h3>
+                    <p class="about-vision-card-subtext">
+                        <?php echo e($abt['about_vision_card2_text1']); ?>
                     </p>
-                    <p class="about-vision-card-subtext mobile-only" style="font-size:.875rem;font-weight:500;">
-                        Making travel easy and enjoyable for seniors and people with special needs.
-                    </p>
-                    <p class="about-vision-card-subtext desktop-only" style="margin-top:1.25rem;">
-                        Our mission is to challenge outdated stereotypes and prove that adventure, curiosity,
-                        and exploration have no expiration date.
-                    </p>
-                    <p class="about-vision-card-subtext mobile-only" style="font-size:.875rem;font-weight:500;">
-                        Adventure and exploration have no age limit.
+                    <p class="about-vision-card-subtext" style="margin-top:1.25rem;">
+                        <?php echo e($abt['about_vision_card2_text2']); ?>
                     </p>
                 </div>
             </div>
@@ -157,16 +188,16 @@ require_once PATH_ROOT . '/includes/navbar.php';
             <!-- Right: Stats -->
             <div class="about-stats-col">
                 <div class="about-stat-card">
-                    <h4 class="about-stat-number about-stat-number--gold">60+</h4>
-                    <p class="about-stat-desc">Celebrating life beyond traditional limits.</p>
+                    <h4 class="about-stat-number about-stat-number--gold"><?php echo e($abt['about_stat1_number']); ?></h4>
+                    <p class="about-stat-desc"><?php echo e($abt['about_stat1_desc']); ?></p>
                 </div>
                 <div class="about-stat-card">
-                    <h4 class="about-stat-number about-stat-number--navy">∞</h4>
-                    <p class="about-stat-desc">Endless opportunities to discover the world.</p>
+                    <h4 class="about-stat-number about-stat-number--navy"><?php echo e($abt['about_stat2_number']); ?></h4>
+                    <p class="about-stat-desc"><?php echo e($abt['about_stat2_desc']); ?></p>
                 </div>
                 <div class="about-stat-card">
-                    <h4 class="about-stat-number about-stat-number--gold">100%</h4>
-                    <p class="about-stat-desc">Dedicated to accessible and inclusive travel.</p>
+                    <h4 class="about-stat-number about-stat-number--gold"><?php echo e($abt['about_stat3_number']); ?></h4>
+                    <p class="about-stat-desc"><?php echo e($abt['about_stat3_desc']); ?></p>
                 </div>
             </div>
         </div>
@@ -266,44 +297,36 @@ require_once PATH_ROOT . '/includes/navbar.php';
     <div class="about-phili-inner">
         <!-- Left -->
         <div class="about-phili-left">
-            <span class="about-label">Our Philosophy</span>
+            <span class="about-label"><?php echo e($abt['about_phili_label']); ?></span>
             <h2 class="about-section-heading">
-                Life Begins
-                <span class="about-heading-accent italic"> After 60</span>
+                <?php echo e($abt['about_phili_heading']); ?>
+                <span class="about-heading-accent italic"> <?php echo e($abt['about_phili_heading_accent']); ?></span>
             </h2>
             <div class="about-phili-divider"></div>
             <blockquote class="about-phili-quote">
-                True youth lives in a curious mind and an adventurous spirit.
+                <?php echo e($abt['about_phili_quote']); ?>
             </blockquote>
         </div>
 
         <!-- Right -->
         <div class="about-phili-right">
-            <p class="about-phili-text desktop-only">
-                We reject the idea of reducing a person to the number on their passport. Sixty is not the
-                end of the road—it is a new beginning, filled with opportunities for discovery, growth, and
-                unforgettable experiences.
+            <?php if (!empty($abt['about_phili_text1'])): ?>
+            <p class="about-phili-text">
+                <?php echo e($abt['about_phili_text1']); ?>
             </p>
-            <p class="about-phili-text mobile-only">
-                Age is just a number—60 is a new beginning full of discovery and growth.
-            </p>
+            <?php endif; ?>
 
-            <p class="about-phili-text desktop-only">
-                We believe that true youth is not measured by age, but by the ability to remain curious,
-                open-minded, and eager to explore the world.
+            <?php if (!empty($abt['about_phili_text2'])): ?>
+            <p class="about-phili-text">
+                <?php echo e($abt['about_phili_text2']); ?>
             </p>
-            <p class="about-phili-text mobile-only">
-                True youth is curiosity, openness, and a desire to explore the world.
-            </p>
+            <?php endif; ?>
 
-            <p class="about-phili-text desktop-only">
-                At Young Over 60, every traveller has a story worth telling and every journey is a chance
-                to rediscover life. The world is far too beautiful to be viewed only from a window, and
-                your right to travel never expires.
+            <?php if (!empty($abt['about_phili_text3'])): ?>
+            <p class="about-phili-text">
+                <?php echo e($abt['about_phili_text3']); ?>
             </p>
-            <p class="about-phili-text mobile-only">
-                Every journey is a chance to rediscover life—your right to travel never expires.
-            </p>
+            <?php endif; ?>
 
             <div class="about-phili-cta">
                 <span class="about-phili-cta-line"></span>
@@ -326,14 +349,11 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <div class="about-contact-header">
             <span class="about-label">Get In Touch</span>
             <h2 class="about-section-heading">
-                Let's Build Something
-                <span class="about-heading-accent italic"> Meaningful</span>
+                <?php echo e($abt['about_contact_heading']); ?>
+                <span class="about-heading-accent italic"> <?php echo e($abt['about_contact_heading_accent']); ?></span>
             </h2>
-            <p class="about-contact-desc desktop-only">
-                Whether you have a question, collaboration idea, or just want to say hello — feel free to reach out.
-            </p>
-            <p class="about-contact-desc mobile-only">
-                Have a question or idea? Feel free to reach out.
+            <p class="about-contact-desc">
+                <?php echo e($abt['about_contact_desc']); ?>
             </p>
         </div>
 
@@ -341,7 +361,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <div class="about-contact-grid">
             <!-- Founder Card -->
             <a
-                href="https://www.linkedin.com/in/zakaria-dawoud-26902b180?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+                href="<?php echo e($abt['about_founder_linkedin']); ?>"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="about-founder-card"
@@ -349,15 +369,15 @@ require_once PATH_ROOT . '/includes/navbar.php';
                 <div class="about-founder-card-top">
                     <div class="about-founder-img-wrap">
                         <img
-                            src="<?php echo BASE_URL; ?>/assets/images/founder.jpeg"
-                            alt="Zakaria Dawoud - Founder"
+                            src="<?php echo BASE_URL . e($abt['about_founder_image']); ?>"
+                            alt="<?php echo e($abt['about_founder_name']); ?> - Founder"
                             class="about-founder-img"
                             loading="lazy"
                         />
                     </div>
                     <div class="about-founder-info">
-                        <h3 class="about-founder-name">Zakaria Dawoud</h3>
-                        <p class="about-founder-role">Founder &amp; Project CEO</p>
+                        <h3 class="about-founder-name"><?php echo e($abt['about_founder_name']); ?></h3>
+                        <p class="about-founder-role"><?php echo e($abt['about_founder_role']); ?></p>
                         <div class="about-founder-cta">
                             <span>View on LinkedIn</span>
                             <span class="about-founder-arrow">→</span>
@@ -365,7 +385,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     </div>
                 </div>
                 <p class="about-founder-quote">
-                    Beyond 60, life begins again. This project was built to prove that travel has no age limit.
+                    <?php echo e($abt['about_founder_quote']); ?>
                 </p>
             </a>
 

@@ -187,6 +187,12 @@ if ($base === '' || $base === 'home') {
         Auth::requireAdmin();
         $_GET['id'] = $parts[2] ?? '';
         require_once __DIR__ . '/admin/edit-page.php';
+    } elseif ($action === 'about-page') {
+        Auth::requireAdmin();
+        require_once __DIR__ . '/admin/about-page.php';
+    } elseif ($action === 'reset-db') {
+        Auth::requireAdmin();
+        require_once __DIR__ . '/admin/reset-db.php';
     } else {
         header("HTTP/1.0 404 Not Found");
         require_once __DIR__ . '/pages/404.php';

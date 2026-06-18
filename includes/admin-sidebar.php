@@ -80,6 +80,11 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($query_string ? $query_
             </a>
         </li>
         <li>
+            <a href="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/about-page" class="admin-nav-link <?php echo str_contains($route, 'admin/about-page') ? 'active' : ''; ?>">
+                About Page
+            </a>
+        </li>
+        <li>
             <a href="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/media" class="admin-nav-link <?php echo str_contains($route, 'admin/media') ? 'active' : ''; ?>">
                 <?php echo __('admin_media_manager'); ?>
             </a>
