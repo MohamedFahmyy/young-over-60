@@ -206,6 +206,50 @@ CREATE TABLE `site_settings` (
   `hero_video_btn_text_en` VARCHAR(255) DEFAULT NULL,
   `hero_video_btn_text_ar` VARCHAR(255) DEFAULT NULL,
   `hero_video_btn_link` VARCHAR(255) DEFAULT NULL,
+  -- About Page Content
+  `about_hero_label`             VARCHAR(255) DEFAULT 'Our Story',
+  `about_hero_heading_line1`     VARCHAR(255) DEFAULT 'Beyond',
+  `about_hero_heading_accent`    VARCHAR(255) DEFAULT ' 60,',
+  `about_hero_heading_line2`     VARCHAR(255) DEFAULT 'Life Begins Again.',
+  `about_hero_quote`             VARCHAR(500) DEFAULT 'Life Begins Again.',
+  `about_hero_desc`              TEXT DEFAULT NULL,
+  `about_hero_desc_mobile`       TEXT DEFAULT NULL,
+  `about_hero_btn1_text`         VARCHAR(255) DEFAULT 'Discover Our Story →',
+  `about_hero_btn2_text`         VARCHAR(255) DEFAULT 'Meet The Team',
+  `about_hero_badge_label`       VARCHAR(255) DEFAULT 'Stories Shared',
+  `about_hero_badge_number`      VARCHAR(50)  DEFAULT '500+',
+  `about_hero_image`             VARCHAR(500) DEFAULT '/assets/images/about-header.jpeg',
+  `about_vision_label`           VARCHAR(255) DEFAULT 'About Young Over 60',
+  `about_vision_heading`         VARCHAR(255) DEFAULT 'Travel Has',
+  `about_vision_heading_accent`  VARCHAR(255) DEFAULT 'No Age Limit',
+  `about_vision_quote`           VARCHAR(500) DEFAULT 'Beyond 60, life begins again.',
+  `about_vision_card1_title`     VARCHAR(255) DEFAULT 'Young Over 60',
+  `about_vision_card1_text1`     TEXT DEFAULT NULL,
+  `about_vision_card1_text2`     TEXT DEFAULT NULL,
+  `about_vision_card2_title`     VARCHAR(255) DEFAULT 'Our Vision: Travel Without Boundaries',
+  `about_vision_card2_text1`     TEXT DEFAULT NULL,
+  `about_vision_card2_text2`     TEXT DEFAULT NULL,
+  `about_stat1_number`           VARCHAR(50)  DEFAULT '60+',
+  `about_stat1_desc`             VARCHAR(255) DEFAULT 'Celebrating life beyond traditional limits.',
+  `about_stat2_number`           VARCHAR(50)  DEFAULT '∞',
+  `about_stat2_desc`             VARCHAR(255) DEFAULT 'Endless opportunities to discover the world.',
+  `about_stat3_number`           VARCHAR(50)  DEFAULT '100%',
+  `about_stat3_desc`             VARCHAR(255) DEFAULT 'Dedicated to accessible and inclusive travel.',
+  `about_phili_label`            VARCHAR(255) DEFAULT 'Our Philosophy',
+  `about_phili_heading`          VARCHAR(255) DEFAULT 'Life Begins',
+  `about_phili_heading_accent`   VARCHAR(255) DEFAULT 'After 60',
+  `about_phili_quote`            VARCHAR(500) DEFAULT 'True youth lives in a curious mind and an adventurous spirit.',
+  `about_phili_text1`            TEXT DEFAULT NULL,
+  `about_phili_text2`            TEXT DEFAULT NULL,
+  `about_phili_text3`            TEXT DEFAULT NULL,
+  `about_founder_name`           VARCHAR(255) DEFAULT 'Zakaria Dawoud',
+  `about_founder_role`           VARCHAR(255) DEFAULT 'Founder & Project CEO',
+  `about_founder_linkedin`       VARCHAR(500) DEFAULT 'https://www.linkedin.com/in/zakaria-dawoud-26902b180',
+  `about_founder_quote`          TEXT DEFAULT NULL,
+  `about_founder_image`          VARCHAR(500) DEFAULT '/assets/images/founder.jpeg',
+  `about_contact_heading`        VARCHAR(255) DEFAULT 'Let''s Build Something',
+  `about_contact_heading_accent` VARCHAR(255) DEFAULT 'Meaningful',
+  `about_contact_desc`           TEXT DEFAULT NULL,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -310,8 +354,48 @@ CREATE TABLE `testimonials` (
 -- ==========================================
 
 -- Seed Site Settings
-INSERT INTO `site_settings` (`id`, `siteName_en`, `siteName_ar`, `logoUrl`, `heroBackgroundUrl_en`, `heroBackgroundUrl_ar`, `metaTitle_en`, `metaTitle_ar`, `metaDescription_en`, `metaDescription_ar`, `metaKeywords_en`, `metaKeywords_ar`, `faviconUrl`, `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor`, `surfaceColor`, `borderColor`, `themeMode`, `fontFamily`, `fontFamilyBody`, `fontFamilyAr`, `fontFamilyArBody`, `fontSize`, `headingWeight`, `bodyWeight`, `letterSpacing`, `lineHeight`)
-VALUES (1, 'Young Over 60', 'شباب فوق الستين', NULL, '/images/hero-bg.png', '/images/hero-bg.png', 'Young Over 60 | Active Travel & Inspiration', 'شباب فوق الستين | سفر نشط وإلهام', 'Premium accessible travel guides, stories, and reviews tailored for active seniors and travelers over 60.', 'أدلة سفر متميزة ميسرة لذوي الاحتياجات الخاصة، وقصص ومراجعات مخصصة للمسافرين النشطين فوق الستين من العمر.', 'travel, young, traveler, egypt, young over 60, active travel, senior travel, accessible travel, youngover60.com', 'السفر, الشباب, مسافر, مصر, شباب فوق الستين, السفر النشط, سفر كبار السن, السياحة الميسرة, youngover60.com', '/favicon.ico', '#0F4C81', '#1e3c5a', '#D4A75C', '#F8F6F2', '#1F1F1F', '#ffffff', 'rgba(0,0,0,0.05)', 'light', 'Outfit', 'Inter', 'Cairo', 'Cairo', '16px', '700', '400', 'normal', '1.8');
+INSERT INTO `site_settings` (
+  `id`, `siteName_en`, `siteName_ar`, `logoUrl`, `heroBackgroundUrl_en`, `heroBackgroundUrl_ar`, 
+  `metaTitle_en`, `metaTitle_ar`, `metaDescription_en`, `metaDescription_ar`, `metaKeywords_en`, `metaKeywords_ar`, 
+  `faviconUrl`, `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor`, `surfaceColor`, `borderColor`, 
+  `themeMode`, `fontFamily`, `fontFamilyBody`, `fontFamilyAr`, `fontFamilyArBody`, `fontSize`, `headingWeight`, `bodyWeight`, `letterSpacing`, `lineHeight`,
+  `about_hero_label`, `about_hero_heading_line1`, `about_hero_heading_accent`, `about_hero_heading_line2`, `about_hero_quote`, 
+  `about_hero_desc`, `about_hero_desc_mobile`, `about_hero_btn1_text`, `about_hero_btn2_text`, `about_hero_badge_label`, `about_hero_badge_number`, `about_hero_image`, 
+  `about_vision_label`, `about_vision_heading`, `about_vision_heading_accent`, `about_vision_quote`, 
+  `about_vision_card1_title`, `about_vision_card1_text1`, `about_vision_card1_text2`, 
+  `about_vision_card2_title`, `about_vision_card2_text1`, `about_vision_card2_text2`, 
+  `about_stat1_number`, `about_stat1_desc`, `about_stat2_number`, `about_stat2_desc`, `about_stat3_number`, `about_stat3_desc`, 
+  `about_phili_label`, `about_phili_heading`, `about_phili_heading_accent`, `about_phili_quote`, `about_phili_text1`, `about_phili_text2`, `about_phili_text3`, 
+  `about_founder_name`, `about_founder_role`, `about_founder_linkedin`, `about_founder_quote`, `about_founder_image`, 
+  `about_contact_heading`, `about_contact_heading_accent`, `about_contact_desc`
+) VALUES (
+  1, 'Young Over 60', 'شباب فوق الستين', NULL, '/images/hero-bg.png', '/images/hero-bg.png', 
+  'Young Over 60 | Active Travel & Inspiration', 'شباب فوق الستين | سفر نشط وإلهام', 
+  'Premium accessible travel guides, stories, and reviews tailored for active seniors and travelers over 60.', 
+  'أدلة سفر متميزة ميسرة لذوي الاحتياجات الخاصة، وقصص ومراجعات مخصصة للمسافرين النشطين فوق الستين من العمر.', 
+  'travel, young, traveler, egypt, young over 60, active travel, senior travel, accessible travel, youngover60.com', 
+  'السفر, الشباب, مسافر, مصر, شباب فوق الستين, السفر النشط, سفر كبار السن, السياحة الميسرة, youngover60.com', 
+  '/favicon.ico', '#0F4C81', '#1e3c5a', '#D4A75C', '#F8F6F2', '#1F1F1F', '#ffffff', 'rgba(0,0,0,0.05)', 
+  'light', 'Outfit', 'Inter', 'Cairo', 'Cairo', '16px', '700', '400', 'normal', '1.8',
+  'Our Story', 'Beyond', ' 60,', 'Life Begins Again.', 'Life Begins Again.', 
+  'The stories, people, and passion behind a community that believes every new chapter can become the greatest adventure yet. We celebrate curiosity, connection, and meaningful journeys at every stage of life.', 
+  'A community celebrating curiosity, connection, and meaningful journeys at every stage of life.', 
+  'Discover Our Story →', 'Meet The Team', 'Stories Shared', '500+', '/assets/images/about-header.jpeg', 
+  'About Young Over 60', 'Travel Has', 'No Age Limit', 'Beyond 60, life begins again.', 
+  'Young Over 60', 'We believe that travel is neither a luxury nor a privilege reserved for a specific age group. It is a fundamental right for everyone, regardless of age or physical ability.', 
+  'Travel opens windows to the world\'s beauty, creates connections between cultures, and contributes to both mental and physical wellbeing.', 
+  'Our Vision: Travel Without Boundaries', 'We strive to make travel accessible, comfortable, and enjoyable for everyone over 60 and for individuals with special needs.', 
+  'Our mission is to challenge outdated stereotypes and prove that adventure, curiosity, and exploration have no expiration date.', 
+  '60+', 'Celebrating life beyond traditional limits.', '∞', 'Endless opportunities to discover the world.', '100%', 'Dedicated to accessible and inclusive travel.', 
+  'Our Philosophy', 'Life Begins', 'After 60', 'True youth lives in a curious mind and an adventurous spirit.', 
+  'We reject the idea of reducing a person to the number on their passport. Sixty is not the end of the road—it is a new beginning, filled with opportunities for discovery, growth, and unforgettable experiences.', 
+  'We believe that true youth is not measured by age, but by the ability to remain curious, open-minded, and eager to explore the world.', 
+  'At Young Over 60, every traveller has a story worth telling and every journey is a chance to rediscover life. The world is far too beautiful to be viewed only from a window, and your right to travel never expires.', 
+  'Zakaria Dawoud', 'Founder & Project CEO', 'https://www.linkedin.com/in/zakaria-dawoud-26902b180', 
+  'Beyond 60, life begins again. This project was built to prove that travel has no age limit.', '/assets/images/founder.jpeg', 
+  'Let\'s Build Something', 'Meaningful', 'Whether you have a question, collaboration idea, or just want to say hello — feel free to reach out.'
+);
+
 
 -- Seed Admin User (password is bcrypt hashed version of 'Password123')
 INSERT INTO `users` (`id`, `email`, `password`, `name`, `bio`, `avatar`, `role`, `website`)

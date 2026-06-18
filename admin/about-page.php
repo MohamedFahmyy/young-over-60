@@ -583,9 +583,9 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch('<?php echo BASE_URL; ?>/api/upload', { method: 'POST', body: fd })
                 .then(function(r) { return r.json(); })
                 .then(function(res) {
-                    if (res.success && res.url) {
-                        urlInput.value = res.url;
-                        previewEl.src  = '<?php echo BASE_URL; ?>' + res.url;
+                    if (res.success && res.relativeUrl) {
+                        urlInput.value = res.relativeUrl;
+                        previewEl.src  = '<?php echo BASE_URL; ?>' + res.relativeUrl;
                         previewEl.style.display = 'inline-block';
                         statusEl.textContent = '✓ Uploaded!';
                         setTimeout(function() { statusEl.style.display = 'none'; }, 2500);
