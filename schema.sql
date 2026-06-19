@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS `podcasts`;
 DROP TABLE IF EXISTS `women_stories`;
 DROP TABLE IF EXISTS `hero_slides`;
 DROP TABLE IF EXISTS `testimonials`;
+DROP TABLE IF EXISTS `team_members`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 1. Users Table
@@ -348,6 +349,23 @@ CREATE TABLE `testimonials` (
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 16. Team Members Table
+CREATE TABLE `team_members` (
+  `id` VARCHAR(36) PRIMARY KEY,
+  `name_en` VARCHAR(255) NOT NULL,
+  `name_ar` VARCHAR(255) DEFAULT NULL,
+  `role_en` VARCHAR(255) NOT NULL,
+  `role_ar` VARCHAR(255) DEFAULT NULL,
+  `bio_en` TEXT DEFAULT NULL,
+  `bio_ar` TEXT DEFAULT NULL,
+  `image` VARCHAR(255) DEFAULT NULL,
+  `linkedin_url` VARCHAR(255) DEFAULT NULL,
+  `display_order` INT NOT NULL DEFAULT 0,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- ==========================================
 -- SEED DATA
@@ -501,6 +519,11 @@ INSERT INTO `women_stories` (`id`, `title_en`, `title_ar`, `slug_en`, `slug_ar`,
 INSERT INTO `testimonials` (`id`, `quote_en`, `quote_ar`, `author_en`, `author_ar`, `role_en`, `role_ar`, `image`) VALUES
 ('test-1', 'Young Over 60 transformed the way I travel. Their detailed reports on wheelchair accessibility in historic sites let me explore Giza with total confidence.', 'لقد غيّر موقع شباب فوق الستين طريقتي في السفر بالكامل. تقاريرهم الدقيقة والمفصلة حول سهولة حركة الكراسي المتحركة في المواقع الأثرية مكنتني من زيارة الجيزة بثقة تامة.', 'Sarah Jenkins', 'سارة جينكينز', 'Active Adventurer, UK', 'مغامرة نشطة، بريطانيا', '/uploads/admin-avatar.png'),
 ('test-2', 'Finally, a luxury travel portal that treats accessibility as a core editorial theme rather than an afterthought. The recommendations are spot on!', 'أخيراً، بوابة سفر فاخرة تتعامل مع سهولة الوصول كفكرة تحريرية محورية وجوهرية وليست كفكرة ثانوية طارئة. توصياتهم في غاية الدقة!', 'Amina Mansour', 'أمينة منصور', 'Sensory Explorer, Egypt', 'مستكشفة حسية، مصر', '/uploads/admin-avatar.png');
+
+-- Seed Team Members
+INSERT INTO `team_members` (`id`, `name_en`, `name_ar`, `role_en`, `role_ar`, `bio_en`, `bio_ar`, `image`, `linkedin_url`, `display_order`, `is_active`) VALUES
+('member-1', 'John Doe', 'جون دو', 'Lead Accessibility Guide', 'مرشد إمكانية الوصول الرائد', 'Passionate about structural and spatial accessibility, John maps and evaluates tourist destinations globally.', 'متحمس لإمكانية الوصول الهيكلية والمكانية، يقوم جون برسم الخرائط وتقييم الوجهات السياحية على مستوى العالم.', '/assets/images/founder.jpeg', 'https://www.linkedin.com/', 1, 1),
+('member-2', 'Jane Smith', 'جين سميث', 'Content Strategist', 'مخطط محتوى سياحي', 'A travel writer with 10+ years of experience, specializing in senior-friendly destinations and health advice.', 'كاتبة سفر تتمتع بخبرة تزيد عن 10 سنوات، متخصصة في الوجهات المناسبة لكبار السن والنصائح الصحية.', '/assets/images/founder.jpeg', 'https://www.linkedin.com/', 2, 1);
 
 -- ==========================================================================
 -- CUSTOM PAGES CMS SCHEMAS & SEEDS

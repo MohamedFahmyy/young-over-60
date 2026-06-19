@@ -41,6 +41,23 @@ class Database {
                 $this->pdo->exec("ALTER TABLE `media` ADD COLUMN `alt_text_en` VARCHAR(255) DEFAULT NULL AFTER `height`");
                 $this->pdo->exec("ALTER TABLE `media` ADD COLUMN `alt_text_ar` VARCHAR(255) DEFAULT NULL AFTER `alt_text_en`");
             }
+
+            // 4. team_members table self-healing migration
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS `team_members` (
+              `id` VARCHAR(36) PRIMARY KEY,
+              `name_en` VARCHAR(255) NOT NULL,
+              `name_ar` VARCHAR(255) DEFAULT NULL,
+              `role_en` VARCHAR(255) NOT NULL,
+              `role_ar` VARCHAR(255) DEFAULT NULL,
+              `bio_en` TEXT DEFAULT NULL,
+              `bio_ar` TEXT DEFAULT NULL,
+              `image` VARCHAR(255) DEFAULT NULL,
+              `linkedin_url` VARCHAR(255) DEFAULT NULL,
+              `display_order` INT NOT NULL DEFAULT 0,
+              `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+              `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         } catch (PDOException $e) {
             // In production, log this error rather than printing it directly
             die("Database Connection Failure: " . $e->getMessage());

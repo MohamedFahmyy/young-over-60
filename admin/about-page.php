@@ -5,51 +5,152 @@
 $error   = null;
 $success = null;
 
-// Handle POST — save about page content
+if (isset($_GET['success'])) {
+    $success = urldecode($_GET['success']);
+}
+if (isset($_GET['error'])) {
+    $error = urldecode($_GET['error']);
+}
+
+$teamMgr = new TeamManager();
+
+// Handle GET actions (delete / toggle status)
+if (isset($_GET['action'])) {
+    $action = $_GET['action'];
+    $token = $_GET['csrf_token'] ?? '';
+    
+    if (verifyCsrf($token)) {
+        if ($action === 'delete_member') {
+            $id = $_GET['id'] ?? '';
+            if ($teamMgr->deleteTeamMember($id)) {
+                $success = 'Team member deleted successfully!';
+                header("Location: " . BASE_URL . $lang_prefix_url . "/admin/about-page?tab=team&success=" . urlencode($success));
+                exit();
+            } else {
+                $error = 'Failed to delete team member.';
+            }
+        } elseif ($action === 'toggle_active') {
+            $id = $_GET['id'] ?? '';
+            $member = $teamMgr->getTeamMemberById($id);
+            if ($member) {
+                $member['is_active'] = $member['is_active'] ? 0 : 1;
+                if ($teamMgr->updateTeamMember($id, $member)) {
+                    $success = 'Status updated successfully!';
+                    header("Location: " . BASE_URL . $lang_prefix_url . "/admin/about-page?tab=team&success=" . urlencode($success));
+                    exit();
+                }
+            }
+            $error = 'Failed to toggle status.';
+        }
+    } else {
+        $error = 'Security check failed (CSRF).';
+    }
+}
+
+// Handle POST — save about page content & team members
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         Auth::requireCsrf();
+        
+        $action = $_POST['action'] ?? 'save_settings';
 
-        $db = Database::getInstance()->getConnection();
+        if ($action === 'add_team_member') {
+            $data = [
+                'name_en'       => $_POST['name_en'] ?? '',
+                'name_ar'       => $_POST['name_ar'] ?? null,
+                'role_en'       => $_POST['role_en'] ?? '',
+                'role_ar'       => $_POST['role_ar'] ?? null,
+                'bio_en'        => $_POST['bio_en'] ?? null,
+                'bio_ar'        => $_POST['bio_ar'] ?? null,
+                'image'         => $_POST['image'] ?? null,
+                'linkedin_url'  => $_POST['linkedin_url'] ?? null,
+                'display_order' => isset($_POST['display_order']) ? (int)$_POST['display_order'] : 0,
+                'is_active'     => isset($_POST['is_active']) ? 1 : 0
+            ];
 
-        // Build SET clauses dynamically from the about_ columns we expect
-        $fields = [
-            // Hero
-            'about_hero_label', 'about_hero_heading_line1', 'about_hero_heading_accent',
-            'about_hero_heading_line2', 'about_hero_quote', 'about_hero_desc',
-            'about_hero_desc_mobile', 'about_hero_btn1_text', 'about_hero_btn2_text',
-            'about_hero_badge_label', 'about_hero_badge_number', 'about_hero_image',
-            // Vision
-            'about_vision_label', 'about_vision_heading', 'about_vision_heading_accent',
-            'about_vision_quote',
-            'about_vision_card1_title', 'about_vision_card1_text1', 'about_vision_card1_text2',
-            'about_vision_card2_title', 'about_vision_card2_text1', 'about_vision_card2_text2',
-            'about_stat1_number', 'about_stat1_desc',
-            'about_stat2_number', 'about_stat2_desc',
-            'about_stat3_number', 'about_stat3_desc',
-            // Philosophy
-            'about_phili_label', 'about_phili_heading', 'about_phili_heading_accent',
-            'about_phili_quote', 'about_phili_text1', 'about_phili_text2', 'about_phili_text3',
-            // Founder / Contact
-            'about_founder_name', 'about_founder_role', 'about_founder_linkedin',
-            'about_founder_quote', 'about_founder_image',
-            'about_contact_heading', 'about_contact_heading_accent', 'about_contact_desc',
-        ];
+            if ($teamMgr->createTeamMember($data)) {
+                $success = 'Team member added successfully!';
+                header("Location: " . BASE_URL . $lang_prefix_url . "/admin/about-page?tab=team&success=" . urlencode($success));
+                exit();
+            } else {
+                $error = 'Failed to add team member.';
+            }
+        } elseif ($action === 'edit_team_member') {
+            $id = $_POST['id'] ?? '';
+            $data = [
+                'name_en'       => $_POST['name_en'] ?? '',
+                'name_ar'       => $_POST['name_ar'] ?? null,
+                'role_en'       => $_POST['role_en'] ?? '',
+                'role_ar'       => $_POST['role_ar'] ?? null,
+                'bio_en'        => $_POST['bio_en'] ?? null,
+                'bio_ar'        => $_POST['bio_ar'] ?? null,
+                'image'         => $_POST['image'] ?? null,
+                'linkedin_url'  => $_POST['linkedin_url'] ?? null,
+                'display_order' => isset($_POST['display_order']) ? (int)$_POST['display_order'] : 0,
+                'is_active'     => isset($_POST['is_active']) ? 1 : 0
+            ];
 
-        $setParts = [];
-        $binds    = [];
-        foreach ($fields as $f) {
-            $setParts[] = "`$f` = :$f";
-            $binds[":$f"] = isset($_POST[$f]) ? trim($_POST[$f]) : null;
-        }
-
-        $sql  = 'UPDATE `site_settings` SET ' . implode(', ', $setParts) . ' WHERE id = 1';
-        $stmt = $db->prepare($sql);
-        if ($stmt->execute($binds)) {
-            $pm->clearCache();
-            $success = 'About page content saved successfully!';
+            if ($teamMgr->updateTeamMember($id, $data)) {
+                $success = 'Team member updated successfully!';
+                header("Location: " . BASE_URL . $lang_prefix_url . "/admin/about-page?tab=team&success=" . urlencode($success));
+                exit();
+            } else {
+                $error = 'Failed to update team member.';
+            }
+        } elseif ($action === 'reorder_team') {
+            // Handle AJAX reorder
+            header("Content-Type: application/json; charset=UTF-8");
+            $raw = file_get_contents('php://input');
+            $payload = json_decode($raw, true);
+            $orders = $payload['orders'] ?? [];
+            if ($teamMgr->updateOrder($orders)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Database error']);
+            }
+            exit();
         } else {
-            $error = 'Failed to save settings — please try again.';
+            $db = Database::getInstance()->getConnection();
+
+            // Build SET clauses dynamically from the about_ columns we expect
+            $fields = [
+                // Hero
+                'about_hero_label', 'about_hero_heading_line1', 'about_hero_heading_accent',
+                'about_hero_heading_line2', 'about_hero_quote', 'about_hero_desc',
+                'about_hero_desc_mobile', 'about_hero_btn1_text', 'about_hero_btn2_text',
+                'about_hero_badge_label', 'about_hero_badge_number', 'about_hero_image',
+                // Vision
+                'about_vision_label', 'about_vision_heading', 'about_vision_heading_accent',
+                'about_vision_quote',
+                'about_vision_card1_title', 'about_vision_card1_text1', 'about_vision_card1_text2',
+                'about_vision_card2_title', 'about_vision_card2_text1', 'about_vision_card2_text2',
+                'about_stat1_number', 'about_stat1_desc',
+                'about_stat2_number', 'about_stat2_desc',
+                'about_stat3_number', 'about_stat3_desc',
+                // Philosophy
+                'about_phili_label', 'about_phili_heading', 'about_phili_heading_accent',
+                'about_phili_quote', 'about_phili_text1', 'about_phili_text2', 'about_phili_text3',
+                // Founder / Contact
+                'about_founder_name', 'about_founder_role', 'about_founder_linkedin',
+                'about_founder_quote', 'about_founder_image',
+                'about_contact_heading', 'about_contact_heading_accent', 'about_contact_desc',
+            ];
+
+            $setParts = [];
+            $binds    = [];
+            foreach ($fields as $f) {
+                $setParts[] = "`$f` = :$f";
+                $binds[":$f"] = isset($_POST[$f]) ? trim($_POST[$f]) : null;
+            }
+
+            $sql  = 'UPDATE `site_settings` SET ' . implode(', ', $setParts) . ' WHERE id = 1';
+            $stmt = $db->prepare($sql);
+            if ($stmt->execute($binds)) {
+                $pm->clearCache();
+                $success = 'About page content saved successfully!';
+            } else {
+                $error = 'Failed to save settings — please try again.';
+            }
         }
     } catch (Exception $e) {
         $error = 'Error: ' . $e->getMessage();
@@ -58,6 +159,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Load current about content
 $settings = $pm->getSiteSettings();
+$teamMembers = $teamMgr->getTeamMembers(true); // true to get inactive as well
+
+$editMemberItem = null;
+if (isset($_GET['edit_member_id'])) {
+    $editMemberItem = $teamMgr->getTeamMemberById($_GET['edit_member_id']);
+}
 
 // Fallback defaults if columns don't exist yet (before migration runs)
 $abt = array_merge([
@@ -157,6 +264,7 @@ require_once PATH_ROOT . '/includes/header.php';
             <button class="admin-tab-trigger" data-target="tab-vision">Vision / Story</button>
             <button class="admin-tab-trigger" data-target="tab-philosophy">Philosophy</button>
             <button class="admin-tab-trigger" data-target="tab-founder">Founder &amp; Contact</button>
+            <button class="admin-tab-trigger" data-target="tab-team">Team Members</button>
         </div>
 
         <form id="aboutForm" action="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/about-page" method="POST">
@@ -523,10 +631,209 @@ require_once PATH_ROOT . '/includes/header.php';
             </div>
 
         </form><!-- /aboutForm -->
+
+        <!-- ══════════════════════════════════════════
+             TAB 5: TEAM MEMBERS SECTION
+        ══════════════════════════════════════════ -->
+        <div id="tab-team" class="admin-tab-content">
+            <div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:2rem; align-items:start;" class="admin-team-grid-container">
+                
+                <!-- Left: Members List Table -->
+                <div class="admin-card-box" style="margin:0; padding:2rem;">
+                    <h3 style="font-size:1.1rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+                        <span>Active Team Members</span>
+                        <span style="font-size:0.75rem; color:#888;">Drag ☰ handle to reorder</span>
+                    </h3>
+                    
+                    <div class="admin-table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;"></th>
+                                    <th style="width: 60px;">Photo</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th style="width: 80px;">Status</th>
+                                    <th style="width: 140px; text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sortableTeamList">
+                                <?php if (!empty($teamMembers)): ?>
+                                    <?php foreach ($teamMembers as $member): 
+                                        $photo = !empty($member['image']) ? $member['image'] : '/assets/images/founder.jpeg';
+                                        $toggleUrl = BASE_URL . $lang_prefix_url . '/admin/about-page?action=toggle_active&id=' . $member['id'] . '&csrf_token=' . csrfToken();
+                                        $deleteUrl = BASE_URL . $lang_prefix_url . '/admin/about-page?action=delete_member&id=' . $member['id'] . '&csrf_token=' . csrfToken();
+                                        $editUrl = BASE_URL . $lang_prefix_url . '/admin/about-page?tab=team&edit_member_id=' . $member['id'];
+                                        ?>
+                                        <tr draggable="true" data-id="<?php echo $member['id']; ?>" class="sortable-team-row">
+                                            <td class="drag-handle" style="cursor: grab; color: #ccc; font-size: 1.2rem; text-align: center;">☰</td>
+                                            <td>
+                                                <img src="<?php echo e(BASE_URL . $photo); ?>" alt="" style="width: 45px; height: 45px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;" />
+                                            </td>
+                                            <td>
+                                                <strong><?php echo e($member['name_en']); ?></strong>
+                                                <?php if (!empty($member['name_ar'])): ?>
+                                                    <br><span style="font-size: 0.75rem; color: #888;"><?php echo e($member['name_ar']); ?></span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <span style="font-size: 0.85rem;"><?php echo e($member['role_en']); ?></span>
+                                                <?php if (!empty($member['role_ar'])): ?>
+                                                    <br><span style="font-size: 0.75rem; color: #888;"><?php echo e($member['role_ar']); ?></span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <a href="<?php echo $toggleUrl; ?>" class="status-badge <?php echo $member['is_active'] ? 'published' : 'draft'; ?>" style="text-decoration:none; cursor:pointer;">
+                                                    <?php echo $member['is_active'] ? 'Active' : 'Inactive'; ?>
+                                                </a>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <div class="btn-actions" style="display:inline-flex; gap:0.5rem;">
+                                                    <a href="<?php echo $editUrl; ?>" class="btn-sm-action">Edit</a>
+                                                    <a href="<?php echo $deleteUrl; ?>" onclick="return confirmDeleteTeamMember(event, '<?php echo $deleteUrl; ?>');" class="btn-sm-action delete">Delete</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; color: #999; padding: 3rem 0; font-style: italic;">
+                                            No team members added yet. Add one on the right!
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right: Add / Edit Form -->
+                <div class="admin-card-box" style="margin:0; padding:2rem;">
+                    <?php if ($editMemberItem): ?>
+                        <h3 style="font-size:1.1rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+                            <span>Edit Team Member</span>
+                            <a href="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/about-page?tab=team" style="font-size:0.75rem; text-decoration:none; color:var(--primary-color);">Cancel Edit</a>
+                        </h3>
+                        <form action="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/about-page?tab=team" method="POST">
+                            <?php echo Auth::csrfInput(); ?>
+                            <input type="hidden" name="action" value="edit_team_member" />
+                            <input type="hidden" name="id" value="<?php echo e($editMemberItem['id']); ?>" />
+                    <?php else: ?>
+                        <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">Add New Team Member</h3>
+                        <form action="<?php echo BASE_URL . $lang_prefix_url; ?>/admin/about-page?tab=team" method="POST">
+                            <?php echo Auth::csrfInput(); ?>
+                            <input type="hidden" name="action" value="add_team_member" />
+                    <?php endif; ?>
+
+                        <div class="admin-form-group">
+                            <label>Name (English) <span style="color:red;">*</span></label>
+                            <input type="text" name="name_en" value="<?php echo e($editMemberItem ? $editMemberItem['name_en'] : ''); ?>" class="admin-form-input" required />
+                        </div>
+
+                        <div class="admin-form-group" style="margin-top:1rem;">
+                            <label>Name (Arabic)</label>
+                            <input type="text" name="name_ar" value="<?php echo e($editMemberItem ? $editMemberItem['name_ar'] : ''); ?>" class="admin-form-input" style="direction:rtl;" />
+                        </div>
+
+                        <div class="admin-form-group" style="margin-top:1rem;">
+                            <label>Role / Job Title (English) <span style="color:red;">*</span></label>
+                            <input type="text" name="role_en" value="<?php echo e($editMemberItem ? $editMemberItem['role_en'] : ''); ?>" class="admin-form-input" required />
+                        </div>
+
+                        <div class="admin-form-group" style="margin-top:1rem;">
+                            <label>Role / Job Title (Arabic)</label>
+                            <input type="text" name="role_ar" value="<?php echo e($editMemberItem ? $editMemberItem['role_ar'] : ''); ?>" class="admin-form-input" style="direction:rtl;" />
+                        </div>
+
+                        <div class="admin-form-group" style="margin-top:1rem;">
+                            <label>Bio (English)</label>
+                            <textarea name="bio_en" rows="3" class="admin-form-textarea"><?php echo e($editMemberItem ? $editMemberItem['bio_en'] : ''); ?></textarea>
+                        </div>
+
+                        <div class="admin-form-group" style="margin-top:1rem;">
+                            <label>Bio (Arabic)</label>
+                            <textarea name="bio_ar" rows="3" class="admin-form-textarea" style="direction:rtl;"><?php echo e($editMemberItem ? $editMemberItem['bio_ar'] : ''); ?></textarea>
+                        </div>
+
+                        <div class="admin-form-group" style="margin-top:1rem;">
+                            <label>LinkedIn Profile URL</label>
+                            <input type="url" name="linkedin_url" value="<?php echo e($editMemberItem ? $editMemberItem['linkedin_url'] : ''); ?>" class="admin-form-input" placeholder="https://linkedin.com/in/..." />
+                        </div>
+
+                        <div class="admin-form-group" style="margin-top:1rem;">
+                            <label>Display Order</label>
+                            <input type="number" name="display_order" value="<?php echo e($editMemberItem ? $editMemberItem['display_order'] : '0'); ?>" class="admin-form-input" />
+                        </div>
+
+                        <div class="admin-form-group" style="margin-top:1rem; display:flex; flex-direction:row; align-items:center; gap:0.5rem;">
+                            <input type="checkbox" name="is_active" value="1" <?php echo (!$editMemberItem || $editMemberItem['is_active']) ? 'checked' : ''; ?> style="width:18px; height:18px; margin:0;" id="member-active" />
+                            <label for="member-active" style="margin:0;">Active (Show on About page)</label>
+                        </div>
+
+                        <!-- Photo selector with dropzone -->
+                        <div class="admin-form-group" style="margin-top:1.5rem;">
+                            <label>Member Photo</label>
+                            <input type="text" id="member_image" name="image" value="<?php echo e($editMemberItem ? $editMemberItem['image'] : ''); ?>" class="admin-form-input" placeholder="/uploads/..." />
+                            
+                            <div id="memberImgDropzone" class="image-upload-preview-box"
+                                 style="margin-top:0.75rem; border:1px dashed var(--accent-color); padding:1.5rem 1rem; border-radius:8px; text-align:center; cursor:pointer; transition:var(--transition-smooth);">
+                                <p style="font-size:0.7rem; color:#777; margin:0;">Click or drag to upload photo</p>
+                                <span style="font-size:0.55rem; color:#999; display:block; margin-top:0.25rem;">JPG, PNG, WebP (Max 3MB)</span>
+                                <input type="file" id="memberImgFileSelector" accept="image/*" style="display:none;"/>
+                                <div id="memberImgStatus" style="font-size:0.65rem; color:var(--primary-color); margin-top:0.5rem; display:none;">Uploading...</div>
+                                <img id="memberImgPreview"
+                                     src="<?php echo ($editMemberItem && !empty($editMemberItem['image'])) ? BASE_URL . $editMemberItem['image'] : ''; ?>"
+                                     style="display:<?php echo ($editMemberItem && !empty($editMemberItem['image'])) ? 'inline-block' : 'none'; ?>; max-height:150px; max-width:100%; object-fit:cover; margin-top:1rem; border-radius:8px;"/>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="margin-top:2rem; width:100%; border-radius:8px;">
+                            <?php echo $editMemberItem ? '💾 Update Team Member' : '➕ Add Team Member'; ?>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Deletion Confirmation Modal -->
+        <div id="customDeleteModal" class="custom-admin-modal" style="display:none; position:fixed; z-index:10000; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+            <div class="admin-card-box" style="width:100%; max-width:400px; margin:0; padding:2rem; text-align:center;">
+                <div style="font-size:3rem; color:#ef4444; margin-bottom:1rem;">⚠️</div>
+                <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:1rem;">Delete Team Member</h3>
+                <p style="color:#666; font-size:0.875rem; margin-bottom:2rem; line-height:1.5;">Are you sure you want to permanently delete this team member? This action cannot be undone.</p>
+                <div style="display:flex; gap:1rem; justify-content:center;">
+                    <button id="cancelDeleteBtn" class="btn-outline" style="padding:0.75rem 1.5rem; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer;">Cancel</button>
+                    <a id="confirmDeleteLink" href="#" class="btn-primary" style="padding:0.75rem 1.5rem; border-radius:8px; background:#ef4444; color:#fff; text-decoration:none; display:inline-block; font-weight:bold;">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+
     </main>
 </div>
 
 <script>
+// Custom Deletion Confirmation Modal Handler
+function confirmDeleteTeamMember(event, deleteUrl) {
+    event.preventDefault();
+    const modal = document.getElementById('customDeleteModal');
+    const confirmBtn = document.getElementById('confirmDeleteLink');
+    const cancelBtn = document.getElementById('cancelDeleteBtn');
+    
+    confirmBtn.href = deleteUrl;
+    modal.style.display = 'flex';
+    
+    cancelBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+    
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+    return false;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // ── Tab switching ────────────────────────────────
     const triggers = document.querySelectorAll('.admin-tab-trigger');
@@ -537,8 +844,24 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             const panel = document.getElementById(this.getAttribute('data-target'));
             if (panel) panel.classList.add('active');
+            
+            // Update URL parameter without reload
+            const tabName = this.getAttribute('data-target').replace('tab-', '');
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.replaceState({}, '', url);
         });
     });
+
+    // Auto-select tab from URL query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTabParam = urlParams.get('tab');
+    if (activeTabParam) {
+        const trigger = document.querySelector(`.admin-tab-trigger[data-target="tab-${activeTabParam}"]`);
+        if (trigger) {
+            trigger.click();
+        }
+    }
 
     // ── Generic image uploader helper ────────────────
     function setupImageUpload(dropzoneId, fileSelectorId, statusId, previewId, urlInputId) {
@@ -572,6 +895,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function uploadFile(file) {
             if (!file) return;
+
+            // Type validation
+            if (!file.type.match('image.*')) {
+                statusEl.style.display = 'block';
+                statusEl.textContent = '✗ Only image files (JPG, PNG, WebP) are allowed!';
+                return;
+            }
+
             statusEl.style.display = 'block';
             statusEl.textContent   = 'Uploading...';
 
@@ -603,8 +934,79 @@ document.addEventListener('DOMContentLoaded', function() {
     setupImageUpload('heroImgDropzone', 'heroImgFileSelector', 'heroImgStatus', 'heroImgPreview', 'about_hero_image');
     // Setup Founder photo
     setupImageUpload('founderImgDropzone', 'founderImgFileSelector', 'founderImgStatus', 'founderImgPreview', 'about_founder_image');
+    // Setup Member photo
+    setupImageUpload('memberImgDropzone', 'memberImgFileSelector', 'memberImgStatus', 'memberImgPreview', 'member_image');
+
+    // ── Team members drag and drop reordering ──
+    const teamList = document.getElementById('sortableTeamList');
+    if (teamList) {
+        let dragEl = null;
+
+        teamList.addEventListener('dragstart', function(e) {
+            dragEl = e.target.closest('tr');
+            if (dragEl) {
+                dragEl.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            }
+        });
+
+        teamList.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const target = e.target.closest('tr');
+            if (target && target !== dragEl && target.classList.contains('sortable-team-row')) {
+                const rect = target.getBoundingClientRect();
+                const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+                teamList.insertBefore(dragEl, next ? target.nextSibling : target);
+            }
+        });
+
+        teamList.addEventListener('dragend', function() {
+            if (dragEl) {
+                dragEl.classList.remove('dragging');
+                saveTeamOrder();
+            }
+        });
+
+        function saveTeamOrder() {
+            const rows = teamList.querySelectorAll('.sortable-team-row');
+            const orders = {};
+            rows.forEach((row, index) => {
+                orders[row.getAttribute('data-id')] = index + 1;
+            });
+
+            fetch('<?php echo BASE_URL . $lang_prefix_url; ?>/admin/about-page', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': '<?php echo csrfToken(); ?>'
+                },
+                body: JSON.stringify({
+                    action: 'reorder_team',
+                    orders: orders
+                })
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (!result.success) {
+                    alert('Failed to save team member order: ' + result.error);
+                }
+            })
+            .catch(err => {
+                console.error('Reorder network error', err);
+            });
+        }
+    }
 });
 </script>
+
+<style>
+.sortable-team-row.dragging {
+    opacity: 0.4;
+    background-color: #fafafa;
+    border: 2px dashed #ccc;
+}
+</style>
 
 <?php
 require_once PATH_ROOT . '/includes/footer.php';

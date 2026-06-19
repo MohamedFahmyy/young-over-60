@@ -16,6 +16,7 @@ require_once __DIR__ . '/classes/PodcastManager.php';
 require_once __DIR__ . '/classes/StoryManager.php';
 require_once __DIR__ . '/classes/SliderManager.php';
 require_once __DIR__ . '/classes/PageManager.php';
+require_once __DIR__ . '/classes/TeamManager.php';
 
 // 3. Parse Route Query (From .htaccess rewrite rules)
 $route = $_GET['route'] ?? '';
@@ -88,6 +89,7 @@ $base = $parts[0] ?? '';
 // Initialize PostManager and PageManager globally for all page templates
 $pm = new PostManager();
 $pageMgrGlobal = new PageManager();
+$teamMgr = new TeamManager();
 
 // 4. Perform MVC-style page routing
 if ($base === '' || $base === 'home') {

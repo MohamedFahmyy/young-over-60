@@ -53,6 +53,9 @@ $abt = array_merge([
     'about_contact_desc'            => 'Whether you have a question, collaboration idea, or just want to say hello — feel free to reach out.',
 ], $_rawSettings ?? []);
 
+$teamMgr = new TeamManager();
+$activeTeamMembers = $teamMgr->getTeamMembers(false);
+
 require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
 ?>
@@ -337,9 +340,110 @@ require_once PATH_ROOT . '/includes/navbar.php';
 </section>
 
 <!-- ═══════════════════════════════════════════
+     SECTION 4.5 — OUR TEAM
+══════════════════════════════════════════════ -->
+<section class="about-team-section" id="team">
+    <!-- Decorative -->
+    <div class="about-blob about-blob--gold-tl"></div>
+    <div class="about-blob about-blob--ring-tr"></div>
+
+    <div class="about-team-inner" style="max-width: 80rem; margin: 0 auto; padding: 4rem 1.5rem;">
+        <!-- Header -->
+        <div class="about-team-header" style="text-align: center; margin-bottom: 4rem;">
+            <span class="about-label"><?php echo CURRENT_LANG === 'ar' ? 'فريقنا' : 'Our Team'; ?></span>
+            <h2 class="about-section-heading">
+                <?php echo CURRENT_LANG === 'ar' ? 'تعرف على' : 'Meet The'; ?>
+                <span class="about-heading-accent italic"> <?php echo CURRENT_LANG === 'ar' ? 'فريق العمل' : 'Team'; ?></span>
+            </h2>
+            <p class="about-team-desc" style="margin-top: 1.25rem; color: #4b5563; max-width: 42rem; margin-left: auto; margin-right: auto; line-height: 1.75;">
+                <?php echo CURRENT_LANG === 'ar' ? 'مجموعة من المغامرين والمستكشفين الملتزمين بجعل السفر متاحاً وسهلاً للجميع.' : 'A passionate team of explorers, accessibility advocates, and writers making travel possible for everyone.'; ?>
+            </p>
+        </div>
+
+        <!-- Team Grid -->
+        <div class="about-team-grid">
+            <!-- 1. Founder Card (visually featured, styled using about-founder-card) -->
+            <a
+                href="<?php echo e($abt['about_founder_linkedin']); ?>"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="about-founder-card"
+            >
+                <div class="about-founder-card-top">
+                    <div class="about-founder-img-wrap">
+                        <img
+                            src="<?php echo BASE_URL . e($abt['about_founder_image']); ?>"
+                            alt="<?php echo e($abt['about_founder_name']); ?> - Founder"
+                            class="about-founder-img"
+                            width="96"
+                            height="96"
+                            loading="lazy"
+                        />
+                    </div>
+                    <div class="about-founder-info">
+                        <h3 class="about-founder-name"><?php echo e($abt['about_founder_name']); ?></h3>
+                        <p class="about-founder-role"><?php echo e($abt['about_founder_role']); ?></p>
+                        <?php if (!empty($abt['about_founder_linkedin'])): ?>
+                            <div class="about-founder-cta">
+                                <i class="fa-brands fa-linkedin" style="font-size:1.1rem; color:#0077b5;"></i>
+                                <span><?php echo CURRENT_LANG === 'ar' ? 'عرض على LinkedIn' : 'LinkedIn'; ?></span>
+                                <span class="about-founder-arrow">→</span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <p class="about-founder-quote">
+                    <?php echo e($abt['about_founder_quote']); ?>
+                </p>
+            </a>
+
+            <!-- 2. Dynamic Team Members -->
+            <?php foreach ($activeTeamMembers as $member): 
+                $mImage = !empty($member['image']) ? BASE_URL . $member['image'] : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23cbd5e1" width="100%" height="100%"><rect width="100%" height="100%" fill="%23f1f5f9"/><circle cx="12" cy="8.5" r="4"/><path d="M12 14c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>';
+                $mName = t($member, 'name');
+                $mRole = t($member, 'role');
+                $mBio = t($member, 'bio');
+                $mLinkedin = $member['linkedin_url'] ?? '';
+                ?>
+                <div class="about-founder-card">
+                    <div class="about-founder-card-top">
+                        <div class="about-founder-img-wrap">
+                            <img
+                                src="<?php echo e($mImage); ?>"
+                                alt="<?php echo e($mName); ?>"
+                                class="about-founder-img"
+                                width="96"
+                                height="96"
+                                loading="lazy"
+                            />
+                        </div>
+                        <div class="about-founder-info">
+                            <h3 class="about-founder-name"><?php echo e($mName); ?></h3>
+                            <p class="about-founder-role"><?php echo e($mRole); ?></p>
+                            <?php if (!empty($mLinkedin)): ?>
+                                <a href="<?php echo e($mLinkedin); ?>" target="_blank" rel="noopener noreferrer" class="about-founder-cta" style="text-decoration:none;">
+                                    <i class="fa-brands fa-linkedin" style="font-size:1.1rem; color:#0077b5;"></i>
+                                    <span><?php echo CURRENT_LANG === 'ar' ? 'عرض على LinkedIn' : 'LinkedIn'; ?></span>
+                                    <span class="about-founder-arrow">→</span>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php if (!empty($mBio)): ?>
+                        <p class="about-founder-quote">
+                            <?php echo e($mBio); ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
      SECTION 5 — CONTACT / GET IN TOUCH
 ══════════════════════════════════════════════ -->
-<section class="about-contact-section" id="team">
+<section class="about-contact-section" id="contact">
     <!-- Decorative -->
     <div class="about-blob about-blob--contact-tl"></div>
     <div class="about-blob about-blob--contact-br"></div>
@@ -357,38 +461,8 @@ require_once PATH_ROOT . '/includes/navbar.php';
             </p>
         </div>
 
-        <!-- Two-column -->
+        <!-- Centered Contact Form -->
         <div class="about-contact-grid">
-            <!-- Founder Card -->
-            <a
-                href="<?php echo e($abt['about_founder_linkedin']); ?>"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="about-founder-card"
-            >
-                <div class="about-founder-card-top">
-                    <div class="about-founder-img-wrap">
-                        <img
-                            src="<?php echo BASE_URL . e($abt['about_founder_image']); ?>"
-                            alt="<?php echo e($abt['about_founder_name']); ?> - Founder"
-                            class="about-founder-img"
-                            loading="lazy"
-                        />
-                    </div>
-                    <div class="about-founder-info">
-                        <h3 class="about-founder-name"><?php echo e($abt['about_founder_name']); ?></h3>
-                        <p class="about-founder-role"><?php echo e($abt['about_founder_role']); ?></p>
-                        <div class="about-founder-cta">
-                            <span>View on LinkedIn</span>
-                            <span class="about-founder-arrow">→</span>
-                        </div>
-                    </div>
-                </div>
-                <p class="about-founder-quote">
-                    <?php echo e($abt['about_founder_quote']); ?>
-                </p>
-            </a>
-
             <!-- Contact Form -->
             <div class="about-contact-form-wrap">
                 <h3 class="about-contact-form-title">Send a Message</h3>
@@ -892,6 +966,74 @@ require_once PATH_ROOT . '/includes/navbar.php';
 .about-phili-cta:hover .about-phili-cta-text::after { width: 100%; }
 
 /* ══════════════════════════════════════════════
+   § 4.5  TEAM MEMBERS
+══════════════════════════════════════════════ */
+.about-team-section {
+    position: relative;
+    overflow: hidden;
+    padding: 6rem 1.5rem;
+    background: #fff;
+}
+.about-team-grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+}
+@media(min-width: 768px) {
+    .about-team-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media(min-width: 1024px) {
+    .about-team-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Feature the Founder Card (the first child in the grid) */
+@media(min-width: 768px) {
+    .about-team-grid > .about-founder-card:first-child {
+        grid-column: span 2;
+    }
+}
+@media(min-width: 1024px) {
+    .about-team-grid > .about-founder-card:first-child {
+        grid-column: span 3;
+    }
+}
+
+/* Featured card visual styling enhancements */
+.about-team-grid > .about-founder-card:first-child {
+    background: linear-gradient(145deg, #ffffff, #fcfbf9);
+    border: 1px solid rgba(216, 157, 46, 0.2);
+    box-shadow: 0 20px 50px rgba(11, 31, 59, 0.08);
+    position: relative;
+}
+.about-team-grid > .about-founder-card:first-child::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, var(--about-gold), var(--about-navy));
+    border-radius: 2rem 2rem 0 0;
+}
+.about-team-grid > .about-founder-card:first-child .about-founder-quote {
+    font-size: 1.125rem;
+    font-style: italic;
+    border-left: 3px solid var(--about-gold);
+    padding-left: 1rem;
+}
+[dir="rtl"] .about-team-grid > .about-founder-card:first-child .about-founder-quote {
+    border-left: none;
+    padding-left: 0;
+    border-right: 3px solid var(--about-gold);
+    padding-right: 1rem;
+}
+
+/* ══════════════════════════════════════════════
    § 5  CONTACT
 ══════════════════════════════════════════════ */
 .about-contact-section {
@@ -918,11 +1060,9 @@ require_once PATH_ROOT . '/includes/navbar.php';
     margin-right: auto;
 }
 .about-contact-grid {
-    display: grid;
-    gap: 3rem;
-    align-items: start;
+    max-width: 45rem;
+    margin: 0 auto;
 }
-@media(min-width:1024px){ .about-contact-grid { grid-template-columns: 1fr 1fr; } }
 
 /* Founder card */
 .about-founder-card {
@@ -994,6 +1134,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
     border-radius: 2rem;
     box-shadow: 0 12px 40px rgba(0,0,0,.08);
     padding: 2rem 2.5rem;
+    width: 100%;
 }
 .about-contact-form-title {
     font-size: 1.5rem;
