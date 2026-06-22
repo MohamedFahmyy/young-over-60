@@ -2,6 +2,9 @@
 -- pure PHP Travel Without Limits Database Migrations
 
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `page_revisions`;
+DROP TABLE IF EXISTS `page_redirects`;
+DROP TABLE IF EXISTS `custom_pages`;
 DROP TABLE IF EXISTS `media`;
 DROP TABLE IF EXISTS `site_settings`;
 DROP TABLE IF EXISTS `menu_banners`;
@@ -212,18 +215,18 @@ CREATE TABLE `site_settings` (
   `about_hero_heading_line1`     VARCHAR(255) DEFAULT 'Beyond',
   `about_hero_heading_accent`    VARCHAR(255) DEFAULT ' 60,',
   `about_hero_heading_line2`     VARCHAR(255) DEFAULT 'Life Begins Again.',
-  `about_hero_quote`             VARCHAR(500) DEFAULT 'Life Begins Again.',
+  `about_hero_quote`             TEXT DEFAULT NULL,
   `about_hero_desc`              TEXT DEFAULT NULL,
   `about_hero_desc_mobile`       TEXT DEFAULT NULL,
   `about_hero_btn1_text`         VARCHAR(255) DEFAULT 'Discover Our Story →',
   `about_hero_btn2_text`         VARCHAR(255) DEFAULT 'Meet The Team',
   `about_hero_badge_label`       VARCHAR(255) DEFAULT 'Stories Shared',
   `about_hero_badge_number`      VARCHAR(50)  DEFAULT '500+',
-  `about_hero_image`             VARCHAR(500) DEFAULT '/assets/images/about-header.jpeg',
+  `about_hero_image`             TEXT DEFAULT NULL,
   `about_vision_label`           VARCHAR(255) DEFAULT 'About Young Over 60',
   `about_vision_heading`         VARCHAR(255) DEFAULT 'Travel Has',
   `about_vision_heading_accent`  VARCHAR(255) DEFAULT 'No Age Limit',
-  `about_vision_quote`           VARCHAR(500) DEFAULT 'Beyond 60, life begins again.',
+  `about_vision_quote`           TEXT DEFAULT NULL,
   `about_vision_card1_title`     VARCHAR(255) DEFAULT 'Young Over 60',
   `about_vision_card1_text1`     TEXT DEFAULT NULL,
   `about_vision_card1_text2`     TEXT DEFAULT NULL,
@@ -239,18 +242,20 @@ CREATE TABLE `site_settings` (
   `about_phili_label`            VARCHAR(255) DEFAULT 'Our Philosophy',
   `about_phili_heading`          VARCHAR(255) DEFAULT 'Life Begins',
   `about_phili_heading_accent`   VARCHAR(255) DEFAULT 'After 60',
-  `about_phili_quote`            VARCHAR(500) DEFAULT 'True youth lives in a curious mind and an adventurous spirit.',
+  `about_phili_quote`            TEXT DEFAULT NULL,
   `about_phili_text1`            TEXT DEFAULT NULL,
   `about_phili_text2`            TEXT DEFAULT NULL,
   `about_phili_text3`            TEXT DEFAULT NULL,
   `about_founder_name`           VARCHAR(255) DEFAULT 'Zakaria Dawoud',
   `about_founder_role`           VARCHAR(255) DEFAULT 'Founder & Project CEO',
-  `about_founder_linkedin`       VARCHAR(500) DEFAULT 'https://www.linkedin.com/in/zakaria-dawoud-26902b180',
+  `about_founder_linkedin`       TEXT DEFAULT NULL,
   `about_founder_quote`          TEXT DEFAULT NULL,
-  `about_founder_image`          VARCHAR(500) DEFAULT '/assets/images/founder.jpeg',
+  `about_founder_image`          TEXT DEFAULT NULL,
   `about_contact_heading`        VARCHAR(255) DEFAULT 'Let''s Build Something',
   `about_contact_heading_accent` VARCHAR(255) DEFAULT 'Meaningful',
   `about_contact_desc`           TEXT DEFAULT NULL,
+  `contact_whatsapp`             VARCHAR(255) DEFAULT NULL,
+  `contact_phone`                VARCHAR(255) DEFAULT NULL,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -385,7 +390,7 @@ INSERT INTO `site_settings` (
   `about_stat1_number`, `about_stat1_desc`, `about_stat2_number`, `about_stat2_desc`, `about_stat3_number`, `about_stat3_desc`, 
   `about_phili_label`, `about_phili_heading`, `about_phili_heading_accent`, `about_phili_quote`, `about_phili_text1`, `about_phili_text2`, `about_phili_text3`, 
   `about_founder_name`, `about_founder_role`, `about_founder_linkedin`, `about_founder_quote`, `about_founder_image`, 
-  `about_contact_heading`, `about_contact_heading_accent`, `about_contact_desc`
+  `about_contact_heading`, `about_contact_heading_accent`, `about_contact_desc`, `contact_whatsapp`, `contact_phone`
 ) VALUES (
   1, 'Young Over 60', 'شباب فوق الستين', NULL, '/images/hero-bg.png', '/images/hero-bg.png', 
   'Young Over 60 | Active Travel & Inspiration', 'شباب فوق الستين | سفر نشط وإلهام', 
@@ -411,7 +416,8 @@ INSERT INTO `site_settings` (
   'At Young Over 60, every traveller has a story worth telling and every journey is a chance to rediscover life. The world is far too beautiful to be viewed only from a window, and your right to travel never expires.', 
   'Zakaria Dawoud', 'Founder & Project CEO', 'https://www.linkedin.com/in/zakaria-dawoud-26902b180', 
   'Beyond 60, life begins again. This project was built to prove that travel has no age limit.', '/assets/images/founder.jpeg', 
-  'Let\'s Build Something', 'Meaningful', 'Whether you have a question, collaboration idea, or just want to say hello — feel free to reach out.'
+  'Let\'s Build Something', 'Meaningful', 'Whether you have a question, collaboration idea, or just want to say hello — feel free to reach out.',
+  '+61 400 000 000', '+61 400 000 000'
 );
 
 
@@ -529,7 +535,7 @@ INSERT INTO `team_members` (`id`, `name_en`, `name_ar`, `role_en`, `role_ar`, `b
 -- CUSTOM PAGES CMS SCHEMAS & SEEDS
 -- ==========================================================================
 
-CREATE TABLE IF NOT EXISTS `custom_pages` (
+CREATE TABLE `custom_pages` (
   `id` VARCHAR(36) PRIMARY KEY,
   `slug_en` VARCHAR(255) NOT NULL UNIQUE,
   `slug_ar` VARCHAR(255) DEFAULT NULL UNIQUE,
@@ -575,7 +581,7 @@ CREATE TABLE IF NOT EXISTS `custom_pages` (
   INDEX `idx_custom_pages_slug_ar` (`slug_ar`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `page_revisions` (
+CREATE TABLE `page_revisions` (
   `id` VARCHAR(36) PRIMARY KEY,
   `page_id` VARCHAR(36) NOT NULL,
   `title_en` VARCHAR(255) NOT NULL,
@@ -615,7 +621,7 @@ CREATE TABLE IF NOT EXISTS `page_revisions` (
   FOREIGN KEY (`page_id`) REFERENCES `custom_pages` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `page_redirects` (
+CREATE TABLE `page_redirects` (
   `id` VARCHAR(36) PRIMARY KEY,
   `old_slug` VARCHAR(255) NOT NULL UNIQUE,
   `new_slug` VARCHAR(255) NOT NULL,

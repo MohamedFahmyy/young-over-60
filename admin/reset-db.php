@@ -34,12 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($queries as $query) {
                 $query = trim($query);
                 if (empty($query)) continue;
-                
-                // Skip comments
-                if (str_starts_with($query, '--') || str_starts_with($query, '#')) {
-                    continue;
-                }
-                
                 $db->exec($query);
                 $executedCount++;
             }
