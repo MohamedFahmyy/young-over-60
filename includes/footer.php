@@ -121,6 +121,50 @@ $remainingWords = implode(' ', array_slice($titleParts, 1));
         </div>
     </footer>
 
+    <?php
+    $whatsappRaw = $settings['contact_whatsapp'] ?? '';
+    $whatsappUrl = '';
+    if (!empty($whatsappRaw)) {
+        if (strpos($whatsappRaw, 'http://') === 0 || strpos($whatsappRaw, 'https://') === 0) {
+            $whatsappUrl = $whatsappRaw;
+        } else {
+            $digitsOnly = preg_replace('/[^0-9]/', '', $whatsappRaw);
+            if (!empty($digitsOnly)) {
+                $whatsappUrl = 'https://wa.me/' . $digitsOnly;
+            }
+        }
+    }
+
+    $phoneRaw = $settings['contact_phone'] ?? '';
+    $phoneUrl = '';
+    if (!empty($phoneRaw)) {
+        $cleanPhone = preg_replace('/[^0-9+]/', '', $phoneRaw);
+        if (!empty($cleanPhone)) {
+            $phoneUrl = 'tel:' . $cleanPhone;
+        }
+    }
+
+    if (!empty($phoneUrl) || !empty($whatsappUrl)):
+    ?>
+    <div class="floating-contact-widget" role="complementary" aria-label="<?php echo ($activeLang === 'ar' ? 'أزرار الاتصال السريع' : 'Quick Contact Actions'); ?>">
+        <?php if (!empty($phoneUrl)): ?>
+            <a href="<?php echo e($phoneUrl); ?>" class="contact-floating-btn phone-btn" aria-label="<?php echo ($activeLang === 'ar' ? 'اتصل بنا عبر الهاتف' : 'Call us by phone'); ?>" tabindex="0">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+            </a>
+        <?php endif; ?>
+        
+        <?php if (!empty($whatsappUrl)): ?>
+            <a href="<?php echo e($whatsappUrl); ?>" class="contact-floating-btn whatsapp-btn" target="_blank" rel="noopener noreferrer" aria-label="<?php echo ($activeLang === 'ar' ? 'تواصل معنا عبر واتساب' : 'Chat with us on WhatsApp'); ?>" tabindex="0">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+                    <path d="M12.012 2C6.48 2 2 6.48 2 12.012a9.9 9.9 0 001.374 5.03L2 22l5.124-1.344a9.92 9.92 0 004.888 1.356c5.532 0 10.012-4.48 10.012-10.012C22.024 6.48 17.544 2 12.012 2zm0 16.518a6.5 6.5 0 01-3.306-.9l-.234-.144-3.048.8.816-2.97-.156-.252a6.49 6.49 0 01-1-3.438c0-3.588 2.922-6.51 6.516-6.51h.006c3.588 0 6.51 2.922 6.51 6.516 0 3.588-2.922 6.51-6.51 6.51h-.004zm3.564-4.86c-.198-.102-1.17-.576-1.35-.642-.18-.066-.312-.102-.444.096-.132.198-.51.642-.624.774-.114.132-.228.15-.426.048-.198-.102-.84-.306-1.596-.984-.588-.528-.984-1.176-1.104-1.374-.114-.198-.012-.306.084-.402.09-.09.198-.228.3-.342.096-.114.132-.198.198-.33.066-.132.03-.252-.018-.354-.048-.102-.444-1.068-.606-1.464-.162-.384-.324-.33-.444-.336-.114-.006-.246-.006-.378-.006-.132 0-.348.048-.528.246-.18.198-.69.678-.69 1.656 0 .978.708 1.92.81 2.058.096.138 1.392 2.13 3.378 2.988.474.204.84.324 1.128.42.48.15.912.132 1.26-.018.384-.168 1.17-.48 1.338-.948.168-.468.168-.87.12-.948-.048-.078-.18-.126-.378-.228z"/>
+                </svg>
+            </a>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <!-- Global Application JS Scripts -->
     <script src="<?php echo BASE_URL; ?>/assets/js/app.js?v=<?php echo time(); ?>" defer></script>
 </body>

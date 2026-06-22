@@ -419,7 +419,9 @@ class PostManager {
                 hero_video_subtitle_ar = :hero_video_subtitle_ar,
                 hero_video_btn_text_en = :hero_video_btn_text_en,
                 hero_video_btn_text_ar = :hero_video_btn_text_ar,
-                hero_video_btn_link = :hero_video_btn_link
+                hero_video_btn_link = :hero_video_btn_link,
+                contact_whatsapp = :contact_whatsapp,
+                contact_phone = :contact_phone
                 WHERE id = 1";
         
         $stmt = $this->db->prepare($sql);
@@ -467,7 +469,9 @@ class PostManager {
             'hero_video_subtitle_ar' => $data['hero_video_subtitle_ar'] ?? null,
             'hero_video_btn_text_en' => $data['hero_video_btn_text_en'] ?? null,
             'hero_video_btn_text_ar' => $data['hero_video_btn_text_ar'] ?? null,
-            'hero_video_btn_link' => $data['hero_video_btn_link'] ?? null
+            'hero_video_btn_link' => $data['hero_video_btn_link'] ?? null,
+            'contact_whatsapp' => !empty($data['contact_whatsapp']) ? $data['contact_whatsapp'] : null,
+            'contact_phone' => !empty($data['contact_phone']) ? $data['contact_phone'] : null
         ]);
     }
 

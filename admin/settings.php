@@ -42,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'nav_show_news'           => isset($_POST['nav_show_news']) ? '1' : '0',
             'nav_show_accessibility'  => isset($_POST['nav_show_accessibility']) ? '1' : '0',
             'nav_show_contact'        => isset($_POST['nav_show_contact']) ? '1' : '0',
+            'contact_whatsapp'        => trim($_POST['contact_whatsapp'] ?? ''),
+            'contact_phone'           => trim($_POST['contact_phone'] ?? ''),
         ];
 
         if (empty($data['siteName'])) {
@@ -132,6 +134,16 @@ require_once PATH_ROOT . '/includes/header.php';
                         <div class="admin-form-group">
                             <label for="set-herobg"><?php echo __('settings_hero_bg'); ?></label>
                             <input type="text" id="set-herobg" name="heroBackgroundUrl" value="<?php echo e($settings['heroBackgroundUrl'] ?? '/images/hero-bg.png'); ?>" class="admin-form-input" />
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label for="set-contact-whatsapp"><?php echo __('settings_contact_whatsapp'); ?></label>
+                            <input type="text" id="set-contact-whatsapp" name="contact_whatsapp" value="<?php echo e($settings['contact_whatsapp'] ?? ''); ?>" class="admin-form-input" placeholder="e.g. +61 400 000 000 or https://wa.me/..." />
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label for="set-contact-phone"><?php echo __('settings_contact_phone'); ?></label>
+                            <input type="text" id="set-contact-phone" name="contact_phone" value="<?php echo e($settings['contact_phone'] ?? ''); ?>" class="admin-form-input" placeholder="e.g. +61 400 000 000" />
                         </div>
                     </div>
  

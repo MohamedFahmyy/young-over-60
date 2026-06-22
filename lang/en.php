@@ -494,4 +494,6 @@ return [
     'settings_nav_visibility'       => 'Navigation Visibility',
     'settings_nav_visibility_desc'  => 'Toggle which items appear in the site navigation bar. Changes take effect immediately after saving.',
     'settings_nav_custom_pages_note'=> 'Custom pages (About Us, Medical Tourism, etc.) are controlled individually from the Custom Pages admin.',
+    'settings_contact_whatsapp' => 'WhatsApp Number / Chat Link',
+    'settings_contact_phone' => 'Phone Call Number',
 ];

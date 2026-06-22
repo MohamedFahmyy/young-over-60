@@ -494,4 +494,6 @@ return [
     'settings_nav_visibility'       => 'إظهار عناصر القائمة',
     'settings_nav_visibility_desc'  => 'تحكم في العناصر التي تظهر في قائمة التنقل. تسري التغييرات فور الحفظ.',
     'settings_nav_custom_pages_note'=> 'الصفحات المخصصة (من نحن، السياحة العلاجية...) تُتحكم بها بشكل منفصل من إعدادات الصفحات المخصصة.',
+    'settings_contact_whatsapp' => 'رقم أو رابط واتساب',
+    'settings_contact_phone' => 'رقم الاتصال الهاتفي',
 ];
