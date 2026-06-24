@@ -52,10 +52,7 @@ require_once PATH_ROOT . '/includes/header.php';
 require_once PATH_ROOT . '/includes/navbar.php';
 ?>
 
-<!-- Reading Progress Bar -->
-<div class="reading-progress-container">
-    <div class="reading-progress-bar"></div>
-</div>
+
 
 <!-- Article Hero -->
 <section class="post-hero">
@@ -137,6 +134,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     <a href="https://twitter.com/intent/tweet?url=<?php echo $pageUrl; ?>&text=<?php echo $pageTitle; ?>" target="_blank" rel="noopener" class="share-btn">Twitter</a>
                     <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $pageUrl; ?>" target="_blank" rel="noopener" class="share-btn">Facebook</a>
                     <a href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo $pageUrl; ?>&title=<?php echo $pageTitle; ?>" target="_blank" rel="noopener" class="share-btn">LinkedIn</a>
+                    <a href="https://api.whatsapp.com/send?text=<?php echo $pageTitle . '%20' . $pageUrl; ?>" target="_blank" rel="noopener" class="share-btn">WhatsApp</a>
                 </div>
             </div>
 
@@ -209,17 +207,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
             });
         });
 
-        // Reading Progress Bar Logic
-        const progressBar = document.querySelector('.reading-progress-bar');
-        if (progressBar) {
-            window.addEventListener('scroll', () => {
-                const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-                if (totalHeight > 0) {
-                    const progress = (window.scrollY / totalHeight) * 100;
-                    progressBar.style.width = progress + '%';
-                }
-            });
-        }
+
     });
 </script>
 

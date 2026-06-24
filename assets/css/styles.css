@@ -2114,22 +2114,7 @@ html.acc-high-contrast .lang-btn:hover {
 }
 
 /* --- Single Post Page --- */
-.reading-progress-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background-color: rgba(0,0,0,0.05);
-  z-index: 102;
-}
 
-.reading-progress-bar {
-  height: 100%;
-  background-color: var(--primary-color);
-  width: 0;
-  transition: width 0.1s ease;
-}
 
 .post-hero {
   position: relative;
@@ -3424,13 +3409,10 @@ img {
 .hero-video-bg,
 .hero-slide-video {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   z-index: 0;
 }
@@ -3619,7 +3601,8 @@ img {
 
 @media (max-width: 768px) {
   .slider-arrow { display: none; }
-  .hero-slider-section { height: 70vh; }
+  .hero-slider-section { height: 100svh; }
+  .hero-video-section { height: 100svh; }
 }
 
 /* --- Floating Bottom Audio Player --- */
@@ -4782,26 +4765,7 @@ html.theme-dark .accessibility-widget {
 /* ==========================================================================
    SINGLE ARTICLE READER VIEW (post.php)
    ========================================================================== */
-.reading-progress-container {
-  position: fixed;
-  top: 5.5rem;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background-color: rgba(0, 0, 0, 0.05);
-  z-index: 999;
-}
 
-.reading-progress-bar {
-  height: 100%;
-  width: 0%;
-  background-color: var(--primary-color);
-  transition: width 0.1s ease-out;
-}
-
-html.theme-dark .reading-progress-container {
-  background-color: rgba(255, 255, 255, 0.1);
-}
 
 .post-hero {
   position: relative;
@@ -5309,9 +5273,7 @@ html.theme-dark .post-prose blockquote {
 /* ==========================================================================
    DARK THEME OVERRIDES
    ========================================================================== */
-html.theme-dark .reading-progress-container {
-  background-color: rgba(255, 255, 255, 0.05);
-}
+
 
 html.theme-dark .toc-sidebar {
   background-color: var(--surface-color);
@@ -6253,6 +6215,83 @@ html.acc-high-contrast .contact-floating-btn:focus-visible {
   .slider-inner {
     padding-left: 10px !important;
     padding-right: 10px !important;
+  }
+}
+
+/* Mobile Reading Experience Improvements (max-width: 768px) */
+@media (max-width: 768px) {
+  .article-content,
+  .post-content,
+  .news-content,
+  .article-body,
+  .post-prose,
+  .story-full-content,
+  .post-content-column,
+  .story-content-body-wrapper {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    box-sizing: border-box !important;
+    line-height: 1.8 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .article-content p,
+  .post-content p,
+  .news-content p,
+  .article-body p,
+  .post-prose p,
+  .story-full-content p,
+  .post-content-column p,
+  .story-content-body-wrapper p {
+    line-height: 1.8 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Prevent images, iframes, videos, and tables overflowing the viewport */
+  .article-content img, .post-content img, .news-content img, .article-body img, .post-prose img, .story-full-content img, .post-content-column img, .story-content-body-wrapper img,
+  .article-content iframe, .post-content iframe, .news-content iframe, .article-body iframe, .post-prose iframe, .story-full-content iframe, .post-content-column iframe, .story-content-body-wrapper iframe,
+  .article-content video, .post-content video, .news-content video, .article-body video, .post-prose video, .story-full-content video, .post-content-column video, .story-content-body-wrapper video,
+  .article-content table, .post-content table, .news-content table, .article-body table, .post-prose table, .story-full-content table, .post-content-column table, .story-content-body-wrapper table,
+  img,
+  iframe,
+  video,
+  table {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Add horizontal scroll for tables on mobile if content overflows */
+  .article-content table,
+  .post-content table,
+  .news-content table,
+  .article-body table,
+  .post-prose table,
+  .story-full-content table,
+  .post-content-column table,
+  .story-content-body-wrapper table,
+  table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Stack social share widget vertically on mobile viewports */
+  .social-share-box {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1.25rem !important;
+  }
+
+  .share-links {
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
   }
 }
 

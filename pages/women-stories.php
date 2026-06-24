@@ -46,11 +46,11 @@ if (!empty($slug)) {
             <div class="story-hero-overlay"></div>
             <div class="story-hero-content container">
                 <span class="badge-text" style="background: var(--primary-color); color: #fff; align-self: flex-start; margin-bottom: 1rem; text-transform: uppercase;">
-                    <?php echo e($story['category'] ?? 'Egypt Travel'); ?>
+                    <?php echo e(t($story, 'category') ?: 'Egypt Travel'); ?>
                 </span>
                 <h1 class="serif-title story-main-title"><?php echo e(t($story, 'title')); ?></h1>
                 <div class="story-hero-meta">
-                    <span>Written by <strong><?php echo e($story['author'] ?? 'Guest Writer'); ?></strong></span>
+                    <span>Written by <strong><?php echo e(t($story, 'author') ?: 'Guest Writer'); ?></strong></span>
                     <span class="meta-dot"></span>
                     <span><?php echo e($story['read_time'] ?? '5 min read'); ?></span>
                     <span class="meta-dot"></span>
@@ -70,7 +70,7 @@ if (!empty($slug)) {
                 <div class="story-content-body-wrapper">
                     <!-- Drop cap styles will be applied to the first paragraph -->
                     <div class="story-full-content serif-body-text">
-                        <?php echo $story['content']; // HTML rich text from database ?>
+                        <?php echo t($story, 'content'); // HTML rich text from database ?>
                     </div>
 
                     <!-- Social Share Widget -->
@@ -154,18 +154,18 @@ if (!empty($slug)) {
                             $relCover = !empty($rel['cover_image']) ? $rel['cover_image'] : '/images/hero-bg.png';
                             ?>
                             <article class="post-card group">
-                                <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e($rel['slug']); ?>" class="post-card-link" aria-label="Read <?php echo e($rel['title']); ?>">
+                                <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e(t($rel, 'slug')); ?>" class="post-card-link" aria-label="Read <?php echo e(t($rel, 'title')); ?>">
                                     <div class="post-card-media ratio-landscape">
                                         <div class="progressive-image-placeholder"></div>
-                                        <img src="<?php echo e(BASE_URL . $relCover); ?>" alt="<?php echo e($rel['title']); ?>" class="post-card-img" onload="this.classList.add('loaded');" />
+                                        <img src="<?php echo e(BASE_URL . $relCover); ?>" alt="<?php echo e(t($rel, 'title')); ?>" class="post-card-img" onload="this.classList.add('loaded');" />
                                     </div>
                                     <div class="post-card-body" style="padding: 1.5rem;">
                                         <div class="post-card-meta">
-                                            <span><?php echo e($rel['author']); ?></span>
+                                            <span><?php echo e(t($rel, 'author')); ?></span>
                                             <span class="meta-dot"></span>
                                             <span><?php echo e($rel['read_time']); ?></span>
                                         </div>
-                                        <h4 class="serif-title" style="font-size: 1.1rem; margin: 0.5rem 0; color: var(--text-color);"><?php echo e($rel['title']); ?></h4>
+                                        <h4 class="serif-title" style="font-size: 1.1rem; margin: 0.5rem 0; color: var(--text-color);"><?php echo e(t($rel, 'title')); ?></h4>
                                     </div>
                                 </a>
                             </article>
