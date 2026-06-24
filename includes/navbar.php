@@ -71,6 +71,7 @@ if ($queryString && !str_starts_with($queryString, '?')) $queryString = '?' . $q
 
 $enUrl = BASE_URL . '/' . ltrim($route_clean, '/') . ($queryString ? $queryString . '&lang=en' : '?lang=en');
 $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($queryString ? $queryString . '&lang=ar' : '?lang=ar');
+$nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $queryString . '&lang=nl' : '?lang=nl');
 ?>
 <nav class="navbar-sticky">
     <div class="container navbar-container">
@@ -221,12 +222,26 @@ $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($queryString ? $querySt
         <!-- Action Items (Search + Accessibility + Language Switcher) -->
         <div class="navbar-actions" style="display: flex; align-items: center; gap: 1rem;">
             <!-- Language Switcher -->
-            <div class="lang-switcher">
-                <?php if ($activeLang === 'ar'): ?>
-                    <a href="<?php echo $enUrl; ?>" class="lang-btn" aria-label="Switch to English">EN</a>
-                <?php else: ?>
-                    <a href="<?php echo $arUrl; ?>" class="lang-btn" aria-label="التحويل للعربية">العربية</a>
-                <?php endif; ?>
+            <div class="lang-switcher" style="display: flex; gap: 0.5rem; align-items: center;">
+                <?php 
+                foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
+                    $langUrl = BASE_URL;
+                    if ($lCode !== 'en') {
+                        $langUrl .= '/' . $lCode;
+                    }
+                    $langUrl .= '/' . ltrim($route_clean, '/');
+                    if ($queryString) {
+                        $langUrl .= $queryString . '&lang=' . $lCode;
+                    } else {
+                        $langUrl .= '?lang=' . $lCode;
+                    }
+                    
+                    $label = strtoupper($lCode);
+                    $isActive = ($lCode === $activeLang);
+                    $style = $isActive ? 'font-weight: 700; color: var(--primary-color); opacity: 1; pointer-events: none;' : 'opacity: 0.7;';
+                    echo '<a href="' . $langUrl . '" class="lang-btn' . ($isActive ? ' active' : '') . '" style="' . $style . '" aria-label="Switch to ' . $cfg['name'] . '">' . $label . '</a>';
+                }
+                ?>
             </div>
 
             <button class="action-btn" data-open-search aria-label="<?php echo __('nav_search_placeholder'); ?>">

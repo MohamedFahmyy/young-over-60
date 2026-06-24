@@ -24,7 +24,8 @@ date_default_timezone_set('Australia/Sydney');
 // Central Multilingual Registry
 define('SUPPORTED_LANGUAGES', [
     'en' => ['dir' => 'ltr', 'name' => 'English', 'locale' => 'en_US', 'font' => 'Outfit'],
-    'ar' => ['dir' => 'rtl', 'name' => 'العربية', 'locale' => 'ar_EG', 'font' => 'Cairo']
+    'ar' => ['dir' => 'rtl', 'name' => 'العربية', 'locale' => 'ar_EG', 'font' => 'Cairo'],
+    'nl' => ['dir' => 'ltr', 'name' => 'Nederlands', 'locale' => 'nl_NL', 'font' => 'Outfit']
 ]);
 define('DEFAULT_LANG', 'en');
 

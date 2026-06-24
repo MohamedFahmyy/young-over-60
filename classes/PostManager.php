@@ -76,8 +76,8 @@ class PostManager {
 
         // Base Query selecting bilingual columns
         $sql = "SELECT p.*, 
-                       c.name_en as categoryName_en, c.name_ar as categoryName_ar, 
-                       c.slug_en as categorySlug_en, c.slug_ar as categorySlug_ar, 
+                       c.name_en as categoryName_en, c.name_ar as categoryName_ar, c.name_nl as categoryName_nl,
+                       c.slug_en as categorySlug_en, c.slug_ar as categorySlug_ar, c.slug_nl as categorySlug_nl, 
                        u.name as authorName 
                 FROM posts p 
                 INNER JOIN categories c ON p.categoryId = c.id 
