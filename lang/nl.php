@@ -50,4 +50,18 @@ return [
     'acc_powered' => 'Toegankelijkheid mogelijk gemaakt door TWL Intelligence',
     'acc_commitment' => 'Onze Toewijding',
     'acc_page_title' => 'Toegankelijkheid bij',
+
+    // Post creation & modification
+    'post_field_title_en' => 'Titel (EN)',
+    'post_field_title_ar' => 'Titel (AR)',
+    'post_field_title_nl' => 'Titel (NL)',
+    'post_field_slug_en' => 'Slug (EN)',
+    'post_field_slug_ar' => 'Slug (AR)',
+    'post_field_slug_nl' => 'Slug (NL)',
+    'post_field_content_en' => 'Inhoud (EN)',
+    'post_field_content_ar' => 'Inhoud (AR)',
+    'post_field_content_nl' => 'Inhoud (NL)',
+    'post_field_alt_en' => 'Alternatieve tekst (EN)',
+    'post_field_alt_ar' => 'Alternatieve tekst (AR)',
+    'post_field_alt_nl' => 'Alternatieve tekst (NL)',
 ];

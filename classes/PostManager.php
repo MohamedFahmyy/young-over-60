@@ -202,23 +202,28 @@ class PostManager {
         $id = isset($data['id']) ? $data['id'] : bin2hex(random_bytes(16)); // UUID fallback
         $publishedAt = ($data['status'] === 'PUBLISHED') ? date('Y-m-d H:i:s') : null;
 
-        $sql = "INSERT INTO posts (id, title_en, title_ar, slug_en, slug_ar, excerpt_en, excerpt_ar, content_en, content_ar, coverImage, alt_text_en, alt_text_ar, isFeatured, status, publishedAt, categoryId, authorId)
-                VALUES (:id, :title_en, :title_ar, :slug_en, :slug_ar, :excerpt_en, :excerpt_ar, :content_en, :content_ar, :coverImage, :alt_text_en, :alt_text_ar, :isFeatured, :status, :publishedAt, :categoryId, :authorId)";
+        $sql = "INSERT INTO posts (id, title_en, title_ar, title_nl, slug_en, slug_ar, slug_nl, excerpt_en, excerpt_ar, excerpt_nl, content_en, content_ar, content_nl, coverImage, alt_text_en, alt_text_ar, alt_text_nl, isFeatured, status, publishedAt, categoryId, authorId)
+                VALUES (:id, :title_en, :title_ar, :title_nl, :slug_en, :slug_ar, :slug_nl, :excerpt_en, :excerpt_ar, :excerpt_nl, :content_en, :content_ar, :content_nl, :coverImage, :alt_text_en, :alt_text_ar, :alt_text_nl, :isFeatured, :status, :publishedAt, :categoryId, :authorId)";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'id' => $id,
             'title_en' => $data['title_en'],
             'title_ar' => $data['title_ar'] ?? null,
+            'title_nl' => $data['title_nl'] ?? null,
             'slug_en' => $data['slug_en'],
             'slug_ar' => $data['slug_ar'] ?? null,
+            'slug_nl' => $data['slug_nl'] ?? null,
             'excerpt_en' => $data['excerpt_en'] ?? null,
             'excerpt_ar' => $data['excerpt_ar'] ?? null,
+            'excerpt_nl' => $data['excerpt_nl'] ?? null,
             'content_en' => $data['content_en'],
             'content_ar' => $data['content_ar'] ?? null,
+            'content_nl' => $data['content_nl'] ?? '',
             'coverImage' => $data['coverImage'] ?? null,
             'alt_text_en' => $data['alt_text_en'] ?? null,
             'alt_text_ar' => $data['alt_text_ar'] ?? null,
+            'alt_text_nl' => $data['alt_text_nl'] ?? null,
             'isFeatured' => !empty($data['isFeatured']) ? 1 : 0,
             'status' => $data['status'] ?? 'DRAFT',
             'publishedAt' => $publishedAt,
@@ -244,15 +249,20 @@ class PostManager {
         $sql = "UPDATE posts SET 
                 title_en = :title_en, 
                 title_ar = :title_ar, 
+                title_nl = :title_nl, 
                 slug_en = :slug_en, 
                 slug_ar = :slug_ar, 
+                slug_nl = :slug_nl, 
                 excerpt_en = :excerpt_en, 
                 excerpt_ar = :excerpt_ar, 
+                excerpt_nl = :excerpt_nl, 
                 content_en = :content_en, 
                 content_ar = :content_ar, 
+                content_nl = :content_nl, 
                 coverImage = :coverImage, 
                 alt_text_en = :alt_text_en,
                 alt_text_ar = :alt_text_ar,
+                alt_text_nl = :alt_text_nl,
                 isFeatured = :isFeatured, 
                 status = :status, 
                 publishedAt = :publishedAt, 
@@ -264,15 +274,20 @@ class PostManager {
             'id' => $id,
             'title_en' => $data['title_en'],
             'title_ar' => $data['title_ar'] ?? null,
+            'title_nl' => $data['title_nl'] ?? null,
             'slug_en' => $data['slug_en'],
             'slug_ar' => $data['slug_ar'] ?? null,
+            'slug_nl' => $data['slug_nl'] ?? null,
             'excerpt_en' => $data['excerpt_en'] ?? null,
             'excerpt_ar' => $data['excerpt_ar'] ?? null,
+            'excerpt_nl' => $data['excerpt_nl'] ?? null,
             'content_en' => $data['content_en'],
             'content_ar' => $data['content_ar'] ?? null,
+            'content_nl' => $data['content_nl'] ?? '',
             'coverImage' => $data['coverImage'] ?? null,
             'alt_text_en' => $data['alt_text_en'] ?? null,
             'alt_text_ar' => $data['alt_text_ar'] ?? null,
+            'alt_text_nl' => $data['alt_text_nl'] ?? null,
             'isFeatured' => !empty($data['isFeatured']) ? 1 : 0,
             'status' => $status,
             'publishedAt' => $publishedAt,

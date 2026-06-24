@@ -12,15 +12,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $title_en = $_POST['title_en'] ?? '';
         $title_ar = $_POST['title_ar'] ?? '';
+        $title_nl = $_POST['title_nl'] ?? '';
         $slug_en = $_POST['slug_en'] ?? '';
         $slug_ar = $_POST['slug_ar'] ?? '';
+        $slug_nl = $_POST['slug_nl'] ?? '';
         $excerpt_en = $_POST['excerpt_en'] ?? '';
         $excerpt_ar = $_POST['excerpt_ar'] ?? '';
+        $excerpt_nl = $_POST['excerpt_nl'] ?? '';
         $content_en = $_POST['content_en'] ?? '';
         $content_ar = $_POST['content_ar'] ?? '';
+        $content_nl = $_POST['content_nl'] ?? '';
         $coverImage = $_POST['coverImage'] ?? '';
         $alt_text_en = $_POST['alt_text_en'] ?? '';
         $alt_text_ar = $_POST['alt_text_ar'] ?? '';
+        $alt_text_nl = $_POST['alt_text_nl'] ?? '';
         $categoryId = $_POST['categoryId'] ?? '';
         $isFeatured = isset($_POST['isFeatured']) ? 1 : 0;
         $status = $_POST['status'] ?? 'DRAFT';
@@ -58,18 +63,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $slug_ar = null;
             }
 
+            // Generate slug if empty for Dutch (only if Dutch title is provided)
+            if (!empty($title_nl)) {
+                if (empty($slug_nl)) {
+                    $slug_nl = slugify($title_nl);
+                } else {
+                    $slug_nl = slugify($slug_nl);
+                }
+                // Ensure unique Dutch slug
+                $existingNl = $pm->getPostBySlug($slug_nl, true);
+                if ($existingNl) {
+                    $slug_nl = $slug_nl . '-' . time();
+                }
+            } else {
+                $slug_nl = null;
+            }
+
             $postData = [
                 'title_en' => $title_en,
                 'title_ar' => !empty($title_ar) ? $title_ar : null,
+                'title_nl' => !empty($title_nl) ? $title_nl : null,
                 'slug_en' => $slug_en,
                 'slug_ar' => $slug_ar,
+                'slug_nl' => $slug_nl,
                 'excerpt_en' => !empty($excerpt_en) ? $excerpt_en : null,
                 'excerpt_ar' => !empty($excerpt_ar) ? $excerpt_ar : null,
+                'excerpt_nl' => !empty($excerpt_nl) ? $excerpt_nl : null,
                 'content_en' => $content_en,
                 'content_ar' => !empty($content_ar) ? $content_ar : null,
+                'content_nl' => $content_nl,
                 'coverImage' => $coverImage,
                 'alt_text_en' => !empty($alt_text_en) ? $alt_text_en : null,
                 'alt_text_ar' => !empty($alt_text_ar) ? $alt_text_ar : null,
+                'alt_text_nl' => !empty($alt_text_nl) ? $alt_text_nl : null,
                 'isFeatured' => $isFeatured,
                 'status' => $status,
                 'categoryId' => $categoryId
@@ -120,12 +146,13 @@ require_once PATH_ROOT . '/includes/header.php';
             <?php echo Auth::csrfInput(); ?>
             <input type="hidden" id="postContentInputEn" name="content_en" />
             <input type="hidden" id="postContentInputAr" name="content_ar" />
+            <input type="hidden" id="postContentInputNl" name="content_nl" />
 
             <div class="admin-grid-layout admin-split-2-1">
                 <!-- Left panel (main editor content) -->
                 <div style="display:flex; flex-direction:column; gap:1.5rem; min-width: 0;">
                     <!-- Titles Row -->
-                    <div class="admin-grid-fields-2">
+                    <div class="admin-grid-fields-3">
                         <!-- Title EN -->
                         <div class="admin-form-group">
                             <label for="post-title-en"><?php echo __("post_field_title_en"); ?></label>
@@ -136,10 +163,15 @@ require_once PATH_ROOT . '/includes/header.php';
                             <label for="post-title-ar"><?php echo __("post_field_title_ar"); ?></label>
                             <input type="text" id="post-title-ar" name="title_ar" class="admin-form-input" placeholder="<?php echo __("post_field_title_ar"); ?>..." style="font-size: 1.25rem; font-family: var(--font-serif); direction: rtl;" />
                         </div>
+                        <!-- Title NL -->
+                        <div class="admin-form-group">
+                            <label for="post-title-nl"><?php echo __("post_field_title_nl"); ?></label>
+                            <input type="text" id="post-title-nl" name="title_nl" class="admin-form-input" placeholder="<?php echo __("post_field_title_nl"); ?>..." style="font-size: 1.25rem; font-family: var(--font-serif);" />
+                        </div>
                     </div>
 
                     <!-- Slugs Row -->
-                    <div class="admin-grid-fields-2">
+                    <div class="admin-grid-fields-3">
                         <!-- Slug EN -->
                         <div class="admin-form-group">
                             <label for="post-slug-en"><?php echo __("post_field_slug_en"); ?></label>
@@ -150,10 +182,15 @@ require_once PATH_ROOT . '/includes/header.php';
                             <label for="post-slug-ar"><?php echo __("post_field_slug_ar"); ?></label>
                             <input type="text" id="post-slug-ar" name="slug_ar" class="admin-form-input" placeholder="arabic-slug-here" style="font-family: monospace; direction: rtl;" />
                         </div>
+                        <!-- Slug NL -->
+                        <div class="admin-form-group">
+                            <label for="post-slug-nl"><?php echo __("post_field_slug_nl"); ?></label>
+                            <input type="text" id="post-slug-nl" name="slug_nl" class="admin-form-input" placeholder="dutch-slug-here" style="font-family: monospace;" />
+                        </div>
                     </div>
 
                     <!-- Excerpts Row -->
-                    <div class="admin-grid-fields-2">
+                    <div class="admin-grid-fields-3">
                         <!-- Excerpt EN -->
                         <div class="admin-form-group">
                             <label for="post-excerpt-en"><?php echo __("admin_description"); ?> (EN)</label>
@@ -163,6 +200,11 @@ require_once PATH_ROOT . '/includes/header.php';
                         <div class="admin-form-group">
                             <label for="post-excerpt-ar"><?php echo __("admin_description"); ?> (AR)</label>
                             <textarea id="post-excerpt-ar" name="excerpt_ar" rows="3" class="admin-form-textarea" placeholder="اكتب مقتطفًا قصيرًا للمقال باللغة العربية..." style="direction: rtl;"></textarea>
+                        </div>
+                        <!-- Excerpt NL -->
+                        <div class="admin-form-group">
+                            <label for="post-excerpt-nl"><?php echo __("admin_description"); ?> (NL)</label>
+                            <textarea id="post-excerpt-nl" name="excerpt_nl" rows="3" class="admin-form-textarea" placeholder="Korte samenvatting in het Nederlands..."></textarea>
                         </div>
                     </div>
 
@@ -201,6 +243,25 @@ require_once PATH_ROOT . '/includes/header.php';
                             </div>
                             <!-- Contenteditable Area -->
                             <div id="editorAreaAr" class="richtext-content" contenteditable="true" placeholder="Compose your accessible travel story in Arabic..." style="direction: rtl;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Content NL (Rich Text ContentEditable Editor) -->
+                    <div class="admin-form-group">
+                        <label><?php echo __("post_field_content_nl"); ?></label>
+                        <div class="richtext-editor">
+                            <!-- Toolbar -->
+                            <div class="richtext-toolbar" data-editor="editorAreaNl">
+                                <button type="button" class="richtext-btn" data-cmd="bold">B</button>
+                                <button type="button" class="richtext-btn" data-cmd="italic" style="font-style: italic;">I</button>
+                                <button type="button" class="richtext-btn" data-cmd="underline" style="text-decoration: underline;">U</button>
+                                <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h2">H2</button>
+                                <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h3">H3</button>
+                                <button type="button" class="richtext-btn" data-cmd="createLink">Link</button>
+                                <button type="button" class="richtext-btn" data-cmd="removeFormat">Clear</button>
+                            </div>
+                            <!-- Contenteditable Area -->
+                            <div id="editorAreaNl" class="richtext-content" contenteditable="true" placeholder="Schrijf uw toegankelijke reisverhaal in het Nederlands..."></div>
                         </div>
                     </div>
                 </div>
@@ -259,6 +320,10 @@ require_once PATH_ROOT . '/includes/header.php';
                         <div class="admin-form-group" style="margin-top: 1rem;">
                             <label for="post-alt-ar"><?php echo __("post_field_alt_ar"); ?></label>
                             <input type="text" id="post-alt-ar" name="alt_text_ar" class="admin-form-input" placeholder="النص البديل بالعربية" style="direction: rtl;" />
+                        </div>
+                        <div class="admin-form-group" style="margin-top: 1rem;">
+                            <label for="post-alt-nl"><?php echo __("post_field_alt_nl"); ?></label>
+                            <input type="text" id="post-alt-nl" name="alt_text_nl" class="admin-form-input" placeholder="Alt text in Dutch" />
                         </div>
                         
                         <!-- Drag-and-drop Image Uploader Box -->
@@ -319,6 +384,25 @@ require_once PATH_ROOT . '/includes/header.php';
             });
         }
 
+        // Slug Generator for NL (Dutch)
+        const titleNlInp = document.getElementById('post-title-nl');
+        const slugNlInp = document.getElementById('post-slug-nl');
+        if (titleNlInp && slugNlInp) {
+            titleNlInp.addEventListener('input', function() {
+                if (slugNlInp.value === '' || this.getAttribute('data-touched') !== 'true') {
+                    slugNlInp.value = this.value.toLowerCase()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .replace(/[^\w\s-]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/--+/g, '-');
+                }
+            });
+            slugNlInp.addEventListener('change', function() {
+                this.setAttribute('data-touched', 'true');
+            });
+        }
+
         // 2. Rich Text Toolbar Command Executor (targets active editor block)
         const toolbars = document.querySelectorAll('.richtext-toolbar');
         toolbars.forEach(tb => {
@@ -363,6 +447,11 @@ require_once PATH_ROOT . '/includes/header.php';
                 const contentHiddenAr = document.getElementById('postContentInputAr');
                 if (contentAreaAr && contentHiddenAr) {
                     contentHiddenAr.value = contentAreaAr.innerHTML;
+                }
+                const contentAreaNl = document.getElementById('editorAreaNl');
+                const contentHiddenNl = document.getElementById('postContentInputNl');
+                if (contentAreaNl && contentHiddenNl) {
+                    contentHiddenNl.value = contentAreaNl.innerHTML;
                 }
             });
         }
