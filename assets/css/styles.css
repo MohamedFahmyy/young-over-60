@@ -3178,6 +3178,10 @@ img {
   .nav-menu {
     display: none !important;
   }
+
+  .navbar-actions .lang-switcher {
+    display: none !important;
+  }
   
   .mobile-toggle {
     display: flex !important;

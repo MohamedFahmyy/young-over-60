@@ -268,6 +268,28 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
 
 <!-- Mobile Navigation Drawer -->
 <div class="mobile-menu-drawer">
+    <!-- Language Switcher in Mobile Drawer -->
+    <div class="mobile-lang-switcher" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem;">
+        <?php 
+        foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
+            $langUrl = BASE_URL;
+            if ($lCode !== 'en') {
+                $langUrl .= '/' . $lCode;
+            }
+            $langUrl .= '/' . ltrim($route_clean, '/');
+            if ($queryString) {
+                $langUrl .= $queryString . '&lang=' . $lCode;
+            } else {
+                $langUrl .= '?lang=' . $lCode;
+            }
+            
+            $label = strtoupper($lCode);
+            $isActive = ($lCode === $activeLang);
+            $style = $isActive ? 'font-weight: 700; color: var(--primary-color); opacity: 1; pointer-events: none;' : 'opacity: 0.7;';
+            echo '<a href="' . $langUrl . '" class="lang-btn' . ($isActive ? ' active' : '') . '" style="' . $style . '" aria-label="Switch to ' . $cfg['name'] . '">' . $label . '</a>';
+        }
+        ?>
+    </div>
     <button class="btn-reset" data-open-accessibility style="margin-bottom: 2rem; width: 100%;"><?php echo __('acc_widget_title'); ?></button>
     <ul class="mobile-nav-list">
         <?php foreach ($navigationData as $item): ?>
