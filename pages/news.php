@@ -27,15 +27,15 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
 <main class="container">
     <!-- Breadcrumbs -->
-    <?php renderBreadcrumbs(['News & Updates' => '']); ?>
+    <?php renderBreadcrumbs([__('nav_news') => '']); ?>
 
     <section class="content-list-section">
         <!-- Header -->
         <div class="mb-16 text-center max-w-3xl mx-auto" data-scroll-reveal>
-            <span class="section-label">Latest Content</span>
-            <h1 class="serif-title" style="margin-top: 1rem;">News & Stories</h1>
+            <span class="section-label"><?= __('featured_news_label') ?></span>
+            <h1 class="serif-title" style="margin-top: 1rem;"><?= __('news_and_stories') ?></h1>
             <p style="color: #666666; font-size: 1.1rem; font-weight: 300; margin-top: 1rem; margin-bottom: 3rem;">
-                Stay updated with the latest accessibility news, travel advice, inclusive guidelines, and editor announcements.
+                <?= __('news_desc_extended') ?>
             </p>
             
             <!-- Search bar -->
@@ -44,28 +44,28 @@ require_once PATH_ROOT . '/includes/navbar.php';
                     type="text" 
                     name="search" 
                     value="<?php echo e($search); ?>" 
-                    placeholder="Search stories..." 
+                    placeholder="<?php echo __('nav_search_placeholder'); ?>" 
                     class="form-input" 
                     aria-label="Search stories query"
                     style="border-radius: 8px; flex-grow: 1;"
                 />
                 <button type="submit" class="btn-primary" style="padding: 0 2rem; border-radius: 8px; font-size: 0.75rem;">
-                    Search
+                    <?php echo __('btn_search'); ?>
                 </button>
             </form>
             <?php if ($search): ?>
                 <p style="margin-top: 1rem; font-size: 0.85rem; color: #888;">
-                    Showing results for "<strong><?php echo e($search); ?></strong>" &bull; <a href="<?php echo BASE_URL; ?>/news" style="text-decoration: underline;">Clear search</a>
+                    <?php echo __('showing_results_for'); ?> "<strong><?php echo e($search); ?></strong>" &bull; <a href="<?php echo BASE_URL; ?>/news" style="text-decoration: underline;"><?php echo __('clear_search'); ?></a>
                 </p>
             <?php endif; ?>
         </div>
 
         <div class="content-list-header" data-scroll-reveal>
             <h2 class="serif-title" style="font-size: 1.75rem; margin:0;">
-                <?php echo $search ? 'Search Results' : 'Recent Articles'; ?>
+                <?php echo $search ? __('search_results') : __('recent_articles'); ?>
             </h2>
             <span class="list-count-label">
-                <?php echo $meta['total']; ?> <?php echo $meta['total'] === 1 ? 'Story' : 'Stories'; ?> found
+                <?php echo $meta['total']; ?> <?php echo $meta['total'] === 1 ? __('story_single') : __('story_plural'); ?> <?php echo __('found'); ?>
             </span>
         </div>
 
@@ -99,8 +99,8 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <?php else: ?>
             <div style="text-align: center; padding: 6rem 0; border: 1px dashed var(--accent-color); background-color: #fafafa;" data-scroll-reveal>
                 <div style="font-size: 3rem; margin-bottom: 1.5rem;">📰</div>
-                <h3 class="serif-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">No Stories Found</h3>
-                <p style="color: #888; font-weight: 300;">We couldn't find any stories matching your search parameter.</p>
+                <h3 class="serif-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;"><?php echo __('no_stories_found'); ?></h3>
+                <p style="color: #888; font-weight: 300;"><?php echo __('no_stories_matching'); ?></p>
             </div>
         <?php endif; ?>
     </section>

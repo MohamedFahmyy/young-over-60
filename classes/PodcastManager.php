@@ -84,32 +84,37 @@ class PodcastManager {
     }
 
     public function getPodcastBySlug($slug) {
-        $stmt = $this->db->prepare("SELECT * FROM podcasts WHERE slug_en = :slug_en OR slug_ar = :slug_ar LIMIT 1");
-        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug]);
+        $stmt = $this->db->prepare("SELECT * FROM podcasts WHERE slug_en = :slug_en OR slug_ar = :slug_ar OR slug_nl = :slug_nl LIMIT 1");
+        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug, 'slug_nl' => $slug]);
         return $stmt->fetch();
     }
 
     public function createPodcast($data) {
         $id = bin2hex(random_bytes(16));
-        $sql = "INSERT INTO podcasts (id, title_en, title_ar, slug_en, slug_ar, description_en, description_ar, audio_file, cover_image, alt_text_en, alt_text_ar, duration, category_en, category_ar, is_featured) 
-                VALUES (:id, :title_en, :title_ar, :slug_en, :slug_ar, :description_en, :description_ar, :audio_file, :cover_image, :alt_text_en, :alt_text_ar, :duration, :category_en, :category_ar, :is_featured)";
+        $sql = "INSERT INTO podcasts (id, title_en, title_ar, title_nl, slug_en, slug_ar, slug_nl, description_en, description_ar, description_nl, audio_file, cover_image, alt_text_en, alt_text_ar, alt_text_nl, duration, category_en, category_ar, category_nl, is_featured) 
+                VALUES (:id, :title_en, :title_ar, :title_nl, :slug_en, :slug_ar, :slug_nl, :description_en, :description_ar, :description_nl, :audio_file, :cover_image, :alt_text_en, :alt_text_ar, :alt_text_nl, :duration, :category_en, :category_ar, :category_nl, :is_featured)";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'id' => $id,
             'title_en' => $data['title_en'],
             'title_ar' => $data['title_ar'] ?? null,
+            'title_nl' => $data['title_nl'] ?? null,
             'slug_en' => $data['slug_en'],
             'slug_ar' => $data['slug_ar'] ?? null,
+            'slug_nl' => $data['slug_nl'] ?? null,
             'description_en' => $data['description_en'] ?? null,
             'description_ar' => $data['description_ar'] ?? null,
+            'description_nl' => $data['description_nl'] ?? null,
             'audio_file' => $data['audio_file'],
             'cover_image' => $data['cover_image'] ?? null,
             'alt_text_en' => $data['alt_text_en'] ?? null,
             'alt_text_ar' => $data['alt_text_ar'] ?? null,
+            'alt_text_nl' => $data['alt_text_nl'] ?? null,
             'duration' => $data['duration'] ?? null,
             'category_en' => $data['category_en'] ?? null,
             'category_ar' => $data['category_ar'] ?? null,
+            'category_nl' => $data['category_nl'] ?? null,
             'is_featured' => !empty($data['is_featured']) ? 1 : 0
         ]);
     }
@@ -118,17 +123,22 @@ class PodcastManager {
         $sql = "UPDATE podcasts SET 
                 title_en = :title_en, 
                 title_ar = :title_ar, 
+                title_nl = :title_nl, 
                 slug_en = :slug_en, 
                 slug_ar = :slug_ar, 
+                slug_nl = :slug_nl, 
                 description_en = :description_en, 
                 description_ar = :description_ar, 
+                description_nl = :description_nl, 
                 audio_file = :audio_file, 
                 cover_image = :cover_image, 
                 alt_text_en = :alt_text_en,
                 alt_text_ar = :alt_text_ar,
+                alt_text_nl = :alt_text_nl,
                 duration = :duration, 
                 category_en = :category_en, 
                 category_ar = :category_ar, 
+                category_nl = :category_nl, 
                 is_featured = :is_featured
                 WHERE id = :id";
         
@@ -137,17 +147,22 @@ class PodcastManager {
             'id' => $id,
             'title_en' => $data['title_en'],
             'title_ar' => $data['title_ar'] ?? null,
+            'title_nl' => $data['title_nl'] ?? null,
             'slug_en' => $data['slug_en'],
             'slug_ar' => $data['slug_ar'] ?? null,
+            'slug_nl' => $data['slug_nl'] ?? null,
             'description_en' => $data['description_en'] ?? null,
             'description_ar' => $data['description_ar'] ?? null,
+            'description_nl' => $data['description_nl'] ?? null,
             'audio_file' => $data['audio_file'],
             'cover_image' => $data['cover_image'] ?? null,
             'alt_text_en' => $data['alt_text_en'] ?? null,
             'alt_text_ar' => $data['alt_text_ar'] ?? null,
+            'alt_text_nl' => $data['alt_text_nl'] ?? null,
             'duration' => $data['duration'] ?? null,
             'category_en' => $data['category_en'] ?? null,
             'category_ar' => $data['category_ar'] ?? null,
+            'category_nl' => $data['category_nl'] ?? null,
             'is_featured' => !empty($data['is_featured']) ? 1 : 0
         ]);
     }

@@ -56,11 +56,11 @@ class PageManager {
 
         $stmt = $this->db->prepare(
             "SELECT * FROM custom_pages 
-             WHERE (slug_en = :slug1 OR slug_ar = :slug2) 
+             WHERE (slug_en = :slug1 OR slug_ar = :slug2 OR slug_nl = :slug3) 
              AND is_published = 1 
              LIMIT 1"
         );
-        $stmt->execute([':slug1' => $slug, ':slug2' => $slug]);
+        $stmt->execute([':slug1' => $slug, ':slug2' => $slug, ':slug3' => $slug]);
         $page = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($page) {
             $this->cacheSet($cacheKey, $page);
@@ -139,11 +139,17 @@ class PageManager {
         if (empty($data['slug_ar']) && !empty($data['title_ar'])) {
             $data['slug_ar'] = $this->generateSlug($data['title_ar']);
         }
+        if (empty($data['slug_nl']) && !empty($data['title_nl'])) {
+            $data['slug_nl'] = $this->generateSlug($data['title_nl']);
+        }
 
         // Ensure slug uniqueness
         $data['slug_en'] = $this->ensureUniqueSlug($data['slug_en'] ?? '', 'slug_en');
         if (!empty($data['slug_ar'])) {
             $data['slug_ar'] = $this->ensureUniqueSlug($data['slug_ar'], 'slug_ar');
+        }
+        if (!empty($data['slug_nl'])) {
+            $data['slug_nl'] = $this->ensureUniqueSlug($data['slug_nl'], 'slug_nl');
         }
 
         // Generate a unique string ID (the DB schema uses VARCHAR(36) primary key)
@@ -151,43 +157,52 @@ class PageManager {
 
         $stmt = $this->db->prepare("
             INSERT INTO custom_pages 
-                (id, title_en, title_ar, slug_en, slug_ar, content_en, content_ar,
-                 excerpt_en, excerpt_ar,
-                 meta_title_en, meta_title_ar, meta_description_en, meta_description_ar,
-                 canonical_url_en, canonical_url_ar,
-                 hero_title_en, hero_title_ar, hero_subtitle_en, hero_subtitle_ar,
+                (id, title_en, title_ar, title_nl, slug_en, slug_ar, slug_nl, content_en, content_ar, content_nl,
+                 excerpt_en, excerpt_ar, excerpt_nl,
+                 meta_title_en, meta_title_ar, meta_title_nl, meta_description_en, meta_description_ar, meta_description_nl,
+                 canonical_url_en, canonical_url_ar, canonical_url_nl,
+                 hero_title_en, hero_title_ar, hero_title_nl, hero_subtitle_en, hero_subtitle_ar, hero_subtitle_nl,
                  hero_image, featured_image, template_type, is_published, show_in_menu,
-                 menu_title_en, menu_title_ar, sort_order, created_at, updated_at)
+                 menu_title_en, menu_title_ar, menu_title_nl, sort_order, created_at, updated_at)
             VALUES
-                (:id, :title_en, :title_ar, :slug_en, :slug_ar, :content_en, :content_ar,
-                 :excerpt_en, :excerpt_ar,
-                 :meta_title_en, :meta_title_ar, :meta_description_en, :meta_description_ar,
-                 :canonical_url_en, :canonical_url_ar,
-                 :hero_title_en, :hero_title_ar, :hero_subtitle_en, :hero_subtitle_ar,
+                (:id, :title_en, :title_ar, :title_nl, :slug_en, :slug_ar, :slug_nl, :content_en, :content_ar, :content_nl,
+                 :excerpt_en, :excerpt_ar, :excerpt_nl,
+                 :meta_title_en, :meta_title_ar, :meta_title_nl, :meta_description_en, :meta_description_ar, :meta_description_nl,
+                 :canonical_url_en, :canonical_url_ar, :canonical_url_nl,
+                 :hero_title_en, :hero_title_ar, :hero_title_nl, :hero_subtitle_en, :hero_subtitle_ar, :hero_subtitle_nl,
                  :hero_image, :featured_image, :template_type, :is_published, :show_in_menu,
-                 :menu_title_en, :menu_title_ar, :sort_order, :created_at, :updated_at)
+                 :menu_title_en, :menu_title_ar, :menu_title_nl, :sort_order, :created_at, :updated_at)
         ");
 
         $result = $stmt->execute([
             ':id'                 => $pageId,
             ':title_en'           => $data['title_en'] ?? '',
             ':title_ar'           => $data['title_ar'] ?? '',
+            ':title_nl'           => $data['title_nl'] ?? '',
             ':slug_en'            => $data['slug_en'],
             ':slug_ar'            => $data['slug_ar'] ?? '',
+            ':slug_nl'            => $data['slug_nl'] ?? '',
             ':content_en'         => $data['content_en'] ?? '',
             ':content_ar'         => $data['content_ar'] ?? '',
+            ':content_nl'         => $data['content_nl'] ?? '',
             ':excerpt_en'         => $data['excerpt_en'] ?? '',
             ':excerpt_ar'         => $data['excerpt_ar'] ?? '',
+            ':excerpt_nl'         => $data['excerpt_nl'] ?? '',
             ':meta_title_en'      => $data['meta_title_en'] ?? '',
             ':meta_title_ar'      => $data['meta_title_ar'] ?? '',
+            ':meta_title_nl'      => $data['meta_title_nl'] ?? '',
             ':meta_description_en'=> $data['meta_description_en'] ?? '',
             ':meta_description_ar'=> $data['meta_description_ar'] ?? '',
+            ':meta_description_nl'=> $data['meta_description_nl'] ?? '',
             ':canonical_url_en'   => $data['canonical_url_en'] ?? '',
             ':canonical_url_ar'   => $data['canonical_url_ar'] ?? '',
+            ':canonical_url_nl'   => $data['canonical_url_nl'] ?? '',
             ':hero_title_en'      => $data['hero_title_en'] ?? '',
             ':hero_title_ar'      => $data['hero_title_ar'] ?? '',
+            ':hero_title_nl'      => $data['hero_title_nl'] ?? '',
             ':hero_subtitle_en'   => $data['hero_subtitle_en'] ?? '',
             ':hero_subtitle_ar'   => $data['hero_subtitle_ar'] ?? '',
+            ':hero_subtitle_nl'   => $data['hero_subtitle_nl'] ?? '',
             ':hero_image'         => $data['hero_image'] ?? '',
             ':featured_image'     => $data['featured_image'] ?? '',
             ':template_type'      => $data['template_type'] ?? 'default',
@@ -195,6 +210,7 @@ class PageManager {
             ':show_in_menu'       => isset($data['show_in_menu']) ? (int)$data['show_in_menu'] : 0,
             ':menu_title_en'      => $data['menu_title_en'] ?? '',
             ':menu_title_ar'      => $data['menu_title_ar'] ?? '',
+            ':menu_title_nl'      => $data['menu_title_nl'] ?? '',
             ':sort_order'         => isset($data['sort_order']) ? (int)$data['sort_order'] : 0,
             ':created_at'         => $now,
             ':updated_at'         => $now,
@@ -222,6 +238,9 @@ class PageManager {
         if (!empty($data['slug_en']) && $data['slug_en'] !== $existing['slug_en']) {
             $this->createRedirect($existing['slug_en'], $data['slug_en'], $id);
         }
+        if (!empty($data['slug_nl']) && $data['slug_nl'] !== $existing['slug_nl']) {
+            $this->createRedirect($existing['slug_nl'], $data['slug_nl'], $id);
+        }
 
         // Ensure slug uniqueness (excluding current page)
         if (!empty($data['slug_en'])) {
@@ -230,24 +249,27 @@ class PageManager {
         if (!empty($data['slug_ar'])) {
             $data['slug_ar'] = $this->ensureUniqueSlug($data['slug_ar'], 'slug_ar', $id);
         }
+        if (!empty($data['slug_nl'])) {
+            $data['slug_nl'] = $this->ensureUniqueSlug($data['slug_nl'], 'slug_nl', $id);
+        }
 
         // Save revision before updating
         $this->saveRevision($id, $existing);
 
         $stmt = $this->db->prepare("
             UPDATE custom_pages SET
-                title_en = :title_en, title_ar = :title_ar,
-                slug_en = :slug_en, slug_ar = :slug_ar,
-                content_en = :content_en, content_ar = :content_ar,
-                excerpt_en = :excerpt_en, excerpt_ar = :excerpt_ar,
-                meta_title_en = :meta_title_en, meta_title_ar = :meta_title_ar,
-                meta_description_en = :meta_description_en, meta_description_ar = :meta_description_ar,
-                canonical_url_en = :canonical_url_en, canonical_url_ar = :canonical_url_ar,
-                hero_title_en = :hero_title_en, hero_title_ar = :hero_title_ar,
-                hero_subtitle_en = :hero_subtitle_en, hero_subtitle_ar = :hero_subtitle_ar,
+                title_en = :title_en, title_ar = :title_ar, title_nl = :title_nl,
+                slug_en = :slug_en, slug_ar = :slug_ar, slug_nl = :slug_nl,
+                content_en = :content_en, content_ar = :content_ar, content_nl = :content_nl,
+                excerpt_en = :excerpt_en, excerpt_ar = :excerpt_ar, excerpt_nl = :excerpt_nl,
+                meta_title_en = :meta_title_en, meta_title_ar = :meta_title_ar, meta_title_nl = :meta_title_nl,
+                meta_description_en = :meta_description_en, meta_description_ar = :meta_description_ar, meta_description_nl = :meta_description_nl,
+                canonical_url_en = :canonical_url_en, canonical_url_ar = :canonical_url_ar, canonical_url_nl = :canonical_url_nl,
+                hero_title_en = :hero_title_en, hero_title_ar = :hero_title_ar, hero_title_nl = :hero_title_nl,
+                hero_subtitle_en = :hero_subtitle_en, hero_subtitle_ar = :hero_subtitle_ar, hero_subtitle_nl = :hero_subtitle_nl,
                 hero_image = :hero_image, featured_image = :featured_image,
                 template_type = :template_type, is_published = :is_published,
-                show_in_menu = :show_in_menu, menu_title_en = :menu_title_en, menu_title_ar = :menu_title_ar,
+                show_in_menu = :show_in_menu, menu_title_en = :menu_title_en, menu_title_ar = :menu_title_ar, menu_title_nl = :menu_title_nl,
                 sort_order = :sort_order, updated_at = :updated_at
             WHERE id = :id
         ");
@@ -256,22 +278,31 @@ class PageManager {
             ':id'                  => $id,
             ':title_en'           => $data['title_en'] ?? $existing['title_en'],
             ':title_ar'           => $data['title_ar'] ?? $existing['title_ar'],
+            ':title_nl'           => $data['title_nl'] ?? $existing['title_nl'],
             ':slug_en'            => $data['slug_en'] ?? $existing['slug_en'],
             ':slug_ar'            => $data['slug_ar'] ?? $existing['slug_ar'],
+            ':slug_nl'            => $data['slug_nl'] ?? $existing['slug_nl'],
             ':content_en'         => $data['content_en'] ?? $existing['content_en'],
             ':content_ar'         => $data['content_ar'] ?? $existing['content_ar'],
+            ':content_nl'         => $data['content_nl'] ?? $existing['content_nl'],
             ':excerpt_en'         => $data['excerpt_en'] ?? $existing['excerpt_en'],
             ':excerpt_ar'         => $data['excerpt_ar'] ?? $existing['excerpt_ar'],
+            ':excerpt_nl'         => $data['excerpt_nl'] ?? $existing['excerpt_nl'],
             ':meta_title_en'      => $data['meta_title_en'] ?? $existing['meta_title_en'],
             ':meta_title_ar'      => $data['meta_title_ar'] ?? $existing['meta_title_ar'],
+            ':meta_title_nl'      => $data['meta_title_nl'] ?? $existing['meta_title_nl'],
             ':meta_description_en'=> $data['meta_description_en'] ?? $existing['meta_description_en'],
             ':meta_description_ar'=> $data['meta_description_ar'] ?? $existing['meta_description_ar'],
+            ':meta_description_nl'=> $data['meta_description_nl'] ?? $existing['meta_description_nl'],
             ':canonical_url_en'   => $data['canonical_url_en'] ?? $existing['canonical_url_en'],
             ':canonical_url_ar'   => $data['canonical_url_ar'] ?? $existing['canonical_url_ar'],
+            ':canonical_url_nl'   => $data['canonical_url_nl'] ?? $existing['canonical_url_nl'],
             ':hero_title_en'      => $data['hero_title_en'] ?? $existing['hero_title_en'],
             ':hero_title_ar'      => $data['hero_title_ar'] ?? $existing['hero_title_ar'],
+            ':hero_title_nl'      => $data['hero_title_nl'] ?? $existing['hero_title_nl'],
             ':hero_subtitle_en'   => $data['hero_subtitle_en'] ?? $existing['hero_subtitle_en'],
             ':hero_subtitle_ar'   => $data['hero_subtitle_ar'] ?? $existing['hero_subtitle_ar'],
+            ':hero_subtitle_nl'   => $data['hero_subtitle_nl'] ?? $existing['hero_subtitle_nl'],
             ':hero_image'         => $data['hero_image'] ?? $existing['hero_image'],
             ':featured_image'     => $data['featured_image'] ?? $existing['featured_image'],
             ':template_type'      => $data['template_type'] ?? $existing['template_type'],
@@ -279,6 +310,7 @@ class PageManager {
             ':show_in_menu'       => isset($data['show_in_menu']) ? (int)$data['show_in_menu'] : (int)$existing['show_in_menu'],
             ':menu_title_en'      => $data['menu_title_en'] ?? $existing['menu_title_en'],
             ':menu_title_ar'      => $data['menu_title_ar'] ?? $existing['menu_title_ar'],
+            ':menu_title_nl'      => $data['menu_title_nl'] ?? $existing['menu_title_nl'],
             ':sort_order'         => isset($data['sort_order']) ? (int)$data['sort_order'] : (int)$existing['sort_order'],
             ':updated_at'         => $now,
         ]);

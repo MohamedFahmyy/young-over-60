@@ -85,34 +85,41 @@ class StoryManager {
     }
 
     public function getStoryBySlug($slug) {
-        $stmt = $this->db->prepare("SELECT * FROM women_stories WHERE slug_en = :slug_en OR slug_ar = :slug_ar LIMIT 1");
-        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug]);
+        $stmt = $this->db->prepare("SELECT * FROM women_stories WHERE slug_en = :slug_en OR slug_ar = :slug_ar OR slug_nl = :slug_nl LIMIT 1");
+        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug, 'slug_nl' => $slug]);
         return $stmt->fetch();
     }
 
     public function createStory($data) {
         $id = bin2hex(random_bytes(16));
-        $sql = "INSERT INTO women_stories (id, title_en, title_ar, slug_en, slug_ar, excerpt_en, excerpt_ar, content_en, content_ar, cover_image, alt_text_en, alt_text_ar, category_en, category_ar, author_en, author_ar, read_time) 
-                VALUES (:id, :title_en, :title_ar, :slug_en, :slug_ar, :excerpt_en, :excerpt_ar, :content_en, :content_ar, :cover_image, :alt_text_en, :alt_text_ar, :category_en, :category_ar, :author_en, :author_ar, :read_time)";
+        $sql = "INSERT INTO women_stories (id, title_en, title_ar, title_nl, slug_en, slug_ar, slug_nl, excerpt_en, excerpt_ar, excerpt_nl, content_en, content_ar, content_nl, cover_image, alt_text_en, alt_text_ar, alt_text_nl, category_en, category_ar, category_nl, author_en, author_ar, author_nl, read_time) 
+                VALUES (:id, :title_en, :title_ar, :title_nl, :slug_en, :slug_ar, :slug_nl, :excerpt_en, :excerpt_ar, :excerpt_nl, :content_en, :content_ar, :content_nl, :cover_image, :alt_text_en, :alt_text_ar, :alt_text_nl, :category_en, :category_ar, :category_nl, :author_en, :author_ar, :author_nl, :read_time)";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'id' => $id,
             'title_en' => $data['title_en'],
             'title_ar' => $data['title_ar'] ?? null,
+            'title_nl' => $data['title_nl'] ?? null,
             'slug_en' => $data['slug_en'],
             'slug_ar' => $data['slug_ar'] ?? null,
+            'slug_nl' => $data['slug_nl'] ?? null,
             'excerpt_en' => $data['excerpt_en'] ?? null,
             'excerpt_ar' => $data['excerpt_ar'] ?? null,
+            'excerpt_nl' => $data['excerpt_nl'] ?? null,
             'content_en' => $data['content_en'],
             'content_ar' => $data['content_ar'] ?? null,
+            'content_nl' => $data['content_nl'] ?? null,
             'cover_image' => $data['cover_image'] ?? null,
             'alt_text_en' => $data['alt_text_en'] ?? null,
             'alt_text_ar' => $data['alt_text_ar'] ?? null,
+            'alt_text_nl' => $data['alt_text_nl'] ?? null,
             'category_en' => $data['category_en'] ?? null,
             'category_ar' => $data['category_ar'] ?? null,
+            'category_nl' => $data['category_nl'] ?? null,
             'author_en' => $data['author_en'] ?? 'Guest Writer',
             'author_ar' => $data['author_ar'] ?? null,
+            'author_nl' => $data['author_nl'] ?? null,
             'read_time' => $data['read_time'] ?? null
         ]);
     }
@@ -121,19 +128,26 @@ class StoryManager {
         $sql = "UPDATE women_stories SET 
                 title_en = :title_en, 
                 title_ar = :title_ar, 
+                title_nl = :title_nl, 
                 slug_en = :slug_en, 
                 slug_ar = :slug_ar, 
+                slug_nl = :slug_nl, 
                 excerpt_en = :excerpt_en, 
                 excerpt_ar = :excerpt_ar, 
+                excerpt_nl = :excerpt_nl, 
                 content_en = :content_en, 
                 content_ar = :content_ar, 
+                content_nl = :content_nl, 
                 cover_image = :cover_image, 
                 alt_text_en = :alt_text_en,
                 alt_text_ar = :alt_text_ar,
+                alt_text_nl = :alt_text_nl,
                 category_en = :category_en, 
                 category_ar = :category_ar, 
+                category_nl = :category_nl, 
                 author_en = :author_en, 
                 author_ar = :author_ar, 
+                author_nl = :author_nl, 
                 read_time = :read_time
                 WHERE id = :id";
         
@@ -142,19 +156,26 @@ class StoryManager {
             'id' => $id,
             'title_en' => $data['title_en'],
             'title_ar' => $data['title_ar'] ?? null,
+            'title_nl' => $data['title_nl'] ?? null,
             'slug_en' => $data['slug_en'],
             'slug_ar' => $data['slug_ar'] ?? null,
+            'slug_nl' => $data['slug_nl'] ?? null,
             'excerpt_en' => $data['excerpt_en'] ?? null,
             'excerpt_ar' => $data['excerpt_ar'] ?? null,
+            'excerpt_nl' => $data['excerpt_nl'] ?? null,
             'content_en' => $data['content_en'],
             'content_ar' => $data['content_ar'] ?? null,
+            'content_nl' => $data['content_nl'] ?? null,
             'cover_image' => $data['cover_image'] ?? null,
             'alt_text_en' => $data['alt_text_en'] ?? null,
             'alt_text_ar' => $data['alt_text_ar'] ?? null,
+            'alt_text_nl' => $data['alt_text_nl'] ?? null,
             'category_en' => $data['category_en'] ?? null,
             'category_ar' => $data['category_ar'] ?? null,
+            'category_nl' => $data['category_nl'] ?? null,
             'author_en' => $data['author_en'] ?? 'Guest Writer',
             'author_ar' => $data['author_ar'] ?? null,
+            'author_nl' => $data['author_nl'] ?? null,
             'read_time' => $data['read_time'] ?? null
         ]);
     }

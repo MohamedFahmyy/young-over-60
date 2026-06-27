@@ -166,22 +166,22 @@ class PostManager {
         if ($cached) return $cached;
 
         $sql = "SELECT p.*, 
-                       c.name_en as categoryName_en, c.name_ar as categoryName_ar, 
-                       c.slug_en as categorySlug_en, c.slug_ar as categorySlug_ar, 
+                       c.name_en as categoryName_en, c.name_ar as categoryName_ar, c.name_nl as categoryName_nl,
+                       c.slug_en as categorySlug_en, c.slug_ar as categorySlug_ar, c.slug_nl as categorySlug_nl, 
                        u.name as authorName, u.bio as authorBio, u.avatar as authorAvatar, 
                        u.twitter as authorTwitter, u.facebook as authorFacebook, 
                        u.instagram as authorInstagram, u.linkedin as authorLinkedin, u.website as authorWebsite
                 FROM posts p 
                 INNER JOIN categories c ON p.categoryId = c.id 
                 LEFT JOIN users u ON p.authorId = u.id 
-                WHERE (p.slug_en = :slug_en OR p.slug_ar = :slug_ar) AND p.deleted_at IS NULL";
+                WHERE (p.slug_en = :slug_en OR p.slug_ar = :slug_ar OR p.slug_nl = :slug_nl) AND p.deleted_at IS NULL";
         
         if (!$isAdmin) {
             $sql .= " AND p.status = 'PUBLISHED'";
         }
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug]);
+        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug, 'slug_nl' => $slug]);
         $post = $stmt->fetch();
 
         if ($post) {

@@ -31,14 +31,14 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
 <main class="container">
     <!-- Breadcrumbs -->
-    <?php renderBreadcrumbs(['Destinations' => '']); ?>
+    <?php renderBreadcrumbs([__('nav_destinations') => '']); ?>
 
     <section class="content-list-section">
         <div class="mb-16 text-center max-w-3xl mx-auto" data-scroll-reveal>
-            <span class="section-label">Explore Regions</span>
-            <h1 class="serif-title" style="margin-top: 1rem;">Destinations</h1>
+            <span class="section-label"><?= __('dest_label') ?></span>
+            <h1 class="serif-title" style="margin-top: 1rem;"><?= __('dest_title') ?></h1>
             <p style="color: #666666; font-size: 1.1rem; font-weight: 300; margin-top: 1rem;">
-                Browse by geography to locate accessible accommodations, transportation guides, and local stories customized for travellers with mobility, sensory, and cognitive requirements.
+                <?= __('dest_desc') ?>
             </p>
         </div>
 
@@ -48,16 +48,16 @@ require_once PATH_ROOT . '/includes/navbar.php';
                 $postCountRes = $pm->getPosts(['categoryId' => $dest['id'], 'status' => 'PUBLISHED', 'limit' => 1]);
                 $count = $postCountRes['meta']['total'];
                 ?>
-                <a href="<?php echo BASE_URL; ?>/category/<?php echo $dest['slug']; ?>" class="needs-card" data-scroll-reveal aria-label="Explore <?php echo e($dest['name']); ?>">
-                    <img src="<?php echo e(!empty($dest['image']) ? $dest['image'] : '/images/hero-bg.png'); ?>" alt="<?php echo e($dest['name']); ?>" loading="lazy" />
+                <a href="<?php echo BASE_URL; ?>/category/<?php echo $dest['slug']; ?>" class="needs-card" data-scroll-reveal aria-label="Explore <?php echo e(t($dest, 'name')); ?>">
+                    <img src="<?php echo e(!empty($dest['image']) ? $dest['image'] : '/images/hero-bg.png'); ?>" alt="<?php echo e(t($dest, 'name')); ?>" loading="lazy" />
                     <div class="needs-card-overlay">
                         <div class="needs-card-line"></div>
-                        <h2 class="needs-card-title"><?php echo e($dest['name']); ?></h2>
+                        <h2 class="needs-card-title"><?php echo e(t($dest, 'name')); ?></h2>
                         <p style="color:rgba(255,255,255,0.7); font-size: 0.7rem; text-transform:uppercase; letter-spacing:0.15em; margin-top:0.5rem;">
-                            <?php echo $count; ?> <?php echo $count === 1 ? 'Story' : 'Stories'; ?>
+                            <?php echo $count; ?> <?php echo $count === 1 ? __('story_single') : __('story_plural'); ?>
                         </p>
                         <div class="needs-card-hover-text">
-                            <span class="hover-label-btn">View Destinations</span>
+                            <span class="hover-label-btn"><?= __('btn_view_destinations') ?></span>
                         </div>
                     </div>
                 </a>
@@ -67,10 +67,10 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <!-- Featured Guides & Stories Section (Internal Linking & Crawl Depth) -->
         <section style="margin-top: 5rem; border-top: 1px solid var(--border-color); padding-top: 4rem;">
             <div class="mb-16 text-center max-w-3xl mx-auto" data-scroll-reveal>
-                <span class="section-label">Read Stories</span>
-                <h3 class="serif-title" style="margin-top: 1rem;">Featured Guides &amp; Experiences</h3>
+                <span class="section-label"><?= __('btn_view_stories') ?></span>
+                <h3 class="serif-title" style="margin-top: 1rem;"><?= __('featured_guides_experiences') ?></h3>
                 <p style="color: #666666; font-size: 1.1rem; font-weight: 300; margin-top: 0.5rem;">
-                    Get practical, real-world accessibility details and travel guides from our experienced travelers.
+                    <?= __('featured_guides_desc') ?>
                 </p>
             </div>
             

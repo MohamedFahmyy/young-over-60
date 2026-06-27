@@ -125,7 +125,7 @@ function renderImageTag($url, $defaultAlt = '', $class = '', $lazy = true) {
     $loadingAttr = $lazy ? ' loading="lazy"' : ' loading="eager"';
     $classAttr = !empty($class) ? ' class="' . e($class) . '"' : '';
     
-    echo '<img src="' . e($url) . '" alt="' . e($alt) . '"' . $classAttr . $widthAttr . $heightAttr . $loadingAttr . ' />';
+    echo '<img src="' . e($url) . '" alt="' . e($alt) . '"' . $classAttr . $widthAttr . $heightAttr . $loadingAttr . ' decoding="async" onload="this.classList.add(\'loaded\');" onerror="this.onerror=null;this.src=\'/assets/images/hero-bg.png\';this.classList.add(\'loaded\');" />';
 }
 
 // 9. Renders the luxury Post Card component (reusable card)
@@ -253,26 +253,32 @@ function t($record, $field, $fallback = true) {
     if (!$record) return '';
     $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
     
-    // Check primary translation column (e.g. title_ar)
+    // 1. Check primary translation column (e.g. title_ar)
     $fieldLang = $field . '_' . $lang;
     if (isset($record[$fieldLang]) && $record[$fieldLang] !== '') {
         return $record[$fieldLang];
     }
     
-    // Check default translation column (e.g. title_en)
-    $fieldDefault = $field . '_' . DEFAULT_LANG;
-    if (isset($record[$fieldDefault]) && $record[$fieldDefault] !== '') {
-        return $record[$fieldDefault];
+    // 2. For non-Arabic languages, fallback to English first
+    if ($lang !== 'ar') {
+        $fieldEn = $field . '_en';
+        if (isset($record[$fieldEn]) && $record[$fieldEn] !== '') {
+            return $record[$fieldEn];
+        }
     }
     
-    // Fallback to the non-suffixed field if it exists (e.g. title)
+    // 3. Fallback to the non-suffixed field if it exists (e.g. title)
     if (isset($record[$field]) && $record[$field] !== '') {
         return $record[$field];
     }
     
-    // Fallback to any other language in registry
+    // 4. Arabic fallback only as a last resort, or other languages in registry
     if ($fallback && defined('SUPPORTED_LANGUAGES')) {
         foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
+            // Already checked these
+            if ($lCode === $lang || ($lang !== 'ar' && $lCode === 'en')) {
+                continue;
+            }
             $f = $field . '_' . $lCode;
             if (isset($record[$f]) && $record[$f] !== '') {
                 return $record[$f];
@@ -294,6 +300,25 @@ function __($key) {
             $dictionary[$lang] = include $filePath;
         } else {
             $dictionary[$lang] = [];
+        }
+    }
+    
+    if (!isset($dictionary[$lang][$key])) {
+        error_log("Missing translation key: {$key} for language {$lang}");
+        
+        // Fallback to English dictionary
+        if ($lang !== 'en') {
+            if (empty($dictionary['en'])) {
+                $filePath = PATH_ROOT . '/lang/en.php';
+                if (file_exists($filePath)) {
+                    $dictionary['en'] = include $filePath;
+                } else {
+                    $dictionary['en'] = [];
+                }
+            }
+            if (isset($dictionary['en'][$key])) {
+                return $dictionary['en'][$key];
+            }
         }
     }
     
