@@ -36,18 +36,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Title (EN) and Content (EN) are required fields.";
         } else {
             $slug_en = slugify(empty($slug_en) ? $title_en : $slug_en);
-
-            // Verify slug uniqueness if new or changed
-            $existingEn = $storyMgr->getStoryBySlug($slug_en);
-            if ($existingEn && ($action === 'add' || $existingEn['id'] !== $editId)) {
-                $slug_en = $slug_en . '-' . time();
+            
+            // Verify slug uniqueness (loop until unique)
+            $originalSlugEn = $slug_en;
+            $counter = 1;
+            while ($storyMgr->slugExists($slug_en, $action === 'edit' ? $editId : null)) {
+                $slug_en = $originalSlugEn . '-' . $counter++;
             }
 
             if (!empty($title_ar)) {
                 $slug_ar = slugify(empty($slug_ar) ? $title_ar : $slug_ar);
-                $existingAr = $storyMgr->getStoryBySlug($slug_ar);
-                if ($existingAr && ($action === 'add' || $existingAr['id'] !== $editId)) {
-                    $slug_ar = $slug_ar . '-' . time();
+                $originalSlugAr = $slug_ar;
+                $counter = 1;
+                while ($storyMgr->slugExists($slug_ar, $action === 'edit' ? $editId : null)) {
+                    $slug_ar = $originalSlugAr . '-' . $counter++;
                 }
             } else {
                 $slug_ar = null;

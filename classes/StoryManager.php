@@ -90,8 +90,50 @@ class StoryManager {
         return $stmt->fetch();
     }
 
+    public function slugExists($slug, $excludeId = null) {
+        $sql = "SELECT COUNT(*) FROM women_stories WHERE (slug_en = :slug_en OR slug_ar = :slug_ar OR slug_nl = :slug_nl)";
+        $params = [
+            'slug_en' => $slug,
+            'slug_ar' => $slug,
+            'slug_nl' => $slug
+        ];
+        if ($excludeId !== null) {
+            $sql .= " AND id != :excludeId";
+            $params['excludeId'] = $excludeId;
+        }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
     public function createStory($data) {
         $id = bin2hex(random_bytes(16));
+        
+        $slug_en = $data['slug_en'];
+        $originalSlugEn = $slug_en;
+        $counter = 1;
+        while ($this->slugExists($slug_en)) {
+            $slug_en = $originalSlugEn . '-' . $counter++;
+        }
+        
+        $slug_ar = $data['slug_ar'] ?? null;
+        if (!empty($slug_ar)) {
+            $originalSlugAr = $slug_ar;
+            $counter = 1;
+            while ($this->slugExists($slug_ar)) {
+                $slug_ar = $originalSlugAr . '-' . $counter++;
+            }
+        }
+        
+        $slug_nl = $data['slug_nl'] ?? null;
+        if (!empty($slug_nl)) {
+            $originalSlugNl = $slug_nl;
+            $counter = 1;
+            while ($this->slugExists($slug_nl)) {
+                $slug_nl = $originalSlugNl . '-' . $counter++;
+            }
+        }
+
         $sql = "INSERT INTO women_stories (id, title_en, title_ar, title_nl, slug_en, slug_ar, slug_nl, excerpt_en, excerpt_ar, excerpt_nl, content_en, content_ar, content_nl, cover_image, alt_text_en, alt_text_ar, alt_text_nl, category_en, category_ar, category_nl, author_en, author_ar, author_nl, read_time) 
                 VALUES (:id, :title_en, :title_ar, :title_nl, :slug_en, :slug_ar, :slug_nl, :excerpt_en, :excerpt_ar, :excerpt_nl, :content_en, :content_ar, :content_nl, :cover_image, :alt_text_en, :alt_text_ar, :alt_text_nl, :category_en, :category_ar, :category_nl, :author_en, :author_ar, :author_nl, :read_time)";
         
@@ -101,9 +143,9 @@ class StoryManager {
             'title_en' => $data['title_en'],
             'title_ar' => $data['title_ar'] ?? null,
             'title_nl' => $data['title_nl'] ?? null,
-            'slug_en' => $data['slug_en'],
-            'slug_ar' => $data['slug_ar'] ?? null,
-            'slug_nl' => $data['slug_nl'] ?? null,
+            'slug_en' => $slug_en,
+            'slug_ar' => $slug_ar,
+            'slug_nl' => $slug_nl,
             'excerpt_en' => $data['excerpt_en'] ?? null,
             'excerpt_ar' => $data['excerpt_ar'] ?? null,
             'excerpt_nl' => $data['excerpt_nl'] ?? null,
@@ -125,6 +167,31 @@ class StoryManager {
     }
 
     public function updateStory($id, $data) {
+        $slug_en = $data['slug_en'];
+        $originalSlugEn = $slug_en;
+        $counter = 1;
+        while ($this->slugExists($slug_en, $id)) {
+            $slug_en = $originalSlugEn . '-' . $counter++;
+        }
+        
+        $slug_ar = $data['slug_ar'] ?? null;
+        if (!empty($slug_ar)) {
+            $originalSlugAr = $slug_ar;
+            $counter = 1;
+            while ($this->slugExists($slug_ar, $id)) {
+                $slug_ar = $originalSlugAr . '-' . $counter++;
+            }
+        }
+        
+        $slug_nl = $data['slug_nl'] ?? null;
+        if (!empty($slug_nl)) {
+            $originalSlugNl = $slug_nl;
+            $counter = 1;
+            while ($this->slugExists($slug_nl, $id)) {
+                $slug_nl = $originalSlugNl . '-' . $counter++;
+            }
+        }
+
         $sql = "UPDATE women_stories SET 
                 title_en = :title_en, 
                 title_ar = :title_ar, 
@@ -157,9 +224,9 @@ class StoryManager {
             'title_en' => $data['title_en'],
             'title_ar' => $data['title_ar'] ?? null,
             'title_nl' => $data['title_nl'] ?? null,
-            'slug_en' => $data['slug_en'],
-            'slug_ar' => $data['slug_ar'] ?? null,
-            'slug_nl' => $data['slug_nl'] ?? null,
+            'slug_en' => $slug_en,
+            'slug_ar' => $slug_ar,
+            'slug_nl' => $slug_nl,
             'excerpt_en' => $data['excerpt_en'] ?? null,
             'excerpt_ar' => $data['excerpt_ar'] ?? null,
             'excerpt_nl' => $data['excerpt_nl'] ?? null,

@@ -4,9 +4,40 @@
  * 
  * Production Deployment & Migration Script for Dutch Localization
  * Run via CLI: php deploy_dutch_localization.php [--dry-run] [--prod]
+ * 
+ * ====================================================================
+ * PRODUCTION DEPLOYMENT PROCESS
+ * ====================================================================
+ * 1. Run in Dry-Run mode to review planned changes:
+ *    php deploy_dutch_localization.php --dry-run
+ * 
+ * 2. Execute the migration (creates automatic backup & applies changes):
+ *    php deploy_dutch_localization.php
+ * 
+ * 3. Review the printed deployment report and logs/deploy_dutch_localization.log.
+ * 
+ * 4. Verify Dutch frontend and admin pages.
+ * 
+ * ====================================================================
+ * ROLLBACK PROCEDURE (If anything goes wrong)
+ * ====================================================================
+ * 1. Restore the generated SQL backup located in:
+ *    /backups/pre_dutch_localization_YYYYMMDD_HHMMSS.sql
+ *    Example CLI command:
+ *    mysql -u [user] -p[pass] [dbname] < backups/pre_dutch_localization_YYYYMMDD_HHMMSS.sql
+ * 
+ * 2. Revert code changes in git:
+ *    git checkout HEAD -- deploy_dutch_localization.php
+ * 
+ * 3. Clear caches (using Admin Dashboard or manually deleting files in /cache/).
+ * 
+ * 4. Verify localization and site integrity.
  */
 
 define('PATH_ROOT', __DIR__);
+
+$startTime = microtime(true);
+$startDateTime = date('Y-m-d H:i:s');
 
 $isCli = (php_sapi_name() === 'cli');
 $lineBreak = $isCli ? "\n" : "<br>";
@@ -16,6 +47,7 @@ $isProdCli = in_array('--prod', $argv);
 
 $logsDir = PATH_ROOT . '/logs';
 $backupsDir = PATH_ROOT . '/backups';
+$locksDir = PATH_ROOT . '/storage/locks';
 
 if (!$isDryRun) {
     if (!is_dir($logsDir)) {
@@ -24,9 +56,13 @@ if (!$isDryRun) {
     if (!is_dir($backupsDir)) {
         @mkdir($backupsDir, 0755, true);
     }
+    if (!is_dir($locksDir)) {
+        @mkdir($locksDir, 0755, true);
+    }
 }
 
 $logFile = !$isDryRun ? $logsDir . '/deploy_dutch_localization.log' : null;
+$lockPath = $locksDir . '/deploy_dutch_localization.lock';
 
 // Helper function for logging
 function logMsg($message, $isError = false) {
@@ -46,6 +82,27 @@ function logMsg($message, $isError = false) {
     if ($logFile) {
         @file_put_contents($logFile, $formatted . "\n", FILE_APPEND);
     }
+}
+
+// Implement Migration Lock Protection
+if (!$isDryRun) {
+    if (file_exists($lockPath)) {
+        $lockTime = filemtime($lockPath);
+        $age = time() - $lockTime;
+        if ($age < 3600) { // Lock is considered recent if less than 1 hour old
+            logMsg("Migration lock file exists and is recent ($age seconds old). Aborting execution to prevent concurrent runs.", true);
+            exit(1);
+        } else {
+            logMsg("Stale lock file found ($age seconds old). Overwriting lock.", false);
+        }
+    }
+    file_put_contents($lockPath, getmypid());
+    // Ensure the lock is removed on shutdown/termination
+    register_shutdown_function(function() use ($lockPath) {
+        if (file_exists($lockPath)) {
+            @unlink($lockPath);
+        }
+    });
 }
 
 // Pure PHP Database Backup Function
@@ -199,7 +256,7 @@ require_once PATH_ROOT . '/classes/PageManager.php';
 require_once PATH_ROOT . '/classes/PostManager.php';
 
 logMsg("=================================");
-logMsg("Dutch Localization Deployment");
+logMsg("Dutch Localization Deployment Hardened Utility");
 if ($isDryRun) {
     logMsg("MODE: DRY RUN (No modifications will be made)");
 } else {
@@ -211,6 +268,10 @@ try {
     $db = Database::getInstance()->getConnection();
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Force UTF-8 Safety for proper Dutch special character support
+    $db->exec("SET NAMES utf8mb4;");
+    $db->exec("SET CHARACTER SET utf8mb4;");
+
     // -------------------------------------------------------------
     // STEP 1: Database Backup
     // -------------------------------------------------------------
@@ -220,7 +281,33 @@ try {
             $backupPath = $backupsDir . "/pre_dutch_localization_{$timestamp}.sql";
             logMsg("Creating pre-migration database backup at $backupPath...");
             createDatabaseBackup($db, $backupPath);
-            logMsg("Backup created successfully.");
+            
+            // Backup Integrity Verification
+            if (!file_exists($backupPath)) {
+                throw new Exception("Backup file does not exist after creation.");
+            }
+            $fileSize = filesize($backupPath);
+            if ($fileSize <= 0) {
+                throw new Exception("Backup file is empty (0 bytes).");
+            }
+            $formattedSize = round($fileSize / 1024, 2) . ' KB';
+            logMsg("Backup created successfully. File size: $formattedSize.");
+
+            // Backup Retention Policy (retain only latest 10 files)
+            $backups = glob($backupsDir . '/pre_dutch_localization_*.sql');
+            if (count($backups) > 10) {
+                usort($backups, function($a, $b) {
+                    return filemtime($a) - filemtime($b);
+                });
+                $toDeleteCount = count($backups) - 10;
+                for ($i = 0; $i < $toDeleteCount; $i++) {
+                    if (@unlink($backups[$i])) {
+                        logMsg("Deleted old backup due to retention policy: " . basename($backups[$i]));
+                    } else {
+                        logMsg("Warning: Failed to delete old backup: " . basename($backups[$i]), true);
+                    }
+                }
+            }
         } catch (Exception $e) {
             logMsg("Failed to create database backup: " . $e->getMessage(), true);
             logMsg("Aborting migration to prevent data loss risk.", true);
@@ -423,17 +510,30 @@ try {
     }
 
     // -------------------------------------------------------------
-    // STEP 6: Generate Deployment Report
+    // STEP 6: Hardened Execution Metrics & Report
     // -------------------------------------------------------------
+    $endTime = microtime(true);
+    $endDateTime = date('Y-m-d H:i:s');
+    $executionTime = round($endTime - $startTime, 4);
+
+    $peakMemory = round(memory_get_peak_usage(true) / 1024 / 1024, 2) . ' MB';
+    $currentMemory = round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB';
+
     logMsg("=================================");
-    logMsg("Dutch Localization Deployment");
+    logMsg("Dutch Localization Deployment Report");
     logMsg("=================================");
+    logMsg("Start Time: " . $startDateTime);
+    logMsg("End Time: " . $endDateTime);
+    logMsg("Total Execution Time: " . $executionTime . " seconds");
+    logMsg("Peak Memory Usage: " . $peakMemory);
+    logMsg("Current Memory Usage: " . $currentMemory);
+    logMsg("---------------------------------");
     logMsg("Columns Added: " . $columnsAdded);
     logMsg("Columns Skipped: " . $columnsSkipped);
     logMsg("Indexes Created: " . $indexesCreated);
     logMsg("Indexes Skipped: " . $indexesSkipped);
     logMsg("Records Seeded: " . $recordsSeeded);
-    logMsg("Errors: " . $totalErrors);
+    logMsg("Errors Encountered: " . $totalErrors);
     logMsg("=================================");
 
 } catch (Exception $e) {

@@ -19,10 +19,32 @@ function calculateReadTime($content) {
 
 // 3. Generate a unique URL slug from text
 function slugify($text) {
+    if (empty($text)) {
+        return 'story-' . time();
+    }
+    
+    // Check if the string contains Arabic characters
+    if (preg_match('/[\x{0600}-\x{06FF}]/u', $text)) {
+        // Convert to lowercase using mb_strtolower for Unicode characters
+        $text = mb_strtolower($text, 'UTF-8');
+        // Replace non-letters (in any language) or digits by -
+        $text = preg_replace('~[^\p{L}\p{N}]+~u', '-', $text);
+        // Trim - from start and end
+        $text = trim($text, '-');
+        // Remove duplicate -
+        $text = preg_replace('~-+~', '-', $text);
+        
+        if (empty($text) || $text === 'n-a') {
+            return 'story-' . time();
+        }
+        return $text;
+    }
+    
+    // Non-Arabic ASCII slugification (with transliteration for European diacritics)
     // Replace non-letter or digits by -
     $text = preg_replace('~[^\pL\d]+~u', '-', $text);
     // Transliterate
-    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+    $text = @iconv('utf-8', 'us-ascii//TRANSLIT', $text);
     // Remove unwanted characters
     $text = preg_replace('~[^-\w]+~', '', $text);
     // Trim
@@ -32,8 +54,8 @@ function slugify($text) {
     // Lowercase
     $text = strtolower($text);
 
-    if (empty($text)) {
-        return 'n-a';
+    if (empty($text) || $text === 'n-a') {
+        return 'story-' . time();
     }
     return $text;
 }
@@ -343,14 +365,6 @@ function url($path = '') {
 
 // 14. Slugify bilingual strings (retaining Arabic characters)
 function slugify_bilingual($text) {
-    // If it contains Arabic characters, slugify accordingly
-    if (preg_match('/[\x{0600}-\x{06FF}]/u', $text)) {
-        // Replace spaces and special characters with hyphens
-        $text = preg_replace('/[^\p{L}\p{N}]+/u', '-', $text);
-        $text = trim($text, '-');
-        return $text;
-    }
-    // ASCII fallback slugify
     return slugify($text);
 }
 ?>
