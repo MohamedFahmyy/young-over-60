@@ -5,11 +5,13 @@
 define('PATH_ROOT', dirname(__DIR__));
 require_once PATH_ROOT . '/includes/config.php';
 
-// Secure access - requires secret token in URL query
-$secret = $_GET['secret'] ?? '';
-if ($secret !== 'gemini_diag_secret_998877') {
-    header("HTTP/1.1 403 Forbidden");
-    exit("Access Denied.");
+// Secure access - requires secret token in URL query when run via web
+if (php_sapi_name() !== 'cli') {
+    $secret = $_GET['secret'] ?? '';
+    if ($secret !== 'gemini_diag_secret_998877') {
+        header("HTTP/1.1 403 Forbidden");
+        exit("Access Denied.");
+    }
 }
 
 echo "<h2>Production Cache & Migration Diagnostics</h2>";
