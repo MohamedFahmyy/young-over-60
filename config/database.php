@@ -2,8 +2,12 @@
 // config/database.php
 // Production & Local Database Configuration Credentials
 
-$hostName = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$isProd = ($hostName === 'youngover60.com' || $hostName === 'www.youngover60.com');
+$hostName = $_SERVER['HTTP_HOST'] ?? '';
+$argv = $_SERVER['argv'] ?? [];
+$isProd = ($hostName === 'youngover60.com' || 
+           $hostName === 'www.youngover60.com' || 
+           in_array('--prod', $argv) || 
+           (php_sapi_name() === 'cli' && strpos(__DIR__, 'laragon') === false && PHP_OS_FAMILY !== 'Windows'));
 
 if ($isProd) {
     // Production (Hostinger) credentials
