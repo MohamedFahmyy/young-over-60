@@ -40,8 +40,12 @@ foreach ($fontsToLoad as $font) {
     $formattedFont = str_replace(' ', '+', $font);
     if (in_array($font, ['Playfair Display', 'Lora', 'Merriweather'])) {
         $familyParams[] = "family=" . $formattedFont . ":ital,wght@0,300..900;1,300..900";
-    } elseif ($font === 'Cairo' || $font === 'Tajawal' || $font === 'Almarai') {
+    } elseif ($font === 'Cairo') {
         $familyParams[] = "family=" . $formattedFont . ":wght@200..1000";
+    } elseif ($font === 'Tajawal') {
+        $familyParams[] = "family=" . $formattedFont . ":wght@200;300;400;500;700;800;900";
+    } elseif ($font === 'Almarai') {
+        $familyParams[] = "family=" . $formattedFont . ":wght@300;400;700;800";
     } elseif ($font === 'Amiri') {
         $familyParams[] = "family=" . $formattedFont . ":ital,wght@0,400;0,700;1,400;1,700";
     } else {
