@@ -84,7 +84,10 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
 <!-- Article Hero -->
 <section class="post-hero">
-    <img src="<?php echo e(!empty($post['coverImage']) ? $post['coverImage'] : '/images/hero-bg.png'); ?>" alt="<?php echo e($postTitle); ?>" />
+    <?php 
+    $coverImage = !empty($post['coverImage']) ? $post['coverImage'] : '/images/hero-bg.png';
+    renderImageTag($coverImage, $postTitle, '', false, 'high'); 
+    ?>
     <div class="post-hero-overlay"></div>
     
     <div class="container post-hero-content" data-scroll-reveal>
@@ -168,7 +171,10 @@ require_once PATH_ROOT . '/includes/navbar.php';
 
             <!-- Author Bio Box -->
             <div class="author-bio-box" data-scroll-reveal>
-                <img src="<?php echo e(!empty($post['authorAvatar']) ? $post['authorAvatar'] : '/uploads/admin-avatar.png'); ?>" alt="<?php echo e($post['authorName']); ?>" class="author-avatar" />
+                <?php 
+                $avatarImage = !empty($post['authorAvatar']) ? $post['authorAvatar'] : '/uploads/admin-avatar.png';
+                renderImageTag($avatarImage, $post['authorName'] ?? 'Site Admin', 'author-avatar', true, 'low'); 
+                ?>
                 <div class="author-details">
                     <h4 class="author-name-title">About <?php echo e($post['authorName'] ?? 'Site Admin'); ?></h4>
                     <p class="author-bio-text">
@@ -214,11 +220,21 @@ require_once PATH_ROOT . '/includes/navbar.php';
     window.addEventListener('DOMContentLoaded', () => {
         // TOC Tracking Scroll Script
         const links = document.querySelectorAll('.toc-item-link');
-        const sections = Array.from(links).map(link => document.querySelector(link.getAttribute('href')));
+        const sections = Array.from(links).map(link => {
+            try {
+                const href = link.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    return document.getElementById(href.substring(1));
+                }
+            } catch (e) {
+                console.error("TOC error:", e);
+            }
+            return null;
+        });
         
         window.addEventListener('scroll', () => {
-            let activeIdx = 0;
-            const scrollPos = window.scrollY + 200;
+            let activeIdx = -1;
+            const scrollPos = window.scrollY + 220;
             
             sections.forEach((sec, idx) => {
                 if (sec && sec.offsetTop <= scrollPos) {
