@@ -17,11 +17,7 @@ $isAdmin = (isset($seoPageType) && $seoPageType === 'admin') || (isset($pageType
 // Build Google Fonts request URL
 $fontsToLoad = [];
 if ($isAdmin) {
-    if ($activeLang === 'ar') {
-        $fontsToLoad = ['Cairo', 'Tajawal'];
-    } else {
-        $fontsToLoad = ['Outfit', 'Inter'];
-    }
+    $fontsToLoad = ['Outfit', 'Inter', 'Cairo', 'Tajawal', 'Playfair Display', 'Lora', 'Merriweather', 'Amiri'];
 } else {
     if (!empty($settings['fontFamily'])) {
         $fontsToLoad[] = $settings['fontFamily'];

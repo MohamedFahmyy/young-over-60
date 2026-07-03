@@ -221,6 +221,27 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h3">H3</button>
                                 <button type="button" class="richtext-btn" data-cmd="createLink">Link</button>
                                 <button type="button" class="richtext-btn" data-cmd="removeFormat">Clear</button>
+                                <select class="richtext-select" data-cmd="fontName" aria-label="Font Family">
+                                    <option value="" disabled selected>Font</option>
+                                    <option value="Outfit" style="font-family:'Outfit';">Outfit</option>
+                                    <option value="Cairo" style="font-family:'Cairo';">Cairo</option>
+                                    <option value="Inter" style="font-family:'Inter';">Inter</option>
+                                    <option value="Tajawal" style="font-family:'Tajawal';">Tajawal</option>
+                                    <option value="Playfair Display" style="font-family:'Playfair Display';">Playfair Display</option>
+                                    <option value="Lora" style="font-family:'Lora';">Lora</option>
+                                    <option value="Merriweather" style="font-family:'Merriweather';">Merriweather</option>
+                                    <option value="Amiri" style="font-family:'Amiri';">Amiri</option>
+                                </select>
+                                <select class="richtext-select" data-cmd="fontSize" aria-label="Font Size">
+                                    <option value="" disabled selected>Size</option>
+                                    <option value="12">12px</option>
+                                    <option value="14">14px</option>
+                                    <option value="16">16px</option>
+                                    <option value="18">18px</option>
+                                    <option value="24">24px</option>
+                                    <option value="32">32px</option>
+                                    <option value="48">48px</option>
+                                </select>
                             </div>
                             <!-- Contenteditable Area -->
                             <div id="editorAreaEn" class="richtext-content" contenteditable="true" placeholder="Compose your accessible travel story in English..."></div>
@@ -240,6 +261,27 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h3">H3</button>
                                 <button type="button" class="richtext-btn" data-cmd="createLink">Link</button>
                                 <button type="button" class="richtext-btn" data-cmd="removeFormat">Clear</button>
+                                <select class="richtext-select" data-cmd="fontName" aria-label="Font Family">
+                                    <option value="" disabled selected>Font</option>
+                                    <option value="Outfit" style="font-family:'Outfit';">Outfit</option>
+                                    <option value="Cairo" style="font-family:'Cairo';">Cairo</option>
+                                    <option value="Inter" style="font-family:'Inter';">Inter</option>
+                                    <option value="Tajawal" style="font-family:'Tajawal';">Tajawal</option>
+                                    <option value="Playfair Display" style="font-family:'Playfair Display';">Playfair Display</option>
+                                    <option value="Lora" style="font-family:'Lora';">Lora</option>
+                                    <option value="Merriweather" style="font-family:'Merriweather';">Merriweather</option>
+                                    <option value="Amiri" style="font-family:'Amiri';">Amiri</option>
+                                </select>
+                                <select class="richtext-select" data-cmd="fontSize" aria-label="Font Size">
+                                    <option value="" disabled selected>Size</option>
+                                    <option value="12">12px</option>
+                                    <option value="14">14px</option>
+                                    <option value="16">16px</option>
+                                    <option value="18">18px</option>
+                                    <option value="24">24px</option>
+                                    <option value="32">32px</option>
+                                    <option value="48">48px</option>
+                                </select>
                             </div>
                             <!-- Contenteditable Area -->
                             <div id="editorAreaAr" class="richtext-content" contenteditable="true" placeholder="Compose your accessible travel story in Arabic..." style="direction: rtl;"></div>
@@ -259,6 +301,27 @@ require_once PATH_ROOT . '/includes/header.php';
                                 <button type="button" class="richtext-btn" data-cmd="formatBlock" data-val="h3">H3</button>
                                 <button type="button" class="richtext-btn" data-cmd="createLink">Link</button>
                                 <button type="button" class="richtext-btn" data-cmd="removeFormat">Clear</button>
+                                <select class="richtext-select" data-cmd="fontName" aria-label="Font Family">
+                                    <option value="" disabled selected>Font</option>
+                                    <option value="Outfit" style="font-family:'Outfit';">Outfit</option>
+                                    <option value="Cairo" style="font-family:'Cairo';">Cairo</option>
+                                    <option value="Inter" style="font-family:'Inter';">Inter</option>
+                                    <option value="Tajawal" style="font-family:'Tajawal';">Tajawal</option>
+                                    <option value="Playfair Display" style="font-family:'Playfair Display';">Playfair Display</option>
+                                    <option value="Lora" style="font-family:'Lora';">Lora</option>
+                                    <option value="Merriweather" style="font-family:'Merriweather';">Merriweather</option>
+                                    <option value="Amiri" style="font-family:'Amiri';">Amiri</option>
+                                </select>
+                                <select class="richtext-select" data-cmd="fontSize" aria-label="Font Size">
+                                    <option value="" disabled selected>Size</option>
+                                    <option value="12">12px</option>
+                                    <option value="14">14px</option>
+                                    <option value="16">16px</option>
+                                    <option value="18">18px</option>
+                                    <option value="24">24px</option>
+                                    <option value="32">32px</option>
+                                    <option value="48">48px</option>
+                                </select>
                             </div>
                             <!-- Contenteditable Area -->
                             <div id="editorAreaNl" class="richtext-content" contenteditable="true" placeholder="Schrijf uw toegankelijke reisverhaal in het Nederlands..."></div>
@@ -404,6 +467,59 @@ require_once PATH_ROOT . '/includes/header.php';
         }
 
         // 2. Rich Text Toolbar Command Executor (targets active editor block)
+        const allowedFonts = [
+            'Outfit',
+            'Inter',
+            'Cairo',
+            'Tajawal',
+            'Playfair Display',
+            'Lora',
+            'Merriweather',
+            'Amiri'
+        ];
+
+        function applyFontSize(sizeInPx, editor) {
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('fontSize', false, 7);
+            
+            const fontTags = editor.querySelectorAll('font[size="7"]');
+            fontTags.forEach(el => {
+                el.removeAttribute('size');
+                el.style.fontSize = sizeInPx + 'px';
+                const span = document.createElement('span');
+                span.style.fontSize = sizeInPx + 'px';
+                span.innerHTML = el.innerHTML;
+                el.parentNode.replaceChild(span, el);
+            });
+            
+            const spanTags = editor.querySelectorAll('span');
+            spanTags.forEach(el => {
+                const style = el.getAttribute('style') || '';
+                if (style.includes('xxx-large') || style.includes('48px') || el.style.fontSize === 'xxx-large' || el.style.fontSize === '48px') {
+                    el.style.fontSize = sizeInPx + 'px';
+                }
+            });
+        }
+
+        function applyFontName(fontName, editor) {
+            if (!allowedFonts.includes(fontName)) return;
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('fontName', false, fontName);
+            
+            const fontTags = editor.querySelectorAll('font[face]');
+            fontTags.forEach(el => {
+                const face = el.getAttribute('face');
+                const cleanFace = face.replace(/['"]/g, '');
+                if (allowedFonts.includes(cleanFace)) {
+                    const span = document.createElement('span');
+                    let fontFallback = (cleanFace === 'Playfair Display' || cleanFace === 'Lora' || cleanFace === 'Merriweather' || cleanFace === 'Amiri') ? 'serif' : 'sans-serif';
+                    span.style.fontFamily = `'${cleanFace}', ${fontFallback}`;
+                    span.innerHTML = el.innerHTML;
+                    el.parentNode.replaceChild(span, el);
+                }
+            });
+        }
+
         const toolbars = document.querySelectorAll('.richtext-toolbar');
         toolbars.forEach(tb => {
             const editorId = tb.getAttribute('data-editor');
@@ -430,6 +546,22 @@ require_once PATH_ROOT . '/includes/header.php';
                     } else {
                         document.execCommand(cmd, false, val);
                     }
+                });
+            });
+
+            tb.querySelectorAll('.richtext-select').forEach(select => {
+                select.addEventListener('change', function(e) {
+                    editor.focus();
+                    const cmd = this.getAttribute('data-cmd');
+                    const val = this.value;
+
+                    if (cmd === 'fontName') {
+                        applyFontName(val, editor);
+                    } else if (cmd === 'fontSize') {
+                        applyFontSize(val, editor);
+                    }
+
+                    this.selectedIndex = 0; // Reset select
                 });
             });
         });

@@ -3068,6 +3068,22 @@ html.acc-high-contrast .lang-btn:hover {
   background-color: #f9fafb;
 }
 
+.richtext-select {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  max-width: 140px;
+}
+
+.richtext-select:hover {
+  background-color: #f9fafb;
+}
+
 .richtext-content {
   min-height: 300px;
   padding: 1.25rem;
