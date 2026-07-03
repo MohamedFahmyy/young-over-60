@@ -44,9 +44,12 @@ class PostManager {
 
     public function clearCache() {
         $files = glob(PATH_CACHE . '/twl_*.json');
-        foreach ($files as $file) {
+        $htmlFiles = glob(PATH_CACHE . '/post_html_*.html');
+        $storyHtmlFiles = glob(PATH_CACHE . '/story_html_*.html');
+        $allFiles = array_merge($files ?: [], $htmlFiles ?: [], $storyHtmlFiles ?: []);
+        foreach ($allFiles as $file) {
             if (file_exists($file)) {
-                unlink($file);
+                @unlink($file);
             }
         }
     }

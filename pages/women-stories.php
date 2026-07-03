@@ -20,12 +20,41 @@ if (!empty($slug)) {
         exit();
     }
     
+    $startTime = microtime(true);
+    $isAdmin = Auth::check();
+    $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+    $storyVersion = strtotime($story['updated_at'] ?? $story['created_at'] ?? 'now');
+    $cacheFile = PATH_CACHE . '/story_html_' . $story['id'] . '_' . $lang . '_' . $storyVersion . '.html';
+
+    if (!$isAdmin && file_exists($cacheFile)) {
+        header('Cache-Control: public, max-age=300');
+        header('X-Cache: HIT');
+        readfile($cacheFile);
+        error_log(sprintf('[Story Cache HIT] ID:%s LANG:%s TIME: %.2f ms', $story['id'], $lang, (microtime(true) - $startTime) * 1000));
+        exit();
+    }
+
+    if (!$isAdmin) {
+        header('X-Cache: MISS');
+    }
+
+    // Start buffering the output
+    ob_start();
+
     $relatedStories = $storyMgr->getRelatedStories($story['id'], 3);
     $cover = !empty($story['cover_image']) ? $story['cover_image'] : '/images/hero-bg.png';
     $storyUrl   = urlencode(BASE_URL . '/women-stories/' . ($story['slug_en'] ?? ''));
     $settings   = $pm->getSiteSettings();
-    $storyTitle   = urlencode(t($story, 'title') . " - " . ($settings['siteName'] ?? 'Young Over 60'));
-    $storyExcerpt = urlencode(t($story, 'excerpt') ?? '');
+    
+    // Cache translation fields locally with image lazy loading
+    $storyTitleRaw   = t($story, 'title');
+    $storyExcerptRaw = t($story, 'excerpt');
+    $storyContentRaw = lazyLoadContentImages(t($story, 'content'));
+    $storyCategory   = t($story, 'category') ?: 'Egypt Travel';
+    $storyAuthor     = t($story, 'author') ?: 'Guest Writer';
+
+    $storyTitle   = urlencode($storyTitleRaw . " - " . ($settings['siteName'] ?? 'Young Over 60'));
+    $storyExcerpt = urlencode($storyExcerptRaw ?? '');
     $storyCoverUrl = urlencode(BASE_URL . $cover);
 
     // Custom SEO Meta for this Story
@@ -46,11 +75,11 @@ if (!empty($slug)) {
             <div class="story-hero-overlay"></div>
             <div class="story-hero-content container">
                 <span class="badge-text" style="background: var(--primary-color); color: #fff; align-self: flex-start; margin-bottom: 1rem; text-transform: uppercase;">
-                    <?php echo e(t($story, 'category') ?: 'Egypt Travel'); ?>
+                    <?php echo e($storyCategory); ?>
                 </span>
-                <h1 class="serif-title story-main-title"><?php echo e(t($story, 'title')); ?></h1>
+                <h1 class="serif-title story-main-title"><?php echo e($storyTitleRaw); ?></h1>
                 <div class="story-hero-meta">
-                    <span>Written by <strong><?php echo e(t($story, 'author') ?: 'Guest Writer'); ?></strong></span>
+                    <span>Written by <strong><?php echo e($storyAuthor); ?></strong></span>
                     <span class="meta-dot"></span>
                     <span><?php echo e($story['read_time'] ?? '5 min read'); ?></span>
                     <span class="meta-dot"></span>
@@ -70,7 +99,7 @@ if (!empty($slug)) {
                 <div class="story-content-body-wrapper">
                     <!-- Drop cap styles will be applied to the first paragraph -->
                     <div class="story-full-content serif-body-text">
-                        <?php echo t($story, 'content'); // HTML rich text from database ?>
+                        <?php echo $storyContentRaw; // HTML rich text from database ?>
                     </div>
 
                     <!-- Social Share Widget -->
@@ -178,6 +207,34 @@ if (!empty($slug)) {
 
     <?php
     require_once PATH_ROOT . '/includes/footer.php';
+    
+    $htmlOutput = ob_get_clean();
+
+    if (!$isAdmin && !empty($htmlOutput)) {
+        $lockFile = $cacheFile . '.lock';
+        $lockFp = fopen($lockFile, 'c');
+        if ($lockFp) {
+            if (flock($lockFp, LOCK_EX)) {
+                if (!file_exists($cacheFile)) {
+                    file_put_contents($cacheFile, $htmlOutput);
+                    error_log(sprintf('[Story Cache WRITE] ID:%s LANG:%s', $story['id'], $lang));
+                }
+                flock($lockFp, LOCK_UN);
+            }
+            fclose($lockFp);
+            @unlink($lockFile);
+        }
+    }
+
+    echo $htmlOutput;
+
+    // Performance profiling log with details (MISS case)
+    error_log(sprintf(
+        '[Story Cache MISS] ID:%s LANG:%s TIME: %.2f ms',
+        $story['id'] ?? 'unknown',
+        $lang,
+        (microtime(true) - $startTime) * 1000
+    ));
 } else {
     // ==========================================
     // STORIES LISTING VIEW

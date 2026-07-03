@@ -294,30 +294,43 @@ function isRTL() {
 
 // 11. Translate dynamic record field with automatic fallback to English
 function t($record, $field, $fallback = true) {
+    static $memo = [];
     if (!$record) return '';
     $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+    
+    $recordId = $record['id'] ?? null;
+    if ($recordId === null) {
+        $recordId = md5(serialize($record));
+    }
+    
+    $memoKey = $recordId . '_' . $field . '_' . $lang . '_' . ($fallback ? '1' : '0');
+    if (isset($memo[$memoKey])) {
+        return $memo[$memoKey];
+    }
+    
+    $result = '';
     
     // 1. Check primary translation column (e.g. title_ar)
     $fieldLang = $field . '_' . $lang;
     if (isset($record[$fieldLang]) && $record[$fieldLang] !== '') {
-        return $record[$fieldLang];
+        $result = $record[$fieldLang];
     }
     
     // 2. For non-Arabic languages, fallback to English first
-    if ($lang !== 'ar') {
+    if ($result === '' && $lang !== 'ar') {
         $fieldEn = $field . '_en';
         if (isset($record[$fieldEn]) && $record[$fieldEn] !== '') {
-            return $record[$fieldEn];
+            $result = $record[$fieldEn];
         }
     }
     
     // 3. Fallback to the non-suffixed field if it exists (e.g. title)
-    if (isset($record[$field]) && $record[$field] !== '') {
-        return $record[$field];
+    if ($result === '' && isset($record[$field]) && $record[$field] !== '') {
+        $result = $record[$field];
     }
     
     // 4. Arabic fallback only as a last resort, or other languages in registry
-    if ($fallback && defined('SUPPORTED_LANGUAGES')) {
+    if ($result === '' && $fallback && defined('SUPPORTED_LANGUAGES')) {
         foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
             // Already checked these
             if ($lCode === $lang || ($lang !== 'ar' && $lCode === 'en')) {
@@ -325,12 +338,14 @@ function t($record, $field, $fallback = true) {
             }
             $f = $field . '_' . $lCode;
             if (isset($record[$f]) && $record[$f] !== '') {
-                return $record[$f];
+                $result = $record[$f];
+                break;
             }
         }
     }
     
-    return '';
+    $memo[$memoKey] = $result;
+    return $result;
 }
 
 // 12. Static dictionary translations with local caching
@@ -388,5 +403,37 @@ function url($path = '') {
 // 14. Slugify bilingual strings (retaining Arabic characters)
 function slugify_bilingual($text) {
     return slugify($text);
+}
+
+// 15. Lazy load images inside HTML content using DOMDocument
+function lazyLoadContentImages($content) {
+    if (empty($content)) return '';
+    
+    $dom = new DOMDocument();
+    $libxmlState = libxml_use_internal_errors(true);
+    
+    // Load content. Use LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD to prevent automatic html/body wrapping
+    @$dom->loadHTML(
+        mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'), 
+        LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+    );
+    
+    $imgs = $dom->getElementsByTagName('img');
+    if ($imgs->length > 0) {
+        foreach ($imgs as $img) {
+            if (!$img->hasAttribute('loading')) {
+                $img->setAttribute('loading', 'lazy');
+            }
+            if (!$img->hasAttribute('decoding')) {
+                $img->setAttribute('decoding', 'async');
+            }
+        }
+        $content = $dom->saveHTML();
+    }
+    
+    libxml_clear_errors();
+    libxml_use_internal_errors($libxmlState);
+    
+    return $content;
 }
 ?>
