@@ -1365,6 +1365,18 @@ html.acc-high-contrast .lang-btn:hover {
 
 .post-card-img.loaded ~ .progressive-image-placeholder {
   opacity: 0;
+  visibility: hidden;
+  animation: none !important;
+  pointer-events: none;
+}
+
+.post-card-media:has(.post-card-img.loaded) .progressive-image-placeholder,
+.featured-story-media:has(.post-card-img.loaded) .progressive-image-placeholder,
+.podcast-featured-media:has(.post-card-img.loaded) .progressive-image-placeholder,
+.post-card:has(.post-card-img.loaded) .progressive-image-placeholder {
+  opacity: 0;
+  visibility: hidden;
+  animation: none !important;
   pointer-events: none;
 }
 

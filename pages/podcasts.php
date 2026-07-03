@@ -77,15 +77,17 @@ require_once PATH_ROOT . '/includes/navbar.php';
             
             <div class="podcast-carousel-wrapper">
                 <div class="podcast-carousel-inner">
-                    <?php foreach ($featuredPodcasts as $pod): 
+                    <?php 
+                    $isFirstFeatured = true;
+                    foreach ($featuredPodcasts as $pod): 
                         $cover = !empty($pod['cover_image']) ? $pod['cover_image'] : '/images/hero-bg.png';
                         ?>
                         <div class="podcast-featured-card">
                             <!-- Large tablet/desktop split view -->
                             <div class="podcast-featured-grid">
                                 <div class="podcast-featured-media">
+                                    <?php renderImageTag($cover, t($pod, 'title'), 'post-card-img', !$isFirstFeatured, $isFirstFeatured ? 'high' : 'low'); ?>
                                     <div class="progressive-image-placeholder"></div>
-                                    <img src="<?php echo e(BASE_URL . $cover); ?>" alt="<?php echo e(t($pod, 'title')); ?>" class="post-card-img" onload="this.classList.add('loaded');" />
                                     <button class="podcast-play-overlay-btn" 
                                             data-audio="<?php echo e(BASE_URL . $pod['audio_file']); ?>" 
                                             data-title="<?php echo e(e(t($pod, 'title'))); ?>" 
@@ -114,6 +116,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                                 </div>
                             </div>
                         </div>
+                        <?php $isFirstFeatured = false; ?>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -153,13 +156,15 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <!-- Episodes Grid -->
         <?php if (!empty($podcasts)): ?>
             <div class="story-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));">
-                <?php foreach ($podcasts as $pod): 
+                <?php 
+                $isFirstEpisode = true;
+                foreach ($podcasts as $pod): 
                     $cover = !empty($pod['cover_image']) ? $pod['cover_image'] : '/images/hero-bg.png';
                     ?>
                     <article class="post-card group" data-scroll-reveal style="border-radius: 12px; overflow: hidden; background: var(--surface-color); border-color: var(--border-color);">
                         <div class="post-card-media" style="aspect-ratio: 16/10; position: relative;">
+                            <?php renderImageTag($cover, t($pod, 'title'), 'post-card-img', !$isFirstEpisode, $isFirstEpisode ? 'high' : 'low'); ?>
                             <div class="progressive-image-placeholder"></div>
-                            <img src="<?php echo e(BASE_URL . $cover); ?>" alt="<?php echo e(t($pod, 'title')); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
                             <div class="post-card-badge">
                                 <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e(t($pod, 'category')); ?></span>
                             </div>
@@ -199,6 +204,7 @@ require_once PATH_ROOT . '/includes/navbar.php';
                             </div>
                         </div>
                     </article>
+                    <?php $isFirstEpisode = false; ?>
                 <?php endforeach; ?>
             </div>
 

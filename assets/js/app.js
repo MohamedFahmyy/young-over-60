@@ -392,10 +392,20 @@ document.addEventListener("DOMContentLoaded", function() {
         wrapper.className = 'post-card group';
         wrapper.setAttribute('data-scroll-reveal', '');
         
+        const cover = post.coverImage || '/images/hero-bg.png';
+        let imgSrc = cover;
+        let imgSet = '';
+        if (cover.indexOf('/uploads/') === 0 || cover.indexOf('uploads/') === 0) {
+            const urlEncoded = encodeURIComponent(cover);
+            imgSrc = `${window.BASE_URL}/thumbnail.php?src=${urlEncoded}&w=800`;
+            imgSet = `srcset="${window.BASE_URL}/thumbnail.php?src=${urlEncoded}&w=400 400w, ${window.BASE_URL}/thumbnail.php?src=${urlEncoded}&w=800 800w, ${window.BASE_URL}/thumbnail.php?src=${urlEncoded}&w=1200 1200w" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"`;
+        }
+
         wrapper.innerHTML = `
             <a href="${window.BASE_URL}/posts/${post.slug}" class="post-card-link" aria-label="Read ${post.title}">
                 <div class="post-card-media">
-                    <img src="${post.coverImage || '/images/hero-bg.png'}" alt="${post.title}" loading="lazy" class="post-card-img" />
+                    <img src="${imgSrc}" ${imgSet} alt="${post.title}" loading="lazy" class="post-card-img" decoding="async" onload="this.classList.add('loaded');" />
+                    <div class="progressive-image-placeholder"></div>
                     <div class="post-card-badge">
                         <span class="badge-text">${post.categoryName}</span>
                     </div>

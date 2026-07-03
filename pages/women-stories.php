@@ -156,8 +156,8 @@ if (!empty($slug)) {
                             <article class="post-card group">
                                 <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e(t($rel, 'slug')); ?>" class="post-card-link" aria-label="Read <?php echo e(t($rel, 'title')); ?>">
                                     <div class="post-card-media ratio-landscape">
+                                        <?php renderImageTag($relCover, t($rel, 'title'), 'post-card-img', true, 'low'); ?>
                                         <div class="progressive-image-placeholder"></div>
-                                        <img src="<?php echo e(BASE_URL . $relCover); ?>" alt="<?php echo e(t($rel, 'title')); ?>" class="post-card-img" onload="this.classList.add('loaded');" />
                                     </div>
                                     <div class="post-card-body" style="padding: 1.5rem;">
                                         <div class="post-card-meta">
@@ -270,8 +270,8 @@ if (!empty($slug)) {
                 <section class="cinematic-featured-story" data-scroll-reveal>
                     <div class="featured-story-grid">
                         <div class="featured-story-media">
+                            <?php renderImageTag($featCover, $featuredStory['title'], 'post-card-img', false, 'high'); ?>
                             <div class="progressive-image-placeholder"></div>
-                            <img src="<?php echo e(BASE_URL . $featCover); ?>" alt="<?php echo e($featuredStory['title']); ?>" class="post-card-img" onload="this.classList.add('loaded');" />
                             <div class="story-overlay-gradient"></div>
                             <span class="badge-text" style="position: absolute; top: 1.5rem; left: 1.5rem; background: var(--primary-color); color: #fff; z-index: 10;"><?php echo e($featuredStory['category']); ?></span>
                         </div>
@@ -302,14 +302,16 @@ if (!empty($slug)) {
                         
                         <?php if (!empty($stories)): ?>
                             <div class="story-list-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem;">
-                                <?php foreach ($stories as $story): 
+                                <?php 
+                                $isFirst = true;
+                                foreach ($stories as $story): 
                                     $storyCover = !empty($story['cover_image']) ? $story['cover_image'] : '/images/hero-bg.png';
                                     ?>
                                     <article class="post-card group" data-scroll-reveal>
                                         <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e($story['slug']); ?>" class="post-card-link" aria-label="Read <?php echo e($story['title']); ?>">
                                             <div class="post-card-media ratio-landscape">
+                                                <?php renderImageTag($storyCover, $story['title'], 'post-card-img', !$isFirst, $isFirst ? 'high' : 'low'); ?>
                                                 <div class="progressive-image-placeholder"></div>
-                                                <img src="<?php echo e(BASE_URL . $storyCover); ?>" alt="<?php echo e($story['title']); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
                                                 <div class="post-card-badge">
                                                     <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e($story['category']); ?></span>
                                                 </div>
@@ -337,6 +339,7 @@ if (!empty($slug)) {
                                             </div>
                                         </a>
                                     </article>
+                                    <?php $isFirst = false; ?>
                                 <?php endforeach; ?>
                             </div>
 

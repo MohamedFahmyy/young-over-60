@@ -442,9 +442,13 @@ if ($heroMode === 'video' && !empty($heroVideo)):
     <!-- Posts Grid -->
     <div id="plan-grid" class="story-grid">
         <?php if (!empty($initialPlanPosts)): ?>
-            <?php foreach ($initialPlanPosts as $post): ?>
-                <?php renderPostCard($post, 'featured'); ?>
-            <?php endforeach; ?>
+            <?php 
+            $isFirstPlan = true;
+            foreach ($initialPlanPosts as $post): 
+                renderPostCard($post, 'featured', $isFirstPlan);
+                $isFirstPlan = false;
+            endforeach; 
+            ?>
         <?php else: ?>
             <div style="grid-column: 1/-1; text-align:center; color:#999; padding: 4rem 0; font-style:italic;">
                 No stories found in this category yet.
@@ -519,8 +523,8 @@ if ($heroMode === 'video' && !empty($heroVideo)):
         <article class="post-card group" style="border: none;">
             <a href="<?php echo BASE_URL; ?>/women-stories/<?php echo e(t($mainStory, 'slug')); ?>" class="post-card-link" aria-label="Read <?php echo e(t($mainStory, 'title')); ?>">
                 <div class="post-card-media ratio-story">
+                    <?php renderImageTag($mainCover, t($mainStory, 'title'), 'post-card-img', false, 'high'); ?>
                     <div class="progressive-image-placeholder"></div>
-                    <img src="<?php echo e(BASE_URL . $mainCover); ?>" alt="<?php echo e(t($mainStory, 'title')); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
                     <div class="post-card-badge">
                         <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e(t($mainStory, 'category')); ?></span>
                     </div>
@@ -581,13 +585,15 @@ if ($heroMode === 'video' && !empty($heroVideo)):
         </div>
         
         <div class="story-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-            <?php foreach ($homePodcasts as $pod): 
+            <?php 
+            $isFirstHomePod = true;
+            foreach ($homePodcasts as $pod): 
                 $cover = !empty($pod['cover_image']) ? $pod['cover_image'] : '/images/hero-bg.png';
                 ?>
                 <article class="post-card group" style="background: #181818; border-color: #282828;">
                     <div class="post-card-media" style="aspect-ratio: 16/10; position: relative;">
+                        <?php renderImageTag($cover, t($pod, 'title'), 'post-card-img', !$isFirstHomePod, $isFirstHomePod ? 'high' : 'low'); ?>
                         <div class="progressive-image-placeholder"></div>
-                        <img src="<?php echo e(BASE_URL . $cover); ?>" alt="<?php echo e(t($pod, 'title')); ?>" loading="lazy" class="post-card-img" onload="this.classList.add('loaded');" />
                         <div class="post-card-badge">
                             <span class="badge-text" style="background: var(--primary-color); color: #fff;"><?php echo e(t($pod, 'category')); ?></span>
                         </div>
@@ -612,6 +618,7 @@ if ($heroMode === 'video' && !empty($heroVideo)):
                         </p>
                     </div>
                 </article>
+                <?php $isFirstHomePod = false; ?>
             <?php endforeach; ?>
         </div>
     </div>
@@ -687,9 +694,13 @@ if ($heroMode === 'video' && !empty($heroVideo)):
     <!-- Posts Grid -->
     <div id="exp-grid" class="story-grid">
         <?php if (!empty($initialExpPosts)): ?>
-            <?php foreach ($initialExpPosts as $post): ?>
-                <?php renderPostCard($post, 'story'); ?>
-            <?php endforeach; ?>
+            <?php 
+            $isFirstExp = true;
+            foreach ($initialExpPosts as $post): 
+                renderPostCard($post, 'story', $isFirstExp);
+                $isFirstExp = false;
+            endforeach; 
+            ?>
         <?php else: ?>
             <div style="grid-column: 1/-1; text-align:center; color:#999; padding: 4rem 0; font-style:italic;">
                 No stories found in this category yet.

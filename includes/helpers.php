@@ -128,7 +128,7 @@ function getImageMetadata($url) {
 }
 
 // 8. Reusable, Optimized Image Tag Builder
-function renderImageTag($url, $defaultAlt = '', $class = '', $lazy = true) {
+function renderImageTag($url, $defaultAlt = '', $class = '', $lazy = true, $fetchPriority = 'auto') {
     if (empty($url)) return;
     
     $imgMeta = getImageMetadata($url);
@@ -147,11 +147,31 @@ function renderImageTag($url, $defaultAlt = '', $class = '', $lazy = true) {
     $loadingAttr = $lazy ? ' loading="lazy"' : ' loading="eager"';
     $classAttr = !empty($class) ? ' class="' . e($class) . '"' : '';
     
-    echo '<img src="' . e($url) . '" alt="' . e($alt) . '"' . $classAttr . $widthAttr . $heightAttr . $loadingAttr . ' decoding="async" onload="this.classList.add(\'loaded\');" onerror="this.onerror=null;this.src=\'/assets/images/hero-bg.png\';this.classList.add(\'loaded\');" />';
+    // Fetch Priority
+    $priorityAttr = '';
+    if ($fetchPriority === 'high') {
+        $priorityAttr = ' fetchpriority="high"';
+    } elseif ($fetchPriority === 'low') {
+        $priorityAttr = ' fetchpriority="low"';
+    }
+    
+    // Add Srcset for optimization on mobile if it is a local upload
+    $srcSetAttr = '';
+    $sizesAttr = '';
+    $finalSrc = e($url);
+    
+    if (strpos($url, '/uploads/') === 0 || strpos($url, 'uploads/') === 0) {
+        $urlEncoded = urlencode($url);
+        $finalSrc = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=800'; // Default fallback
+        $srcSetAttr = ' srcset="' . BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=400 400w, ' . BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=800 800w, ' . BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=1200 1200w"';
+        $sizesAttr = ' sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"';
+    }
+    
+    echo '<img src="' . $finalSrc . '" alt="' . e($alt) . '"' . $classAttr . $widthAttr . $heightAttr . $loadingAttr . $priorityAttr . $srcSetAttr . $sizesAttr . ' decoding="async" onload="this.classList.add(\'loaded\');" onerror="this.onerror=null;this.src=\'/assets/images/hero-bg.png\';this.classList.add(\'loaded\');" />';
 }
 
 // 9. Renders the luxury Post Card component (reusable card)
-function renderPostCard($post, $ratioType = 'landscape') {
+function renderPostCard($post, $ratioType = 'landscape', $isFirst = false) {
     $url = url('posts/' . e(t($post, 'slug')));
     $categorySlug = t($post, 'categorySlug');
     $categoryUrl = url('category/' . e($categorySlug));
@@ -163,12 +183,14 @@ function renderPostCard($post, $ratioType = 'landscape') {
     $defaultAlt = t($post, 'alt_text') ?: t($post, 'title');
     
     $ratioClass = 'ratio-' . $ratioType;
+    $lazy = !$isFirst;
+    $fetchPriority = $isFirst ? 'high' : 'low';
     ?>
     <article class="post-card group ratio-card-<?php echo $ratioType; ?>" data-scroll-reveal>
         <a href="<?php echo $url; ?>" class="post-card-link" aria-label="<?php echo __('btn_read_story'); ?> <?php echo e(t($post, 'title')); ?>">
             <div class="post-card-media <?php echo $ratioClass; ?>">
+                <?php renderImageTag($cover, $defaultAlt, 'post-card-img', $lazy, $fetchPriority); ?>
                 <div class="progressive-image-placeholder"></div>
-                <?php renderImageTag($cover, $defaultAlt, 'post-card-img', true); ?>
                 <div class="post-card-badge">
                     <span class="badge-text"><?php echo e(t($post, 'categoryName')); ?></span>
                 </div>

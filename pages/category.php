@@ -68,9 +68,13 @@ require_once PATH_ROOT . '/includes/navbar.php';
         <!-- Posts Grid -->
         <?php if (!empty($posts)): ?>
             <div class="story-grid">
-                <?php foreach ($posts as $post): ?>
-                    <?php renderPostCard($post); ?>
-                <?php endforeach; ?>
+                <?php 
+                $isFirst = true;
+                foreach ($posts as $post): 
+                    renderPostCard($post, 'landscape', $isFirst);
+                    $isFirst = false;
+                endforeach; 
+                ?>
             </div>
             
             <!-- Pagination Controls -->
