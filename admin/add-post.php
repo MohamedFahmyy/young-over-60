@@ -437,7 +437,7 @@ require_once PATH_ROOT . '/includes/header.php';
             titleArInp.addEventListener('input', function() {
                 if (slugArInp.value === '' || this.getAttribute('data-touched') !== 'true') {
                     slugArInp.value = this.value.toLowerCase()
-                        .replace(/[^\w\s-]/g, '')
+                        .replace(/[^\w\s-\u0600-\u06FF]/g, '')
                         .replace(/\s+/g, '-')
                         .replace(/--+/g, '-');
                 }
