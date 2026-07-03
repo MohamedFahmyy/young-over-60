@@ -40,6 +40,40 @@ if (isset($_GET['action']) && $_GET['action'] === 'git_pull') {
     exit();
 }
 
+// Handle Clear Cache action
+if (isset($_GET['action']) && $_GET['action'] === 'clear_cache') {
+    $token = $_GET['csrf_token'] ?? '';
+    
+    if (verifyCsrf($token)) {
+        require_once PATH_ROOT . '/classes/PageManager.php';
+        $pageMgr = new PageManager();
+        $pageMgr->clearCache();
+        $pm->clearCache();
+        
+        // Also clear minified CSS and thumbnails
+        $cacheDir = defined('PATH_CACHE') ? PATH_CACHE : PATH_ROOT . '/cache';
+        $patterns = ['thumb_*', 'styles.min.css'];
+        $extraCleared = 0;
+        foreach ($patterns as $pattern) {
+            $files = glob($cacheDir . '/' . $pattern);
+            if ($files) {
+                foreach ($files as $file) {
+                    if (file_exists($file) && is_file($file)) {
+                        if (@unlink($file)) {
+                            $extraCleared++;
+                        }
+                    }
+                }
+            }
+        }
+        $_SESSION['admin_flash_success'] = "Application cache cleared successfully ($extraCleared static assets/thumbnails removed).";
+    } else {
+        $_SESSION['admin_flash_error'] = "Security check failed. Please try again.";
+    }
+    header("Location: " . BASE_URL . "/admin/dashboard");
+    exit();
+}
+
 // Handle Post Soft Deletion
 if (isset($_GET['action']) && $_GET['action'] === 'delete') {
     $postId = $_GET['id'] ?? '';
@@ -89,6 +123,10 @@ require_once PATH_ROOT . '/includes/header.php';
                 <a href="<?php echo BASE_URL; ?>/admin/dashboard?action=git_pull&csrf_token=<?php echo csrfToken(); ?>" class="btn-primary" style="background-color: #10b981; border-color: #10b981; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;" onclick="this.style.opacity='0.6'; this.textContent='<?php echo addslashes(__('btn_view_guides')); /* or a pulling text if we want, but let's keep it simple or just translate */ ?>';">
                     <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     <?php echo __('dash_update_site'); ?>
+                </a>
+                <a href="<?php echo BASE_URL; ?>/admin/dashboard?action=clear_cache&csrf_token=<?php echo csrfToken(); ?>" class="btn-primary" style="background-color: #ef4444; border-color: #ef4444; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;" onclick="return confirm('Are you sure you want to clear the entire application cache?');">
+                    <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Clear Cache
                 </a>
                 <a href="<?php echo BASE_URL; ?>/admin/add-post" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.75rem; text-decoration: none;">
                     <?php echo __('dash_create_story'); ?>
