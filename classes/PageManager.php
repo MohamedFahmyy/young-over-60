@@ -36,8 +36,14 @@ class PageManager {
 
     public function clearCache() {
         $files = glob(PATH_CACHE . '/page_*.json');
-        if ($files) {
-            foreach ($files as $f) { @unlink($f); }
+        $twlFiles = glob(PATH_CACHE . '/twl_*.json');
+        $htmlFiles = glob(PATH_CACHE . '/post_html_*.html');
+        $storyHtmlFiles = glob(PATH_CACHE . '/story_html_*.html');
+        $allFiles = array_merge($files ?: [], $twlFiles ?: [], $htmlFiles ?: [], $storyHtmlFiles ?: []);
+        foreach ($allFiles as $f) { 
+            if (file_exists($f)) {
+                @unlink($f); 
+            }
         }
     }
 
@@ -49,6 +55,7 @@ class PageManager {
      * Get a single page by slug (supports bilingual slugs)
      */
     public function getPageBySlug($slug, $lang = null) {
+        if (empty($slug)) return null;
         $lang = $lang ?? (defined('CURRENT_LANG') ? CURRENT_LANG : 'en');
         $cacheKey = "page_slug_{$slug}_{$lang}";
         $cached = $this->cacheGet($cacheKey);

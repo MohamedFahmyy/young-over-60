@@ -62,24 +62,106 @@ if ($isAdminRoute) {
     }
 } else {
     // Frontend language logic
-    if (isset($_GET['lang']) && array_key_exists($_GET['lang'], SUPPORTED_LANGUAGES)) {
-        $lang = $_GET['lang'];
-    } elseif ($lang_prefix !== null) {
-        $lang = $lang_prefix;
-    } elseif (isset($_COOKIE['lang']) && array_key_exists($_COOKIE['lang'], SUPPORTED_LANGUAGES)) {
-        $lang = $_COOKIE['lang'];
+    $lang = null;
+    
+    // Check if the current route is an API route
+    $isApiRoute = (isset($parts[0]) && $parts[0] === 'api');
+
+    if ($isApiRoute) {
+        // API routes: resolve strictly by ?lang= query param, no cookies, no redirects
+        if (isset($_GET['lang']) && array_key_exists($_GET['lang'], SUPPORTED_LANGUAGES)) {
+            $lang = $_GET['lang'];
+        } else {
+            $lang = DEFAULT_LANG;
+        }
     } else {
-        $lang = DEFAULT_LANG;
+        // 1. Check query parameter lang (e.g. ?lang=)
+        if (isset($_GET['lang']) && array_key_exists($_GET['lang'], SUPPORTED_LANGUAGES)) {
+            $lang = $_GET['lang'];
+        }
+        // 2. Check URL Prefix
+        elseif ($lang_prefix !== null) {
+            $lang = $lang_prefix;
+        }
+        // 3. Check Session
+        elseif (isset($_SESSION['lang']) && array_key_exists($_SESSION['lang'], SUPPORTED_LANGUAGES)) {
+            $lang = $_SESSION['lang'];
+        }
+        // 4. Check Cookie
+        elseif (isset($_COOKIE['lang']) && array_key_exists($_COOKIE['lang'], SUPPORTED_LANGUAGES)) {
+            $lang = $_COOKIE['lang'];
+        }
+        // 5. Fallback to Browser Accept-Language
+        else {
+            $browserLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
+            if (array_key_exists($browserLang, SUPPORTED_LANGUAGES)) {
+                $lang = $browserLang;
+            } else {
+                $lang = DEFAULT_LANG;
+            }
+        }
+
+        // Save active language
+        $_SESSION['lang'] = $lang;
+        if (!headers_sent()) {
+            setcookie('lang', $lang, time() + 30 * 24 * 60 * 60, '/');
+            header('Vary: Accept-Language, Cookie');
+        }
+
+        // Clean route if prefix is in URL
+        if ($lang_prefix !== null) {
+            array_shift($parts); // Remove prefix
+            $route = implode('/', $parts);
+        }
+
+        // Redirect Enforcement for Clean URLs
+        $route_clean = $route;
+        $expectedPrefix = ($lang === DEFAULT_LANG) ? null : $lang;
+
+        if ($lang_prefix !== $expectedPrefix) {
+            $cleanRoute = ltrim($route_clean, '/');
+            $targetUrl = BASE_URL;
+            if ($lang !== DEFAULT_LANG) {
+                $targetUrl .= '/' . $lang;
+            }
+            if ($cleanRoute !== '') {
+                $targetUrl .= '/' . $cleanRoute;
+            }
+
+            // Preserve query string (exclude lang)
+            $queryParams = $_GET;
+            unset($queryParams['lang']);
+            if (!empty($queryParams)) {
+                $targetUrl .= '?' . http_build_query($queryParams);
+            }
+
+            // Redirect Loop Protection
+            $currentUrl = (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            if (urldecode($currentUrl) === urldecode($targetUrl)) {
+                error_log("[Redirect Loop Prevented] Attempted loop redirect to identical URL: " . $targetUrl);
+            } else {
+                error_log(sprintf(
+                    '[Locale Redirect] Redirecting from %s to %s | Resolved: %s',
+                    $currentUrl,
+                    $targetUrl,
+                    $lang
+                ));
+                header("HTTP/1.1 301 Moved Permanently");
+                header("Location: " . $targetUrl);
+                exit();
+            }
+        }
     }
 
-    if (!headers_sent()) {
-        setcookie('lang', $lang, time() + 30 * 24 * 60 * 60, '/');
-    }
-    
-    if ($lang_prefix !== null) {
-        array_shift($parts); // Remove language prefix
-        $route = implode('/', $parts);
-    }
+    // Diagnostic locale resolving log
+    error_log(sprintf(
+        '[Locale Resolve] URL: %s | Prefix: %s | Cookie: %s | Session: %s | Resolved: %s',
+        $_SERVER['REQUEST_URI'] ?? '',
+        $lang_prefix ?? 'none',
+        $_COOKIE['lang'] ?? 'none',
+        $_SESSION['lang'] ?? 'none',
+        $lang
+    ));
 }
 
 define('CURRENT_LANG', $lang);

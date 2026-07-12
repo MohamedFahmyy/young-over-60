@@ -15,19 +15,82 @@ if (!$post) {
 
 $isAdmin = Auth::check();
 $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
-$postVersion = strtotime($post['updatedAt'] ?? $post['createdAt'] ?? 'now');
+
+// Translation Integrity Validation
+$isFallback = false;
+$titleTranslation = $post['title_' . $lang] ?? '';
+$contentTranslation = $post['content_' . $lang] ?? '';
+
+if ($lang !== 'en' && (empty($titleTranslation) || empty($contentTranslation))) {
+    $isFallback = true;
+    error_log(sprintf('[Translation Missing] Post ID: %s has no translation for Lang: %s. Falling back to English.', $post['id'], $lang));
+}
+
+// Check for localized slug redirect (clean URL enforcement with Redirect Loop Protection)
+$expectedSlug = $isFallback ? $post['slug_en'] : ($post['slug_' . $lang] ?? '');
+if (!empty($expectedSlug) && $slug !== $expectedSlug) {
+    $targetUrl = BASE_URL;
+    if ($lang !== DEFAULT_LANG) {
+        $targetUrl .= '/' . $lang;
+    }
+    $targetUrl .= '/posts/' . $expectedSlug;
+    
+    // Preserve query parameters
+    $queryParams = $_GET;
+    unset($queryParams['slug'], $queryParams['lang']);
+    if (!empty($queryParams)) {
+        $targetUrl .= '?' . http_build_query($queryParams);
+    }
+    
+    // Redirect Loop Protection
+    $currentUrl = (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    if (urldecode($currentUrl) === urldecode($targetUrl)) {
+        error_log("[Redirect Loop Prevented] Post slug redirect loop to identical URL: " . $targetUrl);
+    } else {
+        error_log(sprintf('[Locale Slug Redirect] Redirecting from %s to %s', $currentUrl, $targetUrl));
+        header("HTTP/1.1 301 Moved Permanently");
+        header("Location: " . $targetUrl);
+        exit();
+    }
+}
+
+// Define localized URLs for the language switcher
+$localizedUrls = [
+    'en' => BASE_URL . '/posts/' . (!empty($post['slug_en']) ? $post['slug_en'] : $post['slug_en']),
+    'ar' => BASE_URL . '/ar/posts/' . (!empty($post['slug_ar']) ? $post['slug_ar'] : $post['slug_en']),
+    'nl' => BASE_URL . '/nl/posts/' . (!empty($post['slug_nl']) ? $post['slug_nl'] : $post['slug_en'])
+];
+
+// Fix cache version snake_case bug
+$postVersion = strtotime($post['updated_at'] ?? $post['created_at'] ?? 'now');
 $cacheFile = PATH_CACHE . '/post_html_' . $post['id'] . '_' . $lang . '_' . $postVersion . '.html';
 
+// Graceful Cache Recovery & Isolated Reading
 if (!$isAdmin && file_exists($cacheFile)) {
-    header('Cache-Control: public, max-age=300');
-    header('X-Cache: HIT');
-    readfile($cacheFile);
-    error_log(sprintf('[Post Cache HIT] ID:%s LANG:%s TIME: %.2f ms', $post['id'], $lang, (microtime(true) - $startTime) * 1000));
-    exit();
+    if (filesize($cacheFile) > 1000) {
+        header('Cache-Control: public, max-age=300');
+        header('X-Cache: HIT');
+        header('Vary: Accept-Language, Cookie');
+        readfile($cacheFile);
+        
+        error_log(sprintf(
+            '[Post Audit] ID: %s | Slug: %s | Lang: %s | Cache Status: HIT | Cache File: %s',
+            $post['id'] ?? 'unknown',
+            $slug,
+            $lang,
+            basename($cacheFile)
+        ));
+        exit();
+    } else {
+        // Cache corrupted/empty -> delete it and regenerate
+        @unlink($cacheFile);
+        error_log(sprintf('[Post Cache RECOVERY] Deleted corrupted/empty cache file: %s', basename($cacheFile)));
+    }
 }
 
 if (!$isAdmin) {
     header('X-Cache: MISS');
+    header('Vary: Accept-Language, Cookie');
 }
 
 // Start buffering the output
@@ -260,14 +323,20 @@ require_once PATH_ROOT . '/includes/footer.php';
 
 $htmlOutput = ob_get_clean();
 
-if (!$isAdmin && !empty($htmlOutput)) {
+if (!$isAdmin && !$isFallback && !empty($htmlOutput)) {
     $lockFile = $cacheFile . '.lock';
     $lockFp = fopen($lockFile, 'c');
     if ($lockFp) {
         if (flock($lockFp, LOCK_EX)) {
             if (!file_exists($cacheFile)) {
-                file_put_contents($cacheFile, $htmlOutput);
-                error_log(sprintf('[Post Cache WRITE] ID:%s LANG:%s', $post['id'], $lang));
+                $tempFile = $cacheFile . '.' . uniqid('', true) . '.tmp';
+                if (file_put_contents($tempFile, $htmlOutput) !== false) {
+                    if (rename($tempFile, $cacheFile)) {
+                        error_log(sprintf('[Post Cache WRITE] ID:%s LANG:%s File:%s', $post['id'], $lang, basename($cacheFile)));
+                    } else {
+                        @unlink($tempFile);
+                    }
+                }
             }
             flock($lockFp, LOCK_UN);
         }

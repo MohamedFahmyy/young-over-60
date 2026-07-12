@@ -85,6 +85,7 @@ class StoryManager {
     }
 
     public function getStoryBySlug($slug) {
+        if (empty($slug)) return null;
         $stmt = $this->db->prepare("SELECT * FROM women_stories WHERE slug_en = :slug_en OR slug_ar = :slug_ar OR slug_nl = :slug_nl LIMIT 1");
         $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug, 'slug_nl' => $slug]);
         return $stmt->fetch();

@@ -37,7 +37,8 @@ class SeoManager {
     public static function getAlternateUrls($type, $data) {
         $urls = [
             'en' => BASE_URL,
-            'ar' => BASE_URL . '/ar'
+            'ar' => BASE_URL . '/ar',
+            'nl' => BASE_URL . '/nl'
         ];
 
         if ($type === 'post' && $data) {
@@ -45,30 +46,39 @@ class SeoManager {
             if (isset($data['categoryId'])) {
                 $slug_en = !empty($data['slug_en']) ? $data['slug_en'] : ($data['slug_ar'] ?? '');
                 $slug_ar = !empty($data['slug_ar']) ? $data['slug_ar'] : ($data['slug_en'] ?? '');
+                $slug_nl = !empty($data['slug_nl']) ? $data['slug_nl'] : $slug_en;
                 $urls['en'] = BASE_URL . '/posts/' . $slug_en;
                 $urls['ar'] = BASE_URL . '/ar/posts/' . $slug_ar;
+                $urls['nl'] = BASE_URL . '/nl/posts/' . $slug_nl;
             } else {
                 $slug_en = !empty($data['slug_en']) ? $data['slug_en'] : ($data['slug_ar'] ?? '');
                 $slug_ar = !empty($data['slug_ar']) ? $data['slug_ar'] : ($data['slug_en'] ?? '');
+                $slug_nl = !empty($data['slug_nl']) ? $data['slug_nl'] : $slug_en;
                 $urls['en'] = BASE_URL . '/women-stories/' . $slug_en;
                 $urls['ar'] = BASE_URL . '/ar/women-stories/' . $slug_ar;
+                $urls['nl'] = BASE_URL . '/nl/women-stories/' . $slug_nl;
             }
         } elseif ($type === 'category' && $data) {
             $slug_en = !empty($data['slug_en']) ? $data['slug_en'] : ($data['slug_ar'] ?? '');
             $slug_ar = !empty($data['slug_ar']) ? $data['slug_ar'] : ($data['slug_en'] ?? '');
+            $slug_nl = !empty($data['slug_nl']) ? $data['slug_nl'] : $slug_en;
             $urls['en'] = BASE_URL . '/category/' . $slug_en;
             $urls['ar'] = BASE_URL . '/ar/category/' . $slug_ar;
+            $urls['nl'] = BASE_URL . '/nl/category/' . $slug_nl;
         } elseif ($type === 'custom_page' && $data) {
             $slug_en = !empty($data['slug_en']) ? $data['slug_en'] : ($data['slug_ar'] ?? '');
             $slug_ar = !empty($data['slug_ar']) ? $data['slug_ar'] : ($data['slug_en'] ?? '');
+            $slug_nl = !empty($data['slug_nl']) ? $data['slug_nl'] : $slug_en;
             $urls['en'] = BASE_URL . '/pages/' . $slug_en;
             $urls['ar'] = BASE_URL . '/ar/pages/' . $slug_ar;
+            $urls['nl'] = BASE_URL . '/nl/pages/' . $slug_nl;
         } else {
             // Simple inner pages
             $pages = ['destinations', 'experiences', 'news', 'accessibility', 'contact', 'podcasts', 'about'];
             if (in_array($type, $pages)) {
                 $urls['en'] = BASE_URL . '/' . $type;
                 $urls['ar'] = BASE_URL . '/ar/' . $type;
+                $urls['nl'] = BASE_URL . '/nl/' . $type;
             }
         }
         
@@ -204,8 +214,9 @@ class SeoManager {
         $alternateUrls = self::getAlternateUrls($type, $data);
         $url_en = self::cleanCanonicalUrl($alternateUrls['en']);
         $url_ar = self::cleanCanonicalUrl($alternateUrls['ar']);
+        $url_nl = self::cleanCanonicalUrl($alternateUrls['nl']);
         
-        $canonical = ($activeLang === 'ar') ? $url_ar : $url_en;
+        $canonical = $alternateUrls[$activeLang] ?? $url_en;
         if (!empty($customCanonical)) {
             $canonical = $customCanonical;
         } elseif (is_array($data) && !empty($data['canonical'])) {
@@ -231,6 +242,7 @@ class SeoManager {
         if ($type !== 'admin' && $type !== '404') {
             echo '    <link rel="alternate" hreflang="en" href="' . e($url_en) . '">' . "\n";
             echo '    <link rel="alternate" hreflang="ar" href="' . e($url_ar) . '">' . "\n";
+            echo '    <link rel="alternate" hreflang="nl" href="' . e($url_nl) . '">' . "\n";
             echo '    <link rel="alternate" hreflang="x-default" href="' . e($url_en) . '">' . "\n";
         }
         

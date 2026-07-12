@@ -224,7 +224,17 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
             <!-- Language Switcher -->
             <div class="lang-switcher" style="display: flex; gap: 0.5rem; align-items: center;">
                 <?php 
-                foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
+                $getLangUrl = function($lCode) use ($localizedUrls, $route_clean, $queryString) {
+                    if (isset($localizedUrls[$lCode])) {
+                        $langUrl = $localizedUrls[$lCode];
+                        $params = $_GET;
+                        unset($params['lang'], $params['slug']);
+                        if (!empty($params)) {
+                            $langUrl .= '?' . http_build_query($params);
+                        }
+                        return $langUrl;
+                    }
+                    
                     $langUrl = BASE_URL;
                     if ($lCode !== 'en') {
                         $langUrl .= '/' . $lCode;
@@ -235,7 +245,11 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
                     } else {
                         $langUrl .= '?lang=' . $lCode;
                     }
-                    
+                    return $langUrl;
+                };
+
+                foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
+                    $langUrl = $getLangUrl($lCode);
                     $label = strtoupper($lCode);
                     $isActive = ($lCode === $activeLang);
                     $style = $isActive ? 'font-weight: 700; color: var(--primary-color); opacity: 1; pointer-events: none;' : 'opacity: 0.7;';
@@ -262,27 +276,17 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
         </div>
     </div>
 </nav>
-
+ 
 <!-- Backdrop Overlay for modals/sidebars -->
 <div class="overlay-backdrop"></div>
-
+ 
 <!-- Mobile Navigation Drawer -->
 <div class="mobile-menu-drawer">
     <!-- Language Switcher in Mobile Drawer -->
     <div class="mobile-lang-switcher" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem;">
         <?php 
         foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
-            $langUrl = BASE_URL;
-            if ($lCode !== 'en') {
-                $langUrl .= '/' . $lCode;
-            }
-            $langUrl .= '/' . ltrim($route_clean, '/');
-            if ($queryString) {
-                $langUrl .= $queryString . '&lang=' . $lCode;
-            } else {
-                $langUrl .= '?lang=' . $lCode;
-            }
-            
+            $langUrl = $getLangUrl($lCode);
             $label = strtoupper($lCode);
             $isActive = ($lCode === $activeLang);
             $style = $isActive ? 'font-weight: 700; color: var(--primary-color); opacity: 1; pointer-events: none;' : 'opacity: 0.7;';

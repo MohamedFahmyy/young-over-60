@@ -360,7 +360,7 @@ document.addEventListener("DOMContentLoaded", function() {
             `;
 
             // AJAX call to retrieve post data
-            const url = `${window.BASE_URL}/api/posts?categoryId=${catId}&limit=3`;
+            const url = `${window.BASE_URL}/api/posts?categoryId=${catId}&limit=3&lang=${window.CURRENT_LANG || 'en'}`;
             fetch(url)
                 .then(res => res.json())
                 .then(result => {
@@ -401,8 +401,9 @@ document.addEventListener("DOMContentLoaded", function() {
             imgSet = `srcset="${window.BASE_URL}/thumbnail.php?src=${urlEncoded}&w=400 400w, ${window.BASE_URL}/thumbnail.php?src=${urlEncoded}&w=800 800w, ${window.BASE_URL}/thumbnail.php?src=${urlEncoded}&w=1200 1200w" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"`;
         }
 
+        const prefix = (window.CURRENT_LANG === 'en') ? '' : `/${window.CURRENT_LANG}`;
         wrapper.innerHTML = `
-            <a href="${window.BASE_URL}/posts/${post.slug}" class="post-card-link" aria-label="Read ${post.title}">
+            <a href="${window.BASE_URL}${prefix}/posts/${post.slug}" class="post-card-link" aria-label="Read ${post.title}">
                 <div class="post-card-media">
                     <img src="${imgSrc}" ${imgSet} alt="${post.title}" loading="lazy" class="post-card-img" decoding="async" onload="this.classList.add('loaded');" />
                     <div class="progressive-image-placeholder"></div>
@@ -486,7 +487,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             debounceTimer = setTimeout(() => {
-                const fetchUrl = `${window.BASE_URL}/api/posts?search=${encodeURIComponent(query)}&limit=5`;
+                const fetchUrl = `${window.BASE_URL}/api/posts?search=${encodeURIComponent(query)}&limit=5&lang=${window.CURRENT_LANG || 'en'}`;
                 fetch(fetchUrl)
                     .then(res => res.json())
                     .then(result => {
@@ -494,7 +495,8 @@ document.addEventListener("DOMContentLoaded", function() {
                             searchResultsBox.innerHTML = '';
                             result.data.data.forEach(post => {
                                 const item = document.createElement('a');
-                                item.href = `${window.BASE_URL}/posts/${post.slug}`;
+                                const prefix = (window.CURRENT_LANG === 'en') ? '' : `/${window.CURRENT_LANG}`;
+                                item.href = `${window.BASE_URL}${prefix}/posts/${post.slug}`;
                                 item.className = 'search-result-item';
                                 item.innerHTML = `
                                     <img src="${post.coverImage || '/images/hero-bg.png'}" alt="" />
@@ -703,5 +705,17 @@ document.addEventListener("DOMContentLoaded", function() {
         // Initialize autoplay
         startAutoplay();
     }
+
+    // Browser bfcache (Back/Forward Cache) Handler
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            console.log('[Bfcache Detect] Page loaded from back/forward cache.');
+            // Force categories reload if on landing page
+            const activeTab = document.querySelector('.category-tab.active');
+            if (activeTab) {
+                activeTab.click();
+            }
+        }
+    });
 
 });

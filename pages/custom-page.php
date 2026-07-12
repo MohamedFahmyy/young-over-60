@@ -38,6 +38,55 @@ if (!$page) {
 
 $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
 
+// Translation Integrity Validation
+$isFallback = false;
+$titleTranslation = $page['title_' . $lang] ?? '';
+$contentTranslation = $page['content_' . $lang] ?? '';
+
+if ($lang !== 'en' && (empty($titleTranslation) || empty($contentTranslation))) {
+    $isFallback = true;
+    error_log(sprintf('[Translation Missing] Page ID: %s has no translation for Lang: %s. Falling back to English.', $page['id'], $lang));
+}
+
+// Check for localized slug redirect (clean URL enforcement with Redirect Loop Protection)
+$expectedSlug = $isFallback ? $page['slug_en'] : ($page['slug_' . $lang] ?? '');
+if (!empty($expectedSlug) && $slug !== $expectedSlug) {
+    $targetUrl = BASE_URL;
+    if ($lang !== DEFAULT_LANG) {
+        $targetUrl .= '/' . $lang;
+    }
+    $targetUrl .= '/pages/' . $expectedSlug;
+    
+    // Preserve query parameters
+    $queryParams = $_GET;
+    unset($queryParams['slug'], $queryParams['lang']);
+    if (!empty($queryParams)) {
+        $targetUrl .= '?' . http_build_query($queryParams);
+    }
+    
+    // Redirect Loop Protection
+    $currentUrl = (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    if (urldecode($currentUrl) === urldecode($targetUrl)) {
+        error_log("[Redirect Loop Prevented] Page slug redirect loop to identical URL: " . $targetUrl);
+    } else {
+        error_log(sprintf('[Locale Slug Redirect] Page redirecting from %s to %s', $currentUrl, $targetUrl));
+        header("HTTP/1.1 301 Moved Permanently");
+        header("Location: " . $targetUrl);
+        exit();
+    }
+}
+
+// Define localized URLs for the language switcher
+$localizedUrls = [
+    'en' => BASE_URL . '/pages/' . (!empty($page['slug_en']) ? $page['slug_en'] : $page['slug_en']),
+    'ar' => BASE_URL . '/ar/pages/' . (!empty($page['slug_ar']) ? $page['slug_ar'] : $page['slug_en']),
+    'nl' => BASE_URL . '/nl/pages/' . (!empty($page['slug_nl']) ? $page['slug_nl'] : $page['slug_en'])
+];
+
+if (!headers_sent()) {
+    header('Vary: Accept-Language, Cookie');
+}
+
 // Get translated fields
 $pageTitle      = $pageMgr->getField($page, 'title');
 $pageContent    = $pageMgr->getField($page, 'content');

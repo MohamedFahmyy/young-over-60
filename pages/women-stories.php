@@ -23,19 +23,81 @@ if (!empty($slug)) {
     $startTime = microtime(true);
     $isAdmin = Auth::check();
     $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
+
+    // Translation Integrity Validation
+    $isFallback = false;
+    $titleTranslation = $story['title_' . $lang] ?? '';
+    $contentTranslation = $story['content_' . $lang] ?? '';
+
+    if ($lang !== 'en' && (empty($titleTranslation) || empty($contentTranslation))) {
+        $isFallback = true;
+        error_log(sprintf('[Translation Missing] Story ID: %s has no translation for Lang: %s. Falling back to English.', $story['id'], $lang));
+    }
+
+    // Check for localized slug redirect (clean URL enforcement with Redirect Loop Protection)
+    $expectedSlug = $isFallback ? $story['slug_en'] : ($story['slug_' . $lang] ?? '');
+    if (!empty($expectedSlug) && $slug !== $expectedSlug) {
+        $targetUrl = BASE_URL;
+        if ($lang !== DEFAULT_LANG) {
+            $targetUrl .= '/' . $lang;
+        }
+        $targetUrl .= '/women-stories/' . $expectedSlug;
+        
+        // Preserve query parameters
+        $queryParams = $_GET;
+        unset($queryParams['slug'], $queryParams['lang']);
+        if (!empty($queryParams)) {
+            $targetUrl .= '?' . http_build_query($queryParams);
+        }
+        
+        // Redirect Loop Protection
+        $currentUrl = (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        if (urldecode($currentUrl) === urldecode($targetUrl)) {
+            error_log("[Redirect Loop Prevented] Story slug redirect loop to identical URL: " . $targetUrl);
+        } else {
+            error_log(sprintf('[Locale Slug Redirect] Story redirecting from %s to %s', $currentUrl, $targetUrl));
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . $targetUrl);
+            exit();
+        }
+    }
+
+    // Define localized URLs for the language switcher
+    $localizedUrls = [
+        'en' => BASE_URL . '/women-stories/' . (!empty($story['slug_en']) ? $story['slug_en'] : $story['slug_en']),
+        'ar' => BASE_URL . '/ar/women-stories/' . (!empty($story['slug_ar']) ? $story['slug_ar'] : $story['slug_en']),
+        'nl' => BASE_URL . '/nl/women-stories/' . (!empty($story['slug_nl']) ? $story['slug_nl'] : $story['slug_en'])
+    ];
+
     $storyVersion = strtotime($story['updated_at'] ?? $story['created_at'] ?? 'now');
     $cacheFile = PATH_CACHE . '/story_html_' . $story['id'] . '_' . $lang . '_' . $storyVersion . '.html';
 
+    // Graceful Cache Recovery & Isolated Reading
     if (!$isAdmin && file_exists($cacheFile)) {
-        header('Cache-Control: public, max-age=300');
-        header('X-Cache: HIT');
-        readfile($cacheFile);
-        error_log(sprintf('[Story Cache HIT] ID:%s LANG:%s TIME: %.2f ms', $story['id'], $lang, (microtime(true) - $startTime) * 1000));
-        exit();
+        if (filesize($cacheFile) > 1000) {
+            header('Cache-Control: public, max-age=300');
+            header('X-Cache: HIT');
+            header('Vary: Accept-Language, Cookie');
+            readfile($cacheFile);
+            
+            error_log(sprintf(
+                '[Story Audit] ID: %s | Slug: %s | Lang: %s | Cache Status: HIT | Cache File: %s',
+                $story['id'] ?? 'unknown',
+                $slug,
+                $lang,
+                basename($cacheFile)
+            ));
+            exit();
+        } else {
+            // Cache corrupted/empty -> delete it and regenerate
+            @unlink($cacheFile);
+            error_log(sprintf('[Story Cache RECOVERY] Deleted corrupted/empty cache file: %s', basename($cacheFile)));
+        }
     }
 
     if (!$isAdmin) {
         header('X-Cache: MISS');
+        header('Vary: Accept-Language, Cookie');
     }
 
     // Start buffering the output
@@ -210,14 +272,20 @@ if (!empty($slug)) {
     
     $htmlOutput = ob_get_clean();
 
-    if (!$isAdmin && !empty($htmlOutput)) {
+    if (!$isAdmin && !$isFallback && !empty($htmlOutput)) {
         $lockFile = $cacheFile . '.lock';
         $lockFp = fopen($lockFile, 'c');
         if ($lockFp) {
             if (flock($lockFp, LOCK_EX)) {
                 if (!file_exists($cacheFile)) {
-                    file_put_contents($cacheFile, $htmlOutput);
-                    error_log(sprintf('[Story Cache WRITE] ID:%s LANG:%s', $story['id'], $lang));
+                    $tempFile = $cacheFile . '.' . uniqid('', true) . '.tmp';
+                    if (file_put_contents($tempFile, $htmlOutput) !== false) {
+                        if (rename($tempFile, $cacheFile)) {
+                            error_log(sprintf('[Story Cache WRITE] ID:%s LANG:%s File:%s', $story['id'], $lang, basename($cacheFile)));
+                        } else {
+                            @unlink($tempFile);
+                        }
+                    }
                 }
                 flock($lockFp, LOCK_UN);
             }

@@ -163,6 +163,7 @@ class PostManager {
     }
 
     public function getPostBySlug($slug, $isAdmin = false) {
+        if (empty($slug)) return null;
         $lang = defined('CURRENT_LANG') ? CURRENT_LANG : 'en';
         $cacheKey = "post_slug_{$slug}_lang_{$lang}_a_{$isAdmin}";
         $cached = $this->cacheGet($cacheKey);
@@ -323,8 +324,8 @@ class PostManager {
     }
 
     public function getCategoryBySlug($slug) {
-        $stmt = $this->db->prepare("SELECT * FROM categories WHERE slug_en = :slug_en OR slug_ar = :slug_ar LIMIT 1");
-        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug]);
+        $stmt = $this->db->prepare("SELECT * FROM categories WHERE slug_en = :slug_en OR slug_ar = :slug_ar OR slug_nl = :slug_nl LIMIT 1");
+        $stmt->execute(['slug_en' => $slug, 'slug_ar' => $slug, 'slug_nl' => $slug]);
         return $stmt->fetch();
     }
 
