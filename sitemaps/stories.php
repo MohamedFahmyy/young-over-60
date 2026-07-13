@@ -11,22 +11,25 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
    <?php
    try {
        $db = Database::getInstance()->getConnection();
-       $stmt = $db->prepare("SELECT slug_en, slug_ar, created_at FROM women_stories ORDER BY created_at DESC");
+       $stmt = $db->prepare("SELECT slug_en, slug_ar, slug_nl, created_at FROM women_stories ORDER BY created_at DESC");
        $stmt->execute();
        $stories = $stmt->fetchAll();
        
        foreach ($stories as $story):
-           $slug_en = !empty($story['slug_en']) ? $story['slug_en'] : $story['slug_ar'];
-           $slug_ar = !empty($story['slug_ar']) ? $story['slug_ar'] : $story['slug_en'];
+           $slug_en = !empty($story['slug_en']) ? $story['slug_en'] : (!empty($story['slug_ar']) ? $story['slug_ar'] : ($story['slug_nl'] ?? ''));
+           $slug_ar = !empty($story['slug_ar']) ? $story['slug_ar'] : (!empty($story['slug_en']) ? $story['slug_en'] : ($story['slug_nl'] ?? ''));
+           $slug_nl = !empty($story['slug_nl']) ? $story['slug_nl'] : $slug_en;
            
            $enUrl = BASE_URL . '/women-stories/' . $slug_en;
            $arUrl = BASE_URL . '/ar/women-stories/' . $slug_ar;
+           $nlUrl = BASE_URL . '/nl/women-stories/' . $slug_nl;
            $lastMod = date('Y-m-d', strtotime($story['created_at']));
    ?>
    <url>
       <loc><?php echo $enUrl; ?></loc>
       <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
       <lastmod><?php echo $lastMod; ?></lastmod>
       <changefreq>weekly</changefreq>
@@ -36,6 +39,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
       <loc><?php echo $arUrl; ?></loc>
       <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
+      <lastmod><?php echo $lastMod; ?></lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.6</priority>
+   </url>
+   <url>
+      <loc><?php echo $nlUrl; ?></loc>
+      <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
       <lastmod><?php echo $lastMod; ?></lastmod>
       <changefreq>weekly</changefreq>

@@ -74,7 +74,7 @@ class SeoManager {
             $urls['nl'] = BASE_URL . '/nl/pages/' . $slug_nl;
         } else {
             // Simple inner pages
-            $pages = ['destinations', 'experiences', 'news', 'accessibility', 'contact', 'podcasts', 'about'];
+            $pages = ['destinations', 'experiences', 'news', 'accessibility', 'contact', 'podcasts', 'about', 'women-stories'];
             if (in_array($type, $pages)) {
                 $urls['en'] = BASE_URL . '/' . $type;
                 $urls['ar'] = BASE_URL . '/ar/' . $type;

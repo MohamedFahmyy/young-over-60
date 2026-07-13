@@ -13,6 +13,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
       <loc><?php echo BASE_URL; ?>/</loc>
       <xhtml:link rel="alternate" hreflang="en" href="<?php echo BASE_URL; ?>/"/>
       <xhtml:link rel="alternate" hreflang="ar" href="<?php echo BASE_URL; ?>/ar"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo BASE_URL; ?>/nl"/>
       <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo BASE_URL; ?>/"/>
       <lastmod><?php echo date('Y-m-d'); ?></lastmod>
       <changefreq>daily</changefreq>
@@ -22,6 +23,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
       <loc><?php echo BASE_URL; ?>/ar</loc>
       <xhtml:link rel="alternate" hreflang="en" href="<?php echo BASE_URL; ?>/"/>
       <xhtml:link rel="alternate" hreflang="ar" href="<?php echo BASE_URL; ?>/ar"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo BASE_URL; ?>/nl"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo BASE_URL; ?>/"/>
+      <lastmod><?php echo date('Y-m-d'); ?></lastmod>
+      <changefreq>daily</changefreq>
+      <priority>1.0</priority>
+   </url>
+   <url>
+      <loc><?php echo BASE_URL; ?>/nl</loc>
+      <xhtml:link rel="alternate" hreflang="en" href="<?php echo BASE_URL; ?>/"/>
+      <xhtml:link rel="alternate" hreflang="ar" href="<?php echo BASE_URL; ?>/ar"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo BASE_URL; ?>/nl"/>
       <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo BASE_URL; ?>/"/>
       <lastmod><?php echo date('Y-m-d'); ?></lastmod>
       <changefreq>daily</changefreq>
@@ -34,11 +46,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
    foreach ($staticRoutes as $route):
        $enUrl = BASE_URL . '/' . $route;
        $arUrl = BASE_URL . '/ar/' . $route;
+       $nlUrl = BASE_URL . '/nl/' . $route;
    ?>
    <url>
       <loc><?php echo $enUrl; ?></loc>
       <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
       <lastmod><?php echo date('Y-m-d'); ?></lastmod>
       <changefreq>weekly</changefreq>
@@ -48,6 +62,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
       <loc><?php echo $arUrl; ?></loc>
       <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
+      <lastmod><?php echo date('Y-m-d'); ?></lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc><?php echo $nlUrl; ?></loc>
+      <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
       <lastmod><?php echo date('Y-m-d'); ?></lastmod>
       <changefreq>weekly</changefreq>
@@ -59,22 +84,25 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
    <?php
    try {
        $db = Database::getInstance()->getConnection();
-       $stmt = $db->prepare("SELECT slug_en, slug_ar, updated_at FROM custom_pages WHERE is_published = 1 ORDER BY created_at DESC");
+       $stmt = $db->prepare("SELECT slug_en, slug_ar, slug_nl, updated_at FROM custom_pages WHERE is_published = 1 ORDER BY created_at DESC");
        $stmt->execute();
        $customPages = $stmt->fetchAll();
        
        foreach ($customPages as $cp):
-           $slug_en = !empty($cp['slug_en']) ? $cp['slug_en'] : $cp['slug_ar'];
-           $slug_ar = !empty($cp['slug_ar']) ? $cp['slug_ar'] : $cp['slug_en'];
+           $slug_en = !empty($cp['slug_en']) ? $cp['slug_en'] : (!empty($cp['slug_ar']) ? $cp['slug_ar'] : ($cp['slug_nl'] ?? ''));
+           $slug_ar = !empty($cp['slug_ar']) ? $cp['slug_ar'] : (!empty($cp['slug_en']) ? $cp['slug_en'] : ($cp['slug_nl'] ?? ''));
+           $slug_nl = !empty($cp['slug_nl']) ? $cp['slug_nl'] : $slug_en;
            
            $enUrl = BASE_URL . '/pages/' . $slug_en;
            $arUrl = BASE_URL . '/ar/pages/' . $slug_ar;
+           $nlUrl = BASE_URL . '/nl/pages/' . $slug_nl;
            $lastMod = date('Y-m-d', strtotime($cp['updated_at']));
    ?>
    <url>
       <loc><?php echo $enUrl; ?></loc>
       <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
       <lastmod><?php echo $lastMod; ?></lastmod>
       <changefreq>monthly</changefreq>
@@ -84,6 +112,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
       <loc><?php echo $arUrl; ?></loc>
       <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
+      <lastmod><?php echo $lastMod; ?></lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.7</priority>
+   </url>
+   <url>
+      <loc><?php echo $nlUrl; ?></loc>
+      <xhtml:link rel="alternate" hreflang="en" href="<?php echo $enUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="ar" href="<?php echo $arUrl; ?>"/>
+      <xhtml:link rel="alternate" hreflang="nl" href="<?php echo $nlUrl; ?>"/>
       <xhtml:link rel="alternate" hreflang="x-default" href="<?php echo $enUrl; ?>"/>
       <lastmod><?php echo $lastMod; ?></lastmod>
       <changefreq>monthly</changefreq>

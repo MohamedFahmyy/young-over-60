@@ -548,6 +548,157 @@ html.acc-high-contrast .nav-link::after {
   align-items: center;
 }
 
+/* Custom Language Dropdown */
+.custom-lang-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-lang-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-color);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  user-select: none;
+  font-family: var(--font-sans);
+}
+
+.custom-lang-trigger:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.custom-lang-trigger .globe-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  opacity: 0.75;
+}
+
+.custom-lang-trigger .chevron-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+  margin-inline-start: 0.25rem;
+}
+
+/* Flip chevron when open */
+.custom-lang-dropdown.open .custom-lang-trigger .chevron-icon {
+  transform: rotate(180deg);
+}
+
+.custom-lang-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background-color: var(--surface-color);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  width: 220px;
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 0.25rem 0;
+  display: none;
+  animation: dropdownFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* RTL support for dropdown menu position */
+html[dir="rtl"] .custom-lang-menu {
+  right: auto;
+  left: 0;
+}
+
+.custom-lang-dropdown.open .custom-lang-menu {
+  display: block;
+}
+
+.custom-lang-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1.25rem;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  text-align: start;
+}
+
+.custom-lang-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.custom-lang-item.active {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-weight: 500;
+}
+
+.custom-lang-item .check-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--text-color);
+  opacity: 0.8;
+}
+
+/* Scrollbar Styling */
+.custom-lang-menu::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-lang-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-lang-menu::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.18);
+  border-radius: 3px;
+}
+.custom-lang-menu::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* High Contrast mode accessibility overrides */
+html.acc-high-contrast .custom-lang-trigger {
+  border-color: #00bcff !important;
+  color: #00bcff !important;
+}
+html.acc-high-contrast .custom-lang-menu {
+  background-color: #000000 !important;
+  border-color: #00bcff !important;
+  box-shadow: none !important;
+}
+html.acc-high-contrast .custom-lang-item {
+  color: #00bcff !important;
+}
+html.acc-high-contrast .custom-lang-item:hover,
+html.acc-high-contrast .custom-lang-item.active {
+  background-color: #333333 !important;
+  color: #ffffff !important;
+}
+html.acc-high-contrast .custom-lang-item .check-icon {
+  color: #00bcff !important;
+}
+
 .lang-btn {
   font-size: 0.72rem;
   font-weight: 700;
@@ -3207,7 +3358,8 @@ img {
     display: none !important;
   }
 
-  .navbar-actions .lang-switcher {
+  .navbar-actions .lang-switcher,
+  .navbar-actions .custom-lang-dropdown {
     display: none !important;
   }
   

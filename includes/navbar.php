@@ -221,41 +221,64 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
 
         <!-- Action Items (Search + Accessibility + Language Switcher) -->
         <div class="navbar-actions" style="display: flex; align-items: center; gap: 1rem;">
-            <!-- Language Switcher -->
-            <div class="lang-switcher" style="display: flex; gap: 0.5rem; align-items: center;">
-                <?php 
-                $getLangUrl = function($lCode) use ($localizedUrls, $route_clean, $queryString) {
-                    if (isset($localizedUrls[$lCode])) {
-                        $langUrl = $localizedUrls[$lCode];
-                        $params = $_GET;
-                        unset($params['lang'], $params['slug']);
-                        if (!empty($params)) {
-                            $langUrl .= '?' . http_build_query($params);
-                        }
-                        return $langUrl;
-                    }
-                    
-                    $langUrl = BASE_URL;
-                    if ($lCode !== 'en') {
-                        $langUrl .= '/' . $lCode;
-                    }
-                    $langUrl .= '/' . ltrim($route_clean, '/');
-                    if ($queryString) {
-                        $langUrl .= $queryString . '&lang=' . $lCode;
-                    } else {
-                        $langUrl .= '?lang=' . $lCode;
+            <!-- Language Switcher Dropdown -->
+            <?php 
+            $locUrls = isset($localizedUrls) ? $localizedUrls : [];
+            $getLangUrl = function($lCode) use ($locUrls, $route_clean, $queryString) {
+                if (isset($locUrls[$lCode])) {
+                    $langUrl = $locUrls[$lCode];
+                    $params = $_GET;
+                    unset($params['lang'], $params['slug']);
+                    if (!empty($params)) {
+                        $langUrl .= '?' . http_build_query($params);
                     }
                     return $langUrl;
-                };
-
-                foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
-                    $langUrl = $getLangUrl($lCode);
-                    $label = strtoupper($lCode);
-                    $isActive = ($lCode === $activeLang);
-                    $style = $isActive ? 'font-weight: 700; color: var(--primary-color); opacity: 1; pointer-events: none;' : 'opacity: 0.7;';
-                    echo '<a href="' . $langUrl . '" class="lang-btn' . ($isActive ? ' active' : '') . '" style="' . $style . '" aria-label="Switch to ' . $cfg['name'] . '">' . $label . '</a>';
                 }
-                ?>
+                
+                $langUrl = BASE_URL;
+                if ($lCode !== 'en') {
+                    $langUrl .= '/' . $lCode;
+                }
+                $langUrl .= '/' . ltrim($route_clean, '/');
+                if ($queryString) {
+                    $langUrl .= $queryString . '&lang=' . $lCode;
+                } else {
+                    $langUrl .= '?lang=' . $lCode;
+                }
+                return $langUrl;
+            };
+            ?>
+            <div class="custom-lang-dropdown">
+                <button class="custom-lang-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Select Language">
+                    <!-- Globe Icon -->
+                    <svg class="globe-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.003 9.003 0 008.354-5.646m-11.708 0A9.003 9.003 0 0012 21c-.18 0-.36-.003-.54-.006A9.973 9.973 0 012 12c0-5.523 4.477-10 10-10s10 4.477 10 10a9.98 9.98 0 01-3.646 7.646M12 2v20m0-20c-2.5 0-4.5 4.477-4.5 10s2 10 4.5 10 4.5-4.477 4.5-10-2-10-4.5-10z"></path>
+                    </svg>
+                    <span class="current-lang-name"><?php echo e(SUPPORTED_LANGUAGES[$activeLang]['name']); ?></span>
+                    <!-- Caret/Chevron Icon -->
+                    <svg class="chevron-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div class="custom-lang-menu" role="menu">
+                    <?php 
+                    foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
+                        $langUrl = $getLangUrl($lCode);
+                        $isActive = ($lCode === $activeLang);
+                        ?>
+                        <a href="<?php echo $langUrl; ?>" class="custom-lang-item<?php echo $isActive ? ' active' : ''; ?>" role="menuitem"<?php echo $isActive ? ' aria-current="true"' : ''; ?>>
+                            <span class="lang-name"><?php echo e($cfg['name']); ?></span>
+                            <?php if ($isActive): ?>
+                                <!-- Checkmark Icon -->
+                                <svg class="check-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            <?php endif; ?>
+                        </a>
+                        <?php
+                    }
+                    ?>
+                </div>
             </div>
 
             <button class="action-btn" data-open-search aria-label="<?php echo __('nav_search_placeholder'); ?>">
