@@ -21,7 +21,7 @@ if (!empty($expectedSlug) && $slug !== $expectedSlug) {
     if ($lang !== DEFAULT_LANG) {
         $targetUrl .= '/' . $lang;
     }
-    $targetUrl .= '/category/' . $expectedSlug;
+    $targetUrl .= '/category/' . rawurlencode($expectedSlug);
     
     // Preserve query parameters
     $queryParams = $_GET;

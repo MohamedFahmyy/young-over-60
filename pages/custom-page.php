@@ -55,7 +55,7 @@ if (!empty($expectedSlug) && $slug !== $expectedSlug) {
     if ($lang !== DEFAULT_LANG) {
         $targetUrl .= '/' . $lang;
     }
-    $targetUrl .= '/pages/' . $expectedSlug;
+    $targetUrl .= '/pages/' . rawurlencode($expectedSlug);
     
     // Preserve query parameters
     $queryParams = $_GET;

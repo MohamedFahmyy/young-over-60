@@ -6,7 +6,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
 $route = $_GET['route'] ?? '';
 
 $switch_params = $_GET;
-unset($switch_params['route']);
+unset($switch_params['route'], $switch_params['lang']);
 $query_string = !empty($switch_params) ? '?' . http_build_query($switch_params) : '';
 
 $route_clean = $route_clean ?? 'admin/dashboard';

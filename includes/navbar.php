@@ -64,10 +64,9 @@ if (!$navigationData) {
 
 // Generate switcher links
 $route_clean = $route_clean ?? '';
-$queryString = !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
-$queryString = preg_replace('/[?&]lang=[^&]*/', '', $queryString);
-if ($queryString === '?') $queryString = '';
-if ($queryString && !str_starts_with($queryString, '?')) $queryString = '?' . $queryString;
+$switch_params = $_GET;
+unset($switch_params['route'], $switch_params['lang']);
+$queryString = !empty($switch_params) ? '?' . http_build_query($switch_params) : '';
 
 $enUrl = BASE_URL . '/' . ltrim($route_clean, '/') . ($queryString ? $queryString . '&lang=en' : '?lang=en');
 $arUrl = BASE_URL . '/ar/' . ltrim($route_clean, '/') . ($queryString ? $queryString . '&lang=ar' : '?lang=ar');
@@ -225,27 +224,45 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
             <?php 
             $globeSvg = '<svg class="globe-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.003 9.003 0 008.354-5.646m-11.708 0A9.003 9.003 0 0012 21c-.18 0-.36-.003-.54-.006A9.973 9.973 0 012 12c0-5.523 4.477-10 10-10s10 4.477 10 10a9.98 9.98 0 01-3.646 7.646M12 2v20m0-20c-2.5 0-4.5 4.477-4.5 10s2 10 4.5 10 4.5-4.477 4.5-10-2-10-4.5-10z"></path></svg>';
             $locUrls = isset($localizedUrls) ? $localizedUrls : [];
-            $getLangUrl = function($lCode) use ($locUrls, $route_clean, $queryString) {
+            $getLangUrl = function($lCode) use ($locUrls, $route_clean) {
+                // Determine the clean route path
+                $cleanRoutePath = '';
                 if (isset($locUrls[$lCode])) {
-                    $langUrl = $locUrls[$lCode];
-                    $params = $_GET;
-                    unset($params['lang'], $params['slug']);
-                    if (!empty($params)) {
-                        $langUrl .= '?' . http_build_query($params);
+                    $parsedUrl = parse_url($locUrls[$lCode], PHP_URL_PATH);
+                    $path = ltrim($parsedUrl ?? '', '/');
+                    
+                    // Strip active language prefix from path if it matches a supported language
+                    $pathParts = explode('/', $path);
+                    if (isset($pathParts[0]) && array_key_exists($pathParts[0], SUPPORTED_LANGUAGES)) {
+                        array_shift($pathParts);
                     }
-                    return $langUrl;
+                    $cleanRoutePath = implode('/', $pathParts);
+                } else {
+                    $cleanRoutePath = ltrim($route_clean, '/');
                 }
                 
+                // Build localized URL path
                 $langUrl = BASE_URL;
                 if ($lCode !== 'en') {
                     $langUrl .= '/' . $lCode;
                 }
-                $langUrl .= '/' . ltrim($route_clean, '/');
-                if ($queryString) {
-                    $langUrl .= $queryString . '&lang=' . $lCode;
-                } else {
-                    $langUrl .= '?lang=' . $lCode;
+                if ($cleanRoutePath !== '') {
+                    $langUrl .= '/' . $cleanRoutePath;
                 }
+                
+                // Preserve non-routing query parameters
+                $params = $_GET;
+                unset($params['lang'], $params['slug'], $params['route']);
+                
+                // Append transient parameter only for homepage English switch
+                if ($lCode === 'en' && ($cleanRoutePath === '' || $cleanRoutePath === 'home')) {
+                    $params['lang'] = 'en';
+                }
+                
+                if (!empty($params)) {
+                    $langUrl .= '?' . http_build_query($params);
+                }
+                
                 return $langUrl;
             };
             ?>

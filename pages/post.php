@@ -33,7 +33,7 @@ if (!empty($expectedSlug) && $slug !== $expectedSlug) {
     if ($lang !== DEFAULT_LANG) {
         $targetUrl .= '/' . $lang;
     }
-    $targetUrl .= '/posts/' . $expectedSlug;
+    $targetUrl .= '/posts/' . rawurlencode($expectedSlug);
     
     // Preserve query parameters
     $queryParams = $_GET;

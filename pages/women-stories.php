@@ -41,7 +41,7 @@ if (!empty($slug)) {
         if ($lang !== DEFAULT_LANG) {
             $targetUrl .= '/' . $lang;
         }
-        $targetUrl .= '/women-stories/' . $expectedSlug;
+        $targetUrl .= '/women-stories/' . rawurlencode($expectedSlug);
         
         // Preserve query parameters
         $queryParams = $_GET;

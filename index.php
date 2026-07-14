@@ -20,7 +20,7 @@ require_once __DIR__ . '/classes/TeamManager.php';
 
 // 3. Parse Route Query (From .htaccess rewrite rules)
 $route = $_GET['route'] ?? '';
-$route = trim($route, '/');
+$route = rawurldecode(trim($route, '/'));
 
 $parts = explode('/', $route);
 
@@ -62,9 +62,6 @@ if ($isAdminRoute) {
     }
 } else {
     // Frontend language logic
-    $lang = null;
-    
-    // Check if the current route is an API route
     $isApiRoute = (isset($parts[0]) && $parts[0] === 'api');
 
     if ($isApiRoute) {
@@ -75,37 +72,38 @@ if ($isAdminRoute) {
             $lang = DEFAULT_LANG;
         }
     } else {
-        // 1. Check query parameter lang (e.g. ?lang=)
+        // 1. Resolve requested language (URL is the single source of truth)
         if (isset($_GET['lang']) && array_key_exists($_GET['lang'], SUPPORTED_LANGUAGES)) {
             $lang = $_GET['lang'];
-        }
-        // 2. Check URL Prefix
-        elseif ($lang_prefix !== null) {
+        } elseif ($lang_prefix !== null) {
             $lang = $lang_prefix;
-        }
-        // 3. Check Session
-        elseif (isset($_SESSION['lang']) && array_key_exists($_SESSION['lang'], SUPPORTED_LANGUAGES)) {
-            $lang = $_SESSION['lang'];
-        }
-        // 4. Check Cookie
-        elseif (isset($_COOKIE['lang']) && array_key_exists($_COOKIE['lang'], SUPPORTED_LANGUAGES)) {
-            $lang = $_COOKIE['lang'];
-        }
-        // 5. Fallback to Browser Accept-Language
-        else {
-            $browserLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
-            if (array_key_exists($browserLang, SUPPORTED_LANGUAGES)) {
-                $lang = $browserLang;
+        } else {
+            // If on root page, fall back to Session, Cookie, or Browser Language
+            $isRootPage = ($route === '' || $route === 'home');
+            if ($isRootPage) {
+                if (isset($_SESSION['lang']) && array_key_exists($_SESSION['lang'], SUPPORTED_LANGUAGES)) {
+                    $lang = $_SESSION['lang'];
+                } elseif (isset($_COOKIE['lang']) && array_key_exists($_COOKIE['lang'], SUPPORTED_LANGUAGES)) {
+                    $lang = $_COOKIE['lang'];
+                } else {
+                    $browserLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
+                    if (array_key_exists($browserLang, SUPPORTED_LANGUAGES)) {
+                        $lang = $browserLang;
+                    } else {
+                        $lang = DEFAULT_LANG;
+                    }
+                }
             } else {
+                // For inner pages, no prefix means default language (English)
                 $lang = DEFAULT_LANG;
             }
         }
 
-        // Save active language
+        // Save active language preference to Session and Cookie
         $_SESSION['lang'] = $lang;
         if (!headers_sent()) {
             setcookie('lang', $lang, time() + 30 * 24 * 60 * 60, '/');
-            header('Vary: Accept-Language, Cookie');
+            header('Vary: Cookie');
         }
 
         // Clean route if prefix is in URL
@@ -114,23 +112,36 @@ if ($isAdminRoute) {
             $route = implode('/', $parts);
         }
 
-        // Redirect Enforcement for Clean URLs
+        // Redirect Enforcement for Clean URLs & Canonical Normalization
         $route_clean = $route;
         $expectedPrefix = ($lang === DEFAULT_LANG) ? null : $lang;
 
-        if ($lang_prefix !== $expectedPrefix) {
+        // Check if incoming request has redundant/internal query parameters
+        $rawQueryString = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_QUERY) ?? '';
+        parse_str($rawQueryString, $requestQueryParams);
+        $hasRedundantParams = isset($_GET['lang']) || isset($requestQueryParams['route']);
+
+        if ($lang_prefix !== $expectedPrefix || $hasRedundantParams) {
             $cleanRoute = ltrim($route_clean, '/');
-            $targetUrl = BASE_URL;
-            if ($lang !== DEFAULT_LANG) {
-                $targetUrl .= '/' . $lang;
-            }
-            if ($cleanRoute !== '') {
-                $targetUrl .= '/' . $cleanRoute;
+            
+            // Map 'home' route back to root index
+            if ($cleanRoute === 'home') {
+                $cleanRoute = '';
             }
 
-            // Preserve query string (exclude lang)
+            $targetUrl = BASE_URL;
+            if ($expectedPrefix !== null) {
+                $targetUrl .= '/' . $expectedPrefix;
+            }
+            if ($cleanRoute !== '') {
+                $cleanRouteParts = explode('/', $cleanRoute);
+                $encodedParts = array_map('rawurlencode', $cleanRouteParts);
+                $targetUrl .= '/' . implode('/', $encodedParts);
+            }
+
+            // Preserve non-internal query string parameters
             $queryParams = $_GET;
-            unset($queryParams['lang']);
+            unset($queryParams['lang'], $queryParams['route']);
             if (!empty($queryParams)) {
                 $targetUrl .= '?' . http_build_query($queryParams);
             }
@@ -140,19 +151,23 @@ if ($isAdminRoute) {
             if (urldecode($currentUrl) === urldecode($targetUrl)) {
                 error_log("[Redirect Loop Prevented] Attempted loop redirect to identical URL: " . $targetUrl);
             } else {
+                // Differentiate status codes: 301 for canonical normalization, 302 for user-state preference redirects
+                $isCanonicalOnly = ($lang_prefix === $expectedPrefix) && $hasRedundantParams && !isset($_GET['lang']);
+                $redirectStatus = $isCanonicalOnly ? "HTTP/1.1 301 Moved Permanently" : "HTTP/1.1 302 Found";
+
                 error_log(sprintf(
-                    '[Locale Redirect] Redirecting from %s to %s | Resolved: %s',
+                    '[Locale Redirect] Redirecting from %s to %s | Status: %s | Resolved: %s',
                     $currentUrl,
                     $targetUrl,
+                    $redirectStatus,
                     $lang
                 ));
-                header("HTTP/1.1 301 Moved Permanently");
+                header($redirectStatus);
                 header("Location: " . $targetUrl);
                 exit();
             }
         }
     }
-
     // Diagnostic locale resolving log
     error_log(sprintf(
         '[Locale Resolve] URL: %s | Prefix: %s | Cookie: %s | Session: %s | Resolved: %s',
