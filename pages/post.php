@@ -283,38 +283,79 @@ require_once PATH_ROOT . '/includes/navbar.php';
     window.addEventListener('DOMContentLoaded', () => {
         // TOC Tracking Scroll Script
         const links = document.querySelectorAll('.toc-item-link');
+        const tocLinks = new Map();
         const sections = Array.from(links).map(link => {
             try {
                 const href = link.getAttribute('href');
                 if (href && href.startsWith('#')) {
-                    return document.getElementById(href.substring(1));
+                    const el = document.getElementById(href.substring(1));
+                    if (el) {
+                        tocLinks.set(href.substring(1), link);
+                        return el;
+                    }
                 }
             } catch (e) {
                 console.error("TOC error:", e);
             }
             return null;
-        });
+        }).filter(Boolean);
         
-        window.addEventListener('scroll', () => {
-            let activeIdx = -1;
-            const scrollPos = window.scrollY + 220;
-            
-            sections.forEach((sec, idx) => {
-                if (sec && sec.offsetTop <= scrollPos) {
-                    activeIdx = idx;
-                }
-            });
-            
-            links.forEach((link, idx) => {
-                if (idx === activeIdx && sections[idx]) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-        });
+        if ('IntersectionObserver' in window) {
+            const observerOptions = {
+                root: null,
+                rootMargin: '-30% 0px -60% 0px',
+                threshold: 0
+            };
 
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const targetId = entry.target.getAttribute('id');
+                        const activeLink = tocLinks.get(targetId);
+                        if (activeLink) {
+                            links.forEach(l => l.classList.remove('active'));
+                            activeLink.classList.add('active');
+                            activeLink.scrollIntoView({ block: 'nearest' });
+                        }
+                    }
+                });
+            }, observerOptions);
 
+            sections.forEach(sec => {
+                if (sec) observer.observe(sec);
+            });
+
+            window.addEventListener('beforeunload', () => {
+                observer.disconnect();
+            });
+        } else {
+            // Fallback for older browsers (simplified throttled scroll listener)
+            let scrollTimeout;
+            const handleScrollFallback = () => {
+                if (scrollTimeout) return;
+                scrollTimeout = setTimeout(() => {
+                    scrollTimeout = null;
+                    let activeIdx = -1;
+                    const scrollPos = window.scrollY + 220;
+                    sections.forEach((sec, idx) => {
+                        if (sec && sec.offsetTop <= scrollPos) {
+                            activeIdx = idx;
+                        }
+                    });
+                    links.forEach((link, idx) => {
+                        if (idx === activeIdx && sections[idx]) {
+                            link.classList.add('active');
+                        } else {
+                            link.classList.remove('active');
+                        }
+                    });
+                }, 100);
+            };
+            window.addEventListener('scroll', handleScrollFallback, { passive: true });
+            window.addEventListener('beforeunload', () => {
+                window.removeEventListener('scroll', handleScrollFallback);
+            });
+        }
     });
 </script>
 

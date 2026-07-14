@@ -250,22 +250,22 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
             };
             ?>
             <div class="custom-lang-dropdown">
-                <button class="custom-lang-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Select Language">
+                <button class="custom-lang-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="language-menu" aria-label="Select Language">
                     <!-- Globe Icon -->
                     <?php echo $globeSvg; ?>
-                    <span class="current-lang-name"><?php echo e(SUPPORTED_LANGUAGES[$activeLang]['name']); ?></span>
+                    <span class="current-lang-name"><?php echo e(strtoupper($activeLang)); ?></span>
                     <!-- Caret/Chevron Icon -->
                     <svg class="chevron-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-                <div class="custom-lang-menu" role="menu">
+                <div class="custom-lang-menu" id="language-menu" role="menu">
                     <?php 
                     foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
                         $langUrl = $getLangUrl($lCode);
                         $isActive = ($lCode === $activeLang);
                         ?>
-                        <a <?php echo $isActive ? 'class="custom-lang-item active" style="pointer-events: none; cursor: default;"' : 'href="' . $langUrl . '" class="custom-lang-item"'; ?> role="menuitem"<?php echo $isActive ? ' aria-current="true"' : ''; ?>>
+                        <a href="<?php echo $langUrl; ?>" class="custom-lang-item<?php echo $isActive ? ' active' : ''; ?>" role="menuitem"<?php echo $isActive ? ' aria-current="page"' : ''; ?>>
                             <span class="lang-name"><?php echo e($cfg['name']); ?></span>
                             <?php if ($isActive): ?>
                                 <!-- Checkmark Icon -->
@@ -304,22 +304,6 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
  
 <!-- Mobile Navigation Drawer -->
 <div class="mobile-menu-drawer">
-    <!-- Language Switcher in Mobile Drawer -->
-    <div class="mobile-lang-switcher">
-        <?php 
-        foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
-            $langUrl = $getLangUrl($lCode);
-            $label = $cfg['name'];
-            $isActive = ($lCode === $activeLang);
-            $style = $isActive ? 'font-weight: 700; color: var(--primary-color); opacity: 1; pointer-events: none;' : 'opacity: 0.7;';
-            if ($isActive) {
-                echo '<a class="lang-btn active" style="' . $style . '" aria-label="Current language is ' . $cfg['name'] . '">' . $label . '</a>';
-            } else {
-                echo '<a href="' . $langUrl . '" class="lang-btn" style="' . $style . '" aria-label="Switch to ' . $cfg['name'] . '">' . $label . '</a>';
-            }
-        }
-        ?>
-    </div>
     <button class="btn-reset" data-open-accessibility style="margin-bottom: 2rem; width: 100%;"><?php echo __('acc_widget_title'); ?></button>
     <ul class="mobile-nav-list">
         <?php foreach ($navigationData as $item): ?>

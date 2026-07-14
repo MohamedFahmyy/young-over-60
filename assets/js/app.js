@@ -450,8 +450,17 @@ document.addEventListener("DOMContentLoaded", function() {
             revealObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('revealed');
-                        observer.unobserve(entry.target);
+                        const target = entry.target;
+                        target.style.willChange = 'transform, opacity';
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                target.classList.add('revealed');
+                                setTimeout(() => {
+                                    target.style.willChange = 'auto';
+                                }, 850);
+                            });
+                        });
+                        observer.unobserve(target);
                     }
                 });
             }, { threshold: 0.1 });
@@ -733,7 +742,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Toggle on Space/Enter key for trigger
         trigger.addEventListener('keydown', function(e) {
-            if (e.key === ' ' || e.key === 'Spacebar') {
+            if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') {
                 e.preventDefault();
                 toggleDropdown(true);
                 if (items.length > 0) setTimeout(() => items[0].focus(), 50);
@@ -762,18 +771,29 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
 
-        document.addEventListener('click', function(e) {
+        // Click outside listener
+        const handleOutsideClick = function(e) {
             if (!langDropdown.contains(e.target)) {
                 toggleDropdown(false);
             }
-        });
-        
-        // Accessibility escape key to close
-        document.addEventListener('keydown', function(e) {
+        };
+        document.addEventListener('click', handleOutsideClick);
+
+        // Escape key to close
+        const handleEscapeKey = function(e) {
             if (e.key === 'Escape' && langDropdown.classList.contains('open')) {
                 toggleDropdown(false);
                 trigger.focus();
             }
+        };
+        document.addEventListener('keydown', handleEscapeKey);
+
+        // Intercept clicks on active dropdown item to prevent page reloads
+        langDropdown.querySelectorAll('.custom-lang-item.active').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleDropdown(false);
+            });
         });
     }
 

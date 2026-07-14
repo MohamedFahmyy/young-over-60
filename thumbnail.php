@@ -60,7 +60,7 @@ if ($w <= 0 && $h <= 0) {
 }
 
 // 5. Enforce Whitelisted target widths to prevent DDoS
-$allowedWidths = [400, 800, 1200];
+$allowedWidths = [400, 480, 768, 800, 1024, 1200, 1600];
 if (!in_array($w, $allowedWidths, true)) {
     $w = 400; // Default to smallest size
 }

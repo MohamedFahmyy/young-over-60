@@ -163,8 +163,30 @@ function renderImageTag($url, $defaultAlt = '', $class = '', $lazy = true, $fetc
     if (strpos($url, '/uploads/') === 0 || strpos($url, 'uploads/') === 0) {
         $urlEncoded = urlencode($url);
         $finalSrc = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=800'; // Default fallback
-        $srcSetAttr = ' srcset="' . BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=400 400w, ' . BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=800 800w, ' . BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=1200 1200w"';
-        $sizesAttr = ' sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"';
+        
+        $origW = ($imgMeta && !empty($imgMeta['width'])) ? (int)$imgMeta['width'] : 0;
+        $widths = [480, 768, 1024, 1600];
+        $srcsetParts = [];
+        if ($origW > 0) {
+            $addedOriginal = false;
+            foreach ($widths as $w) {
+                if ($w < $origW) {
+                    $srcsetParts[] = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=' . $w . ' ' . $w . 'w';
+                } elseif (!$addedOriginal) {
+                    $srcsetParts[] = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=' . $origW . ' ' . $origW . 'w';
+                    $addedOriginal = true;
+                }
+            }
+            if (!$addedOriginal) {
+                $srcsetParts[] = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=' . $origW . ' ' . $origW . 'w';
+            }
+        } else {
+            foreach ($widths as $w) {
+                $srcsetParts[] = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&amp;w=' . $w . ' ' . $w . 'w';
+            }
+        }
+        $srcSetAttr = ' srcset="' . implode(', ', $srcsetParts) . '"';
+        $sizesAttr = ' sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 900px"';
     }
     
     echo '<img src="' . $finalSrc . '" alt="' . e($alt) . '"' . $classAttr . $widthAttr . $heightAttr . $loadingAttr . $priorityAttr . $srcSetAttr . $sizesAttr . ' decoding="async" onload="this.classList.add(\'loaded\');" onerror="this.onerror=null;this.src=\'/assets/images/hero-bg.png\';this.classList.add(\'loaded\');" />';
@@ -421,11 +443,52 @@ function lazyLoadContentImages($content) {
     $imgs = $dom->getElementsByTagName('img');
     if ($imgs->length > 0) {
         foreach ($imgs as $img) {
-            if (!$img->hasAttribute('loading')) {
-                $img->setAttribute('loading', 'lazy');
-            }
-            if (!$img->hasAttribute('decoding')) {
-                $img->setAttribute('decoding', 'async');
+            $img->setAttribute('loading', 'lazy');
+            $img->setAttribute('decoding', 'async');
+            $img->setAttribute('fetchpriority', 'low');
+            
+            $src = $img->getAttribute('src');
+            if (!empty($src) && (strpos($src, '/uploads/') === 0 || strpos($src, 'uploads/') === 0)) {
+                $cleanSrc = '/' . ltrim($src, '/');
+                $urlEncoded = urlencode($cleanSrc);
+                
+                // Fetch dynamic image dimensions to prevent CLS inside post body
+                $imgMeta = getImageMetadata($cleanSrc);
+                if ($imgMeta) {
+                    if (!empty($imgMeta['width']) && !$img->hasAttribute('width')) {
+                        $img->setAttribute('width', $imgMeta['width']);
+                    }
+                    if (!empty($imgMeta['height']) && !$img->hasAttribute('height')) {
+                        $img->setAttribute('height', $imgMeta['height']);
+                    }
+                }
+                
+                // Apply responsive srcset and sizes
+                $img->setAttribute('src', BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&w=800');
+                
+                $origW = ($imgMeta && !empty($imgMeta['width'])) ? (int)$imgMeta['width'] : 0;
+                $widths = [480, 768, 1024, 1600];
+                $srcsetParts = [];
+                if ($origW > 0) {
+                    $addedOriginal = false;
+                    foreach ($widths as $w) {
+                        if ($w < $origW) {
+                            $srcsetParts[] = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&w=' . $w . ' ' . $w . 'w';
+                        } elseif (!$addedOriginal) {
+                            $srcsetParts[] = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&w=' . $origW . ' ' . $origW . 'w';
+                            $addedOriginal = true;
+                        }
+                    }
+                    if (!$addedOriginal) {
+                        $srcsetParts[] = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&w=' . $origW . ' ' . $origW . 'w';
+                    }
+                } else {
+                    foreach ($widths as $w) {
+                        $srcsetParts[] = BASE_URL . '/thumbnail.php?src=' . $urlEncoded . '&w=' . $w . ' ' . $w . 'w';
+                    }
+                }
+                $img->setAttribute('srcset', implode(', ', $srcsetParts));
+                $img->setAttribute('sizes', '(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 900px');
             }
         }
         $content = $dom->saveHTML();
