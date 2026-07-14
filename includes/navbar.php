@@ -220,9 +220,10 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
         </ul>
 
         <!-- Action Items (Search + Accessibility + Language Switcher) -->
-        <div class="navbar-actions" style="display: flex; align-items: center; gap: 1rem;">
+        <div class="navbar-actions">
             <!-- Language Switcher Dropdown -->
             <?php 
+            $globeSvg = '<svg class="globe-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.003 9.003 0 008.354-5.646m-11.708 0A9.003 9.003 0 0012 21c-.18 0-.36-.003-.54-.006A9.973 9.973 0 012 12c0-5.523 4.477-10 10-10s10 4.477 10 10a9.98 9.98 0 01-3.646 7.646M12 2v20m0-20c-2.5 0-4.5 4.477-4.5 10s2 10 4.5 10 4.5-4.477 4.5-10-2-10-4.5-10z"></path></svg>';
             $locUrls = isset($localizedUrls) ? $localizedUrls : [];
             $getLangUrl = function($lCode) use ($locUrls, $route_clean, $queryString) {
                 if (isset($locUrls[$lCode])) {
@@ -251,9 +252,7 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
             <div class="custom-lang-dropdown">
                 <button class="custom-lang-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Select Language">
                     <!-- Globe Icon -->
-                    <svg class="globe-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.003 9.003 0 008.354-5.646m-11.708 0A9.003 9.003 0 0012 21c-.18 0-.36-.003-.54-.006A9.973 9.973 0 012 12c0-5.523 4.477-10 10-10s10 4.477 10 10a9.98 9.98 0 01-3.646 7.646M12 2v20m0-20c-2.5 0-4.5 4.477-4.5 10s2 10 4.5 10 4.5-4.477 4.5-10-2-10-4.5-10z"></path>
-                    </svg>
+                    <?php echo $globeSvg; ?>
                     <span class="current-lang-name"><?php echo e(SUPPORTED_LANGUAGES[$activeLang]['name']); ?></span>
                     <!-- Caret/Chevron Icon -->
                     <svg class="chevron-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -266,7 +265,7 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
                         $langUrl = $getLangUrl($lCode);
                         $isActive = ($lCode === $activeLang);
                         ?>
-                        <a href="<?php echo $langUrl; ?>" class="custom-lang-item<?php echo $isActive ? ' active' : ''; ?>" role="menuitem"<?php echo $isActive ? ' aria-current="true"' : ''; ?>>
+                        <a <?php echo $isActive ? 'class="custom-lang-item active" style="pointer-events: none; cursor: default;"' : 'href="' . $langUrl . '" class="custom-lang-item"'; ?> role="menuitem"<?php echo $isActive ? ' aria-current="true"' : ''; ?>>
                             <span class="lang-name"><?php echo e($cfg['name']); ?></span>
                             <?php if ($isActive): ?>
                                 <!-- Checkmark Icon -->
@@ -306,14 +305,18 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
 <!-- Mobile Navigation Drawer -->
 <div class="mobile-menu-drawer">
     <!-- Language Switcher in Mobile Drawer -->
-    <div class="mobile-lang-switcher" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem;">
+    <div class="mobile-lang-switcher">
         <?php 
         foreach (SUPPORTED_LANGUAGES as $lCode => $cfg) {
             $langUrl = $getLangUrl($lCode);
-            $label = strtoupper($lCode);
+            $label = $cfg['name'];
             $isActive = ($lCode === $activeLang);
             $style = $isActive ? 'font-weight: 700; color: var(--primary-color); opacity: 1; pointer-events: none;' : 'opacity: 0.7;';
-            echo '<a href="' . $langUrl . '" class="lang-btn' . ($isActive ? ' active' : '') . '" style="' . $style . '" aria-label="Switch to ' . $cfg['name'] . '">' . $label . '</a>';
+            if ($isActive) {
+                echo '<a class="lang-btn active" style="' . $style . '" aria-label="Current language is ' . $cfg['name'] . '">' . $label . '</a>';
+            } else {
+                echo '<a href="' . $langUrl . '" class="lang-btn" style="' . $style . '" aria-label="Switch to ' . $cfg['name'] . '">' . $label . '</a>';
+            }
         }
         ?>
     </div>
