@@ -499,4 +499,78 @@ function lazyLoadContentImages($content) {
     
     return $content;
 }
+
+// 19. Clean target URL and merge with query parameters, unsetting internal routing parameters.
+function buildRedirectUrl($targetUrl, $queryParams = []) {
+    $exclude = ['route', 'slug', 'lang'];
+    
+    // Parse target url to separate path, query, and fragment
+    $urlParts = parse_url($targetUrl);
+    $existingQuery = [];
+    if (!empty($urlParts['query'])) {
+        parse_str($urlParts['query'], $existingQuery);
+    }
+    
+    // Merge existing target query parameters with incoming query parameters
+    $mergedQuery = array_merge($existingQuery, $queryParams);
+    
+    // Explicitly exclude internal routing parameters
+    foreach ($exclude as $key) {
+        unset($mergedQuery[$key]);
+    }
+    
+    // Reconstruct URL
+    $cleanUrl = '';
+    if (isset($urlParts['scheme'])) {
+        $cleanUrl .= $urlParts['scheme'] . '://';
+    }
+    if (isset($urlParts['host'])) {
+        $cleanUrl .= $urlParts['host'];
+    }
+    if (isset($urlParts['port'])) {
+        $cleanUrl .= ':' . $urlParts['port'];
+    }
+    if (isset($urlParts['path'])) {
+        $cleanUrl .= $urlParts['path'];
+    }
+    if (!empty($mergedQuery)) {
+        $cleanUrl .= '?' . http_build_query($mergedQuery);
+    }
+    if (isset($urlParts['fragment'])) {
+        $cleanUrl .= '#' . $urlParts['fragment'];
+    }
+    return $cleanUrl;
+}
+
+// 20. Determine if current URL matches target URL (ignoring minor encoding variations).
+function isRedirectLoop($currentUrl, $targetUrl) {
+    return urldecode($currentUrl) === urldecode($targetUrl);
+}
+
+// 21. Safe redirect function with loop protection.
+function safeRedirect($targetUrl, $queryParams = [], $statusCode = 301, $logPrefix = 'Redirect') {
+    // 1. Re-construct current request URL exactly using existing scheme check
+    $currentUrl = (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://') . 
+                   ($_SERVER['HTTP_HOST'] ?? '') . ($_SERVER['REQUEST_URI'] ?? '');
+    
+    // 2. Build clean target URL merging passed query parameters
+    $cleanTargetUrl = buildRedirectUrl($targetUrl, $queryParams);
+    
+    // 3. Loop check
+    if (isRedirectLoop($currentUrl, $cleanTargetUrl)) {
+        error_log(sprintf('[Redirect Loop Prevented] %s: Loop to identical URL: %s', $logPrefix, $cleanTargetUrl));
+        return;
+    }
+    
+    // 4. Perform redirect
+    error_log(sprintf('[%s] Redirecting from %s to %s', $logPrefix, $currentUrl, $cleanTargetUrl));
+    
+    if ($statusCode === 301) {
+        header("HTTP/1.1 301 Moved Permanently");
+    } else {
+        header("HTTP/1.1 302 Found");
+    }
+    header("Location: " . $cleanTargetUrl);
+    exit();
+}
 ?>

@@ -231,6 +231,16 @@ $nlUrl = BASE_URL . '/nl/' . ltrim($route_clean, '/') . ($queryString ? $querySt
                     $parsedUrl = parse_url($locUrls[$lCode], PHP_URL_PATH);
                     $path = ltrim($parsedUrl ?? '', '/');
                     
+                    // Strip base subdirectory if present
+                    $baseSubdir = trim(parse_url(BASE_URL, PHP_URL_PATH) ?? '', '/');
+                    if ($baseSubdir !== '') {
+                        if (strpos($path, $baseSubdir . '/') === 0) {
+                            $path = substr($path, strlen($baseSubdir . '/'));
+                        } elseif ($path === $baseSubdir) {
+                            $path = '';
+                        }
+                    }
+                    
                     // Strip active language prefix from path if it matches a supported language
                     $pathParts = explode('/', $path);
                     if (isset($pathParts[0]) && array_key_exists($pathParts[0], SUPPORTED_LANGUAGES)) {

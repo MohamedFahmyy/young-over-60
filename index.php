@@ -138,34 +138,9 @@ if ($isAdminRoute) {
                 $encodedParts = array_map('rawurlencode', $cleanRouteParts);
                 $targetUrl .= '/' . implode('/', $encodedParts);
             }
-
-            // Preserve non-internal query string parameters
-            $queryParams = $_GET;
-            unset($queryParams['lang'], $queryParams['route']);
-            if (!empty($queryParams)) {
-                $targetUrl .= '?' . http_build_query($queryParams);
-            }
-
-            // Redirect Loop Protection
-            $currentUrl = (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            if (urldecode($currentUrl) === urldecode($targetUrl)) {
-                error_log("[Redirect Loop Prevented] Attempted loop redirect to identical URL: " . $targetUrl);
-            } else {
-                // Differentiate status codes: 301 for canonical normalization, 302 for user-state preference redirects
-                $isCanonicalOnly = ($lang_prefix === $expectedPrefix) && $hasRedundantParams && !isset($_GET['lang']);
-                $redirectStatus = $isCanonicalOnly ? "HTTP/1.1 301 Moved Permanently" : "HTTP/1.1 302 Found";
-
-                error_log(sprintf(
-                    '[Locale Redirect] Redirecting from %s to %s | Status: %s | Resolved: %s',
-                    $currentUrl,
-                    $targetUrl,
-                    $redirectStatus,
-                    $lang
-                ));
-                header($redirectStatus);
-                header("Location: " . $targetUrl);
-                exit();
-            }
+            $isCanonicalOnly = ($lang_prefix === $expectedPrefix) && $hasRedundantParams && !isset($_GET['lang']);
+            $statusCode = $isCanonicalOnly ? 301 : 302;
+            safeRedirect($targetUrl, $_GET, $statusCode, 'Locale Redirect');
         }
     }
     // Diagnostic locale resolving log

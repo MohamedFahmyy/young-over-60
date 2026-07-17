@@ -35,23 +35,7 @@ if (!empty($expectedSlug) && $slug !== $expectedSlug) {
     }
     $targetUrl .= '/posts/' . rawurlencode($expectedSlug);
     
-    // Preserve query parameters
-    $queryParams = $_GET;
-    unset($queryParams['slug'], $queryParams['lang']);
-    if (!empty($queryParams)) {
-        $targetUrl .= '?' . http_build_query($queryParams);
-    }
-    
-    // Redirect Loop Protection
-    $currentUrl = (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-    if (urldecode($currentUrl) === urldecode($targetUrl)) {
-        error_log("[Redirect Loop Prevented] Post slug redirect loop to identical URL: " . $targetUrl);
-    } else {
-        error_log(sprintf('[Locale Slug Redirect] Redirecting from %s to %s', $currentUrl, $targetUrl));
-        header("HTTP/1.1 301 Moved Permanently");
-        header("Location: " . $targetUrl);
-        exit();
-    }
+    safeRedirect($targetUrl, $_GET, 301, 'Locale Slug Redirect');
 }
 
 // Define localized URLs for the language switcher
