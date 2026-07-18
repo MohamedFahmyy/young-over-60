@@ -6586,4 +6586,16 @@ html.acc-high-contrast .contact-floating-btn:focus-visible {
   }
 }
 
+/* Disable scroll reveal transition/animations on individual post pages */
+.post-hero [data-scroll-reveal],
+.post-layout-grid [data-scroll-reveal],
+.related-posts-section [data-scroll-reveal],
+.post-prose.animate-in {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+
 
